@@ -179,7 +179,7 @@ const SubmitButton = styled.button`
 `;
 
 const SuccessMessage = styled.div`
-  background: rgba(16, 185, 129, 0.9);
+  background: linear-gradient(135deg, #10b981, #059669);
   color: white;
   padding: 1rem;
   border-radius: var(--radius-md);
@@ -188,6 +188,8 @@ const SuccessMessage = styled.div`
   font-weight: 600;
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
 const ErrorMessage = styled.div`

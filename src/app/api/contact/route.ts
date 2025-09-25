@@ -26,8 +26,13 @@ function getSupabaseClient() {
 }
 
 async function sendTelegramNotification(data: ContactFormData) {
-  if (!TELEGRAM_BOT_TOKEN || TELEGRAM_CHAT_IDS.length === 0) {
-    console.warn('Telegram credentials not configured');
+  if (!TELEGRAM_BOT_TOKEN) {
+    console.warn('TELEGRAM_BOT_TOKEN not configured');
+    return;
+  }
+  
+  if (TELEGRAM_CHAT_IDS.length === 0) {
+    console.warn('TELEGRAM_CHAT_IDS not configured - notifications will not be sent');
     return;
   }
 
@@ -142,6 +147,11 @@ async function addToMailerlite(email: string) {
 export async function POST(request: NextRequest) {
   try {
     const data: ContactFormData & { ref?: string; campaignCode?: string; formType?: string } = await request.json();
+    
+    // Debug logging for Telegram configuration
+    console.log('Telegram configuration check:');
+    console.log('- TELEGRAM_BOT_TOKEN:', TELEGRAM_BOT_TOKEN ? 'Set' : 'Not set');
+    console.log('- TELEGRAM_CHAT_IDS:', TELEGRAM_CHAT_IDS.length > 0 ? `Set (${TELEGRAM_CHAT_IDS.length} IDs)` : 'Not set');
 
     // Validera e-postadress
     if (!data.email || !data.email.includes('@')) {
@@ -202,5 +212,41 @@ export async function POST(request: NextRequest) {
     );
   }
 } 
+
+// Simple GET to verify Telegram env on the running deployment
+export async function GET() {
+  try {
+    const botSet = !!TELEGRAM_BOT_TOKEN;
+    const idsCount = TELEGRAM_CHAT_IDS.length;
+
+    if (!botSet) {
+      return NextResponse.json({ ok: false, error: 'TELEGRAM_BOT_TOKEN missing' }, { status: 200 });
+    }
+
+    if (idsCount === 0) {
+      return NextResponse.json({ ok: false, error: 'TELEGRAM_CHAT_IDS missing' }, { status: 200 });
+    }
+
+    const testText = `✅ Kontakt-test från API (timestamp: ${new Date().toISOString()})`;
+    const results = await Promise.all(
+      TELEGRAM_CHAT_IDS.map(async (chatId) => {
+        try {
+          const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, text: testText })
+          });
+          return res.ok;
+        } catch {
+          return false;
+        }
+      })
+    );
+
+    return NextResponse.json({ ok: true, sent: results.filter(Boolean).length, total: idsCount }, { status: 200 });
+  } catch (e) {
+    return NextResponse.json({ ok: false, error: 'Unexpected error' }, { status: 500 });
+  }
+}
 
 export const runtime = 'edge'; 
