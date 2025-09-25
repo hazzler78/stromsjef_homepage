@@ -1,6 +1,7 @@
 name = "elchef-pages"
 compatibility_date = "2024-11-12"
-pages_build_output_dir = ".vercel/output/static"
+# Use Next-on-Pages prebuilt output directory (root of .vercel/output)
+pages_build_output_dir = ".vercel/output"
 
 # Enable Node.js built-in module compatibility for Workers runtime
 compatibility_flags = ["nodejs_compat"]
