@@ -3,8 +3,20 @@ import { createClient } from '@supabase/supabase-js';
 
 const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
 const MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID;
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_IDS = process.env.TELEGRAM_CHAT_IDS?.split(',').map(id => id.trim()) || [];
+
+function sanitizeEnv(value: string | undefined): string | undefined {
+  if (!value) return value;
+  const trimmed = value.trim();
+  return trimmed.replace(/^"|"$/g, '');
+}
+
+const RAW_TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const RAW_TELEGRAM_CHAT_IDS = process.env.TELEGRAM_CHAT_IDS;
+const TELEGRAM_BOT_TOKEN = sanitizeEnv(RAW_TELEGRAM_BOT_TOKEN);
+const TELEGRAM_CHAT_IDS: string[] = (sanitizeEnv(RAW_TELEGRAM_CHAT_IDS) || '')
+  .split(',')
+  .map(id => sanitizeEnv(id)?.trim())
+  .filter((v): v is string => !!v);
 
 export async function POST(request: NextRequest) {
   try {
