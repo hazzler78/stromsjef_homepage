@@ -29,7 +29,8 @@ export interface ElectricityPlan {
 // If the mapping is unclear for a given postal code, return undefined and let UI fall back to manual selection.
 export function inferZoneFromPostalCode(postalCode: string): PriceZone | undefined {
   const code = postalCode.replace(/\s+/g, '');
-  if (!/^\d{4}$/.test(code)) return undefined;
+  // Accept 4-digit (NO) and 5-digit (SE) postal codes
+  if (!/^\d{4,5}$/.test(code)) return undefined;
 
   const first = parseInt(code[0], 10);
   // NOTE: This is a coarse heuristic and NOT authoritative. UI should allow manual override.

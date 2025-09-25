@@ -190,6 +190,7 @@ export default function StartaHar() {
 
   const filteredPlans = plans;
 
+  // Allow Swedish 5-digit postcodes as well
   const canSearch = postalCode.trim().length >= 4 || zone !== '';
 
   const handleFind = () => {
