@@ -344,7 +344,7 @@ export default function JamforElpriser() {
             textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
             textAlign: 'center'
           }}>
-            Jämför din elräkning med AI
+            Sammenlign din strømregning med AI
           </h1>
           <p style={{ 
             fontSize: '1.25rem', 
@@ -353,7 +353,7 @@ export default function JamforElpriser() {
             textAlign: 'center',
             textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
           }}>
-            Ladda upp en bild på din elräkning och få en smart, tydlig analys direkt!
+            Last opp et bilde av din strømregning og få en smart, tydelig analyse direkte!
           </p>
           
           {!loading && !gptResult && (
@@ -371,7 +371,7 @@ export default function JamforElpriser() {
             }}>
               <label htmlFor="file-upload" style={{ display: 'flex', justifyContent: 'center' }}>
                   <GlassButton as="span" variant="primary" size="lg" background="linear-gradient(135deg, var(--primary), var(--secondary))" disableScrollEffect disableHoverEffect>
-                  Välj fakturabild
+                  Velg regningsbilde
                 </GlassButton>
               </label>
               <input
@@ -391,7 +391,7 @@ export default function JamforElpriser() {
                   borderRadius: 'var(--radius-md)',
                   border: '1px solid rgba(255, 255, 255, 0.2)'
               }}>
-                {file ? file.name : 'Ingen fil vald'}
+                {file ? file.name : 'Ingen fil valgt'}
               </div>
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', color: 'rgba(255, 255, 255, 0.9)' }}>
                 <input
@@ -401,7 +401,7 @@ export default function JamforElpriser() {
                   style={{ marginTop: 2 }}
                 />
                 <span style={{ lineHeight: 1.4 }}>
-                  Jag godkänner att min fakturabild lagras säkert för att förbättra AI‑analysen. Jag kan begära radering när som helst. Läs mer i vår <a href={withDefaultCtaUtm('/integritetspolicy', 'jamfor', 'integritetspolicy')} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 600 }}>integritetspolicy</a>.
+                  Jeg godkjenner at mitt regningsbilde lagres sikkert for å forbedre AI‑analysen. Jeg kan be om sletting når som helst. Les mer i vår <a href={withDefaultCtaUtm('/integritetspolicy', 'jamfor', 'integritetspolicy')} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 600 }}>personvernpolicy</a>.
                 </span>
               </label>
             </div>
@@ -414,7 +414,7 @@ export default function JamforElpriser() {
               disableScrollEffect
               disableHoverEffect
             >
-              Analysera faktura
+              Analyser regning
             </GlassButton>
           </div>
         )}
@@ -464,7 +464,7 @@ export default function JamforElpriser() {
               color: 'white',
               textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
             }}>
-               Analyserar din faktura...
+               Analyserer din regning...
              </h3>
             <p style={{ 
               fontSize: '1.1rem', 
@@ -472,7 +472,7 @@ export default function JamforElpriser() {
               margin: 0,
               textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
             }}>
-               AI:n läser av alla kostnader och identifierar dolda avgifter
+               AI-en leser av alle kostnader og identifiserer skjulte avgifter
              </p>
            </div>
          )}
@@ -501,7 +501,7 @@ export default function JamforElpriser() {
                 gap: '0.75rem'
               }}>
                 <AnalysisIcon />
-                Elbespararens analys
+                Strømbesparenes analyse
               </h3>
             
             {/* Visa varningar om beräkningar verkar felaktiga */}
@@ -529,7 +529,7 @@ export default function JamforElpriser() {
                       gap: '0.5rem',
                       textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
                     }}>
-                      Varning - Kontrollera beräkningarna
+                      Advarsel - Kontroller beregningene
                     </h4>
                     <ul style={{ 
                       color: 'rgba(255, 255, 255, 0.9)', 
@@ -701,7 +701,7 @@ export default function JamforElpriser() {
                   disableHoverEffect
                   onClick={() => setShowFullAnalysis(!showFullAnalysis)}
                 >
-                  {showFullAnalysis ? 'Dölj detaljerad uträkning' : 'Visa hela uträkningen'}
+                  {showFullAnalysis ? 'Skjul detaljert utregning' : 'Vis hele utregningen'}
                 </GlassButton>
               </div>
             )}
@@ -728,7 +728,7 @@ export default function JamforElpriser() {
                   gap: '0.5rem'
                 }}>
                   <AnalysisIcon />
-                  Detaljerad uträkning
+                  Detaljert utregning
                 </h4>
             <ReactMarkdown
               components={{
@@ -848,7 +848,7 @@ export default function JamforElpriser() {
                 gap: '0.5rem',
                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
               }}>
-                Viktig information
+                Viktig informasjon
               </h4>
               <p style={{ 
                 color: 'rgba(255, 255, 255, 0.9)', 
@@ -857,7 +857,7 @@ export default function JamforElpriser() {
                 lineHeight: 1.5,
                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
               }}>
-                AI:n visar ett estimat baserat på din faktura. För mer exakt analys och personlig hjälp, kontakta oss så hjälper vi dig hitta det bästa elavtalet för din situation.
+                AI-en viser et estimat basert på din regning. For mer nøyaktig analyse og personlig hjelp, kontakt oss så hjelper vi deg å finne den beste strømavtalen for din situasjon.
               </p>
               {logId && (
                 <label style={{ 
@@ -880,7 +880,7 @@ export default function JamforElpriser() {
                     }}
                     style={{ width: 18, height: 18 }}
                   />
-                  <span style={{ userSelect: 'none' }}>Analysen stämmer</span>
+                  <span style={{ userSelect: 'none' }}>Analysen stemmer</span>
                 </label>
               )}
             </div>
@@ -900,7 +900,7 @@ export default function JamforElpriser() {
                 marginBottom: '0.5rem',
                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
               }}>
-                Just nu rekommenderar vi ett av dessa elavtal, beroende på om du vill ha rörligt avtal eller fastprisavtal.
+                Akkurat nå anbefaler vi en av disse strømavtalene, avhengig av om du vil ha rørlig avtale eller fastprisavtale.
               </h4>
               <div style={{ 
                 display: 'flex', 

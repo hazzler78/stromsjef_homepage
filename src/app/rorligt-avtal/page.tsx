@@ -229,19 +229,19 @@ export default function RorligtAvtalPage() {
   return (
     <PageContainer>
       <Content>
-        <Title>Byt elavtal</Title>
-        <Subtitle>Fyll i formuläret nedan för att påbörja bytet.</Subtitle>
+        <Title>Byt strømavtale</Title>
+        <Subtitle>Fyll ut skjemaet nedenfor for å påbegynne byttet.</Subtitle>
 
         {showSupplier && (
           <SupplierInfo>
             <SupplierLogo src="/cheap-logo.png" alt="Cheap Energi" />
-            <SupplierText>Du kommer att få ett rörligt elavtal från Cheap Energi</SupplierText>
-            <PromoTitle style={{ marginTop: '1rem' }}>Kampanjpris i 12 månader</PromoTitle>
+            <SupplierText>Du kommer til å få en rørlig strømavtale fra Cheap Energi</SupplierText>
+            <PromoTitle style={{ marginTop: '1rem' }}>Kampanjepris i 12 måneder</PromoTitle>
             <PromoBullets>
-              <PromoBullet>0 kr i månadsavgift – 0 öre i påslag</PromoBullet>
+              <PromoBullet>0 kr i månedsavgift – 0 øre i påslag</PromoBullet>
             </PromoBullets>
             <PromoText>
-              Byt elavtal idag och ta del av ett riktigt förmånligt erbjudande. Du betalar endast för den el du använder – inga dolda avgifter, inga påslag. Gäller i 12 månader från startdatumet.
+              Byt strømavtale i dag og ta del av et virkelig fordelaktig tilbud. Du betaler bare for den strømmen du bruker – ingen skjulte avgifter, ingen påslag. Gjelder i 12 måneder fra startdato.
             </PromoText>
           </SupplierInfo>
         )}

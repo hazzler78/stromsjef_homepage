@@ -26,25 +26,25 @@ const Banner = styled.div<{ $isCollapsed: boolean }>`
 `;
 
 const Highlight = styled.span`
-  color: #FFD700;
-  background: rgba(255, 215, 0, 0.2);
+  color: #BA0C2F;
+  background: rgba(186, 12, 47, 0.2);
   padding: 0.1em 0.4em;
   border-radius: 0.4em;
   margin: 0 0.2em;
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid rgba(255, 215, 0, 0.3);
+  border: 1px solid rgba(186, 12, 47, 0.3);
 `;
 
 const StyledLink = styled.a`
-  color: #FFD700;
+  color: #BA0C2F;
   margin: 0 0.2em;
   text-decoration: underline;
   font-weight: 700;
   transition: color 0.2s;
   
   &:hover {
-    color: #FFED4E;
+    color: #D91A3D;
   }
 `;
 
@@ -135,30 +135,30 @@ export default function CampaignBanner() {
   // Expanded text variants
   const textA = (
     <>
-      Nyhet! Låt vår <Highlight>AI</Highlight> analysera din elräkning och räkna ut din möjliga besparing.
+      Nyhet! La vår <Highlight>AI</Highlight> analysere din strømregning og regne ut din mulige besparelse.
     </>
   );
 
   const textB = (
     <>
-      Testa vår <Highlight>AI</Highlight> – ladda upp din faktura och se hur mycket du kan spara.
+      Test vår <Highlight>AI</Highlight> – last opp din regning og se hvor mye du kan spare.
     </>
   );
 
   // Collapsed text variants
   const collapsedTextA = (
     <CollapsedText>
-      <Image src="/favicon.svg" alt="Elchef" width={16} height={16} style={{ verticalAlign: 'middle' }} />
-      <Highlight>AI</Highlight>analys av din elräkning
-      <StyledLink href={href} onClick={handleClick}>Prova nu</StyledLink>
+      <Image src="/favicon.svg" alt="Strømsjef" width={16} height={16} style={{ verticalAlign: 'middle' }} />
+      <Highlight>AI</Highlight>analyse av din strømregning
+      <StyledLink href={href} onClick={handleClick}>Prøv nå</StyledLink>
     </CollapsedText>
   );
 
   const collapsedTextB = (
     <CollapsedText>
-      <Image src="/favicon.svg" alt="Elchef" width={16} height={16} style={{ verticalAlign: 'middle' }} />
-      Ladda upp faktura med <Highlight>AI</Highlight>
-      <StyledLink href={href} onClick={handleClick}>Prova nu</StyledLink>
+      <Image src="/favicon.svg" alt="Strømsjef" width={16} height={16} style={{ verticalAlign: 'middle' }} />
+      Last opp regning med <Highlight>AI</Highlight>
+      <StyledLink href={href} onClick={handleClick}>Prøv nå</StyledLink>
     </CollapsedText>
   );
 
@@ -168,11 +168,11 @@ export default function CampaignBanner() {
         variant === 'A' ? collapsedTextA : collapsedTextB
       ) : (
         <>
-          <Image src="/favicon.svg" alt="Elchef" width={20} height={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+          <Image src="/favicon.svg" alt="Strømsjef" width={20} height={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
           {variant === 'A' ? textA : textB}
           <br />
-          Ladda upp din faktura och få en tydlig genomgång –
-          <StyledLink href={href} onClick={handleClick}>Prova nu</StyledLink>
+          Last opp din regning og få en tydelig gjennomgang –
+          <StyledLink href={href} onClick={handleClick}>Prøv nå</StyledLink>
         </>
       )}
     </Banner>

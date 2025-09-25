@@ -1,9 +1,9 @@
 :root {
   /* Brand Colors - Updated for glassmorphism */
-  --primary: #006aa7;
-  --primary-dark: #00588c;
-  --secondary: #fecc00;
-  --secondary-dark: #d4ad00;
+  --primary: #00205b;
+  --primary-dark: #001a4a;
+  --secondary: #ba0c2f;
+  --secondary-dark: #a00a28;
   --background: #ffffff;
   --foreground: #171717;
   
@@ -14,8 +14,8 @@
   --glass-blur: blur(12px);
   
   /* Gradient Colors */
-  --gradient-start: #006aa7;
-  --gradient-end: #fecc00;
+  --gradient-start: #00205b;
+  --gradient-end: #ba0c2f;
   
   /* Legacy colors for compatibility */
   --gray-50: #f9fafb;
@@ -370,12 +370,12 @@ p {
 }
 
 .analysis-summary {
-  background: linear-gradient(135deg, #006aa7 0%, #fecc00 100%);
+  background: linear-gradient(135deg, #00205b 0%, #ba0c2f 100%);
   color: white;
   padding: 20px;
   border-radius: 12px;
   margin: 20px 0;
-  box-shadow: 0 8px 25px rgba(0,106,167,0.3);
+  box-shadow: 0 8px 25px rgba(0,32,91,0.3);
   position: relative;
   overflow: hidden;
 }

@@ -200,12 +200,12 @@ export default function FastprisAvtalPage() {
   return (
     <PageContainer>
       <Content>
-        <Title>Byt elavtal</Title>
-        <Subtitle>Fyll i formuläret nedan för att se priser innan du påbörjar bytet.</Subtitle>
+        <Title>Byt strømavtale</Title>
+        <Subtitle>Fyll ut skjemaet nedenfor for å se priser før du påbegynner byttet.</Subtitle>
         
         <SupplierInfo>
           <SupplierLogo src="/svealand-logo.png" alt="Svealand Energi" />
-          <SupplierText>Du kommer att få ett fastprisavtal från Svealands Elbolag</SupplierText>
+          <SupplierText>Du kommer til å få en fastprisavtale fra Svealands Strømselskap</SupplierText>
         </SupplierInfo>
 
         <FormContainer>

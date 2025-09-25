@@ -1,7 +1,7 @@
 "use client";
 
 import styled from 'styled-components';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import GlassButton from './GlassButton';
 import { withDefaultCtaUtm } from '@/lib/utm';
 
@@ -52,13 +52,25 @@ const TextContent = styled.div`
 
 const ButtonRow = styled.div`
   display: flex;
-  gap: 1.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
   margin-top: 2rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  
+
+  > div {
+    width: 100%;
+    max-width: 260px;
+  }
+
   @media (min-width: 768px) {
+    flex-direction: row;
     justify-content: flex-start;
+    align-items: flex-start;
+
+    > div {
+      width: auto;
+      max-width: none;
+    }
   }
 `;
 
@@ -68,7 +80,7 @@ const VideoWrapper = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
-  aspect-ratio: 16/9;
+  aspect-ratio: 1/1;
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--glass-shadow-heavy);
@@ -78,7 +90,7 @@ const VideoWrapper = styled.div`
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid rgba(255, 255, 255, 0.2);
 
-  video {
+  img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -103,7 +115,6 @@ const USPList = styled.ul`
 
 export default function Hero() {
   const [variant, setVariant] = useState<'A' | 'B'>('A');
-  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     try {
@@ -147,8 +158,8 @@ export default function Hero() {
     } catch {}
   }, [variant]);
 
-  const heroTitle = variant === 'A' ? 'Elchef gör det enkelt att välja rätt elavtal!' : 'Välj rätt elavtal – utan krångel';
-  const heroSub = variant === 'A' ? 'Vi lyfter fram avtal värda att överväga och sköter bytet åt dig.' : 'Snabbt, gratis och tryggt. Vi hjälper dig hela vägen.';
+  const heroTitle = variant === 'A' ? 'Strømsjef gjør det enkelt å velge riktig strømavtale!' : 'Velg riktig strømavtale – uten krøll';
+  const heroSub = variant === 'A' ? 'Vi løfter frem avtaler som er verdt å vurdere og håndterer byttet for deg.' : 'Raskt, gratis og trygt. Vi hjelper deg hele veien.';
 
   const trackHeroClick = (target: 'rorligt' | 'fastpris', href: string) => {
     try {
@@ -173,26 +184,6 @@ export default function Hero() {
       }
     }
   };
-  const handleVideoClick = (event: React.MouseEvent<HTMLVideoElement>) => {
-    const video = event.currentTarget;
-    video.muted = !video.muted; // Växla mellan muted och unmuted
-    if (!video.muted) {
-      video.play();
-    }
-  };
-
-  useEffect(() => {
-    // Nudge autoplay on some browsers that require an explicit play() after attach
-    const v = videoRef.current;
-    if (!v) return;
-    try {
-      v.muted = true;
-      const playPromise = v.play();
-      if (playPromise && typeof (playPromise as Promise<void>).catch === 'function') {
-        (playPromise as Promise<void>).catch(() => {/* ignore */});
-      }
-    } catch {/* ignore */}
-  }, []);
 
   return (
     <HeroSection>
@@ -202,9 +193,9 @@ export default function Hero() {
             <h1>{heroTitle}</h1>
             <p>{heroSub}</p>
             <USPList>
-              <li>✔️ Vi lyfter bara fram elavtal som är värda att överväga.</li>
-              <li>✔️ Gratis byte – din gamla avtal sägs upp automatiskt.</li>
-              <li>✔️ Full valfrihet – välj mellan rörligt elpris eller fastpris med avtalad period.</li>
+              <li>✔️ Vi løfter bare frem strømavtaler som er verdt å vurdere.</li>
+              <li>✔️ Gratis bytte – din gamle avtale sies opp automatisk.</li>
+              <li>✔️ Full valgfrihet – velg mellom rørlig strømpris eller fastpris med avtalt periode.</li>
             </USPList>
                          <ButtonRow>
                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', minWidth: 200 }}>
@@ -231,11 +222,11 @@ export default function Hero() {
                        variant="primary" 
                        size="lg"
                        background="linear-gradient(135deg, var(--primary), var(--secondary))"
-                       aria-label="Rörligt avtal - 0 kr i avgifter första året – utan bindningstid"
+                       aria-label="Rørlig avtale - 0 kr i avgifter første året – uten bindingsperiode"
                        disableScrollEffect={true}
                        disableHoverEffect={true}
                      >
-                     Rörligt avtal
+                     Rørlig avtale
                    </GlassButton>
                  </div>
                  <div style={{ 
@@ -251,7 +242,7 @@ export default function Hero() {
                   position: 'relative',
                   zIndex: 10
                 }}>
-                   0 kr i avgifter första året – utan bindningstid
+                   0 kr i avgifter første året – uten bindingsperiode
                  </div>
                </div>
                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', minWidth: 200 }}>
@@ -304,21 +295,16 @@ export default function Hero() {
             </ButtonRow>
           </TextContent>
           <VideoWrapper>
-            <video 
-              ref={videoRef}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              onLoadedData={() => { try { videoRef.current?.play(); } catch {} }}
-              onClick={handleVideoClick}
-              style={{ cursor: 'pointer' }}
-              title="Klicka för att växla ljud av/på"
-            >
-              <source src="/grodan-presentation.mp4" type="video/mp4" />
-              Din webbläsare stöder inte video-elementet.
-            </video>
+            <img 
+              src="/elge_stromsjef.jpg"
+              alt="Strømsjef - Din strømavtale ekspert"
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'cover',
+                borderRadius: 'var(--radius-lg)'
+              }}
+            />
           </VideoWrapper>
         </HeroContent>
       </div>

@@ -1,11 +1,11 @@
 import FAQ from '@/components/FAQ';
 
 export const metadata = {
-  title: 'Vanliga frågor - Elchef.se',
-  description: 'Svar på vanliga frågor om elavtal, elpriser och hur du byter elleverantör.',
+  title: 'Vanlige spørsmål - Strømsjef.se',
+  description: 'Svar på vanlige spørsmål om strømavtaler, strømpriser og hvordan du bytter strømleverandør.',
   openGraph: {
-    title: 'Vanliga frågor - Elchef.se',
-    description: 'Svar på vanliga frågor om elavtal, elpriser och hur du byter elleverantör.',
+    title: 'Vanlige spørsmål - Strømsjef.se',
+    description: 'Svar på vanlige spørsmål om strømavtaler, strømpriser og hvordan du bytter strømleverandør.',
   },
 };
 

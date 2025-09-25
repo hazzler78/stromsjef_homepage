@@ -237,11 +237,11 @@ function BottomNavContent() {
   return (
     <Nav offset={bottomOffset}>
       <NavItem href={withDefaultCtaUtm('/', 'bottomnav', 'home')} className={pathname === '/' ? 'active' : ''}>
-        Hem
+        Hjem
         {pathname === '/' && <ActiveIndicator />}
       </NavItem>
       <NavItem href={withDefaultCtaUtm('/jamfor-elpriser', 'bottomnav', 'compare')} className={pathname === '/jamfor-elpriser' ? 'active' : ''}>
-        Jämför
+        Sammenlign
         {pathname === '/jamfor-elpriser' && <ActiveIndicator />}
       </NavItem>
       <NavItem href={withDefaultCtaUtm('/media', 'bottomnav', 'media')} className={pathname === '/media' ? 'active' : ''}>
@@ -249,7 +249,7 @@ function BottomNavContent() {
         {pathname === '/media' && <ActiveIndicator />}
       </NavItem>
       <NavItem href={withDefaultCtaUtm('/foretag', 'bottomnav', 'b2b')} className={pathname === '/foretag' ? 'active' : ''}>
-        Företag
+        Bedrift
         {pathname === '/foretag' && <ActiveIndicator />}
       </NavItem>
       <NavItem href={withDefaultCtaUtm('/om-oss', 'bottomnav', 'about')} className={pathname === '/om-oss' ? 'active' : ''}>

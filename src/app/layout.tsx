@@ -11,9 +11,9 @@ import Footer from '@/components/Footer';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Elchef – gör det enkelt att välja rätt elavtal",
-  description: "Elchef.se hjälper dig att snabbt, gratis och utan krångel hitta och byta till det elavtal som passar dig bäst. Vi visar bara elavtal som är värda att överväga och sköter hela bytet åt dig.",
-  keywords: "elavtal, elpriser, byta elavtal, jämför elpriser, elbolag, elhandelsbolag",
+  title: "Strømsjef – gjør det enkelt å velge riktig strømavtale",
+  description: "Strømsjef.se hjelper deg å raskt, gratis og uten krøll finne og bytte til det strømavtale som passer deg best. Vi viser bare avtaler som er verdt å vurdere og håndterer hele byttet for deg.",
+  keywords: "strømavtale, strømpriser, bytte strømavtale, sammenlign strømpriser, strømselskap, strømhandelselskap",
 };
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="sv">
+    <html lang="no">
       <head>
         <Script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="adbd0838-8684-44d4-951e-f4eddcb600cc" data-blockingmode="auto" strategy="beforeInteractive" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -30,15 +30,15 @@ export default function RootLayout({
           {
             "@context": "https://schema.org",
             "@type": "Organization",
-            "name": "Elchef",
+            "name": "Strømsjef",
             "url": "https://elchef.se",
             "logo": "https://elchef.se/logo.png",
             "contactPoint": [{
               "@type": "ContactPoint",
-              "telephone": "+46-73-686-23-66",
+              "telephone": "+47-73-686-23-66",
               "contactType": "customer service",
-              "areaServed": "SE",
-              "availableLanguage": ["Swedish", "English"]
+              "areaServed": "NO",
+              "availableLanguage": ["Norwegian", "English"]
             }],
             "sameAs": [
               "https://www.facebook.com/elchef.se",
@@ -47,15 +47,15 @@ export default function RootLayout({
           }
         `}</script>
         {/* Open Graph metadata */}
-        <meta property="og:title" content="Elchef – gör det enkelt att välja rätt elavtal" />
-        <meta property="og:description" content="Elchef.se hjälper dig att snabbt, gratis och utan krångel hitta och byta till det elavtal som passar dig bäst. Vi visar bara elavtal som är värda att överväga och sköter hela bytet åt dig." />
+        <meta property="og:title" content="Strømsjef – gjør det enkelt å velge riktig strømavtale" />
+        <meta property="og:description" content="Strømsjef.se hjelper deg å raskt, gratis og uten krøll finne og bytte til det strømavtale som passer deg best. Vi viser bare avtaler som er verdt å vurdere og håndterer hele byttet for deg." />
         <meta property="og:image" content="https://elchef.se/og-image.png" />
         <meta property="og:url" content="https://elchef.se" />
         <meta property="og:type" content="website" />
         {/* Twitter Card metadata */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Elchef – gör det enkelt att välja rätt elavtal" />
-        <meta name="twitter:description" content="Elchef.se hjälper dig att snabbt, gratis och utan krångel hitta och byta till det elavtal som passar dig bäst. Vi visar bara elavtal som är värda att överväga och sköter hela bytet åt dig." />
+        <meta name="twitter:title" content="Strømsjef – gjør det enkelt å velge riktig strømavtale" />
+        <meta name="twitter:description" content="Strømsjef.se hjelper deg å raskt, gratis og uten krøll finne og bytte til det strømavtale som passer deg best. Vi viser bare avtaler som er verdt å vurdere og håndterer hele byttet for deg." />
         <meta name="twitter:image" content="https://elchef.se/og-image.png" />
         <meta name="facebook-domain-verification" content="in9xjxefhkl6pbe4g33zjwrsnkliin" />
         <meta name="tiktok-developers-site-verification" content="i7h859t0QF0G6Dua8q4h9qJUXwuPQoof" />

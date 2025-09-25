@@ -90,12 +90,12 @@ const initialMessages = [
   {
     role: 'assistant',
     content:
-      'Hej! Jag är Grodan 🐸 – fråga mig om elavtal, byte eller elpriser så hjälper jag dig direkt.'
+      'Hej! Jag är Elge 🦌 – fråga mig om strømavtaler, bytte eller strømpriser så hjälper jag deg direkte.'
   }
 ];
 
-function GrodanIcon() {
-  return <span style={{ fontSize: 22, marginRight: 6 }}>🐸</span>;
+function ElgeIcon() {
+  return <span style={{ fontSize: 22, marginRight: 6 }}>🦌</span>;
 }
 
 // Generera en unik session ID för denna konversation
@@ -380,7 +380,7 @@ export default function GrokChat() {
         }}
         aria-label={open ? 'Stäng chat' : 'Öppna chat'}
       >
-        🐸
+        🦌
       </button>
       {/* Chat window */}
       {open && (
@@ -418,7 +418,7 @@ export default function GrokChat() {
             WebkitBackdropFilter: 'var(--glass-blur)',
             borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
           }}>
-            <span><GrodanIcon /> Grodan – AI-chat</span>
+            <span><ElgeIcon /> Elge – AI-chat</span>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={clearChat}
@@ -475,7 +475,7 @@ export default function GrokChat() {
                 flexDirection: msg.role === 'user' ? 'row-reverse' : 'row',
                 alignItems: 'flex-end',
               }}>
-                {msg.role === 'assistant' && <GrodanIcon />}
+                {msg.role === 'assistant' && <ElgeIcon />}
                 <div style={{
                   background: msg.role === 'user' ? 'linear-gradient(135deg, var(--primary), var(--secondary))' : 'rgba(255, 255, 255, 0.9)',
                   color: msg.role === 'user' ? 'white' : '#17416b',
@@ -494,7 +494,7 @@ export default function GrokChat() {
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2, opacity: 0.7 }}>
-                    {msg.role === 'user' ? 'Du' : 'Grodan'}
+                    {msg.role === 'user' ? 'Du' : 'Elge'}
                   </div>
                   <div dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }} />
                 </div>
@@ -506,7 +506,7 @@ export default function GrokChat() {
                 alignItems: 'flex-end',
                 marginBottom: 18,
               }}>
-                <GrodanIcon />
+                <ElgeIcon />
                 <div style={{
                   background: 'rgba(255, 255, 255, 0.9)',
                   color: '#17416b',
@@ -522,7 +522,7 @@ export default function GrokChat() {
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2, opacity: 0.7 }}>
-                    Grodan
+                    Elge
                   </div>
                   <div>Skriver...</div>
                 </div>
@@ -535,7 +535,7 @@ export default function GrokChat() {
                 flexDirection: 'row',
                 alignItems: 'flex-start',
               }}>
-                <GrodanIcon />
+                <ElgeIcon />
                 <div style={{
                   background: '#e0f2fe',
                   color: '#17416b',
@@ -548,7 +548,7 @@ export default function GrokChat() {
                   marginLeft: 8,
                 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2, opacity: 0.7 }}>
-                    Grodan
+                    Elge
                   </div>
                   <ChatContactForm 
                     onClose={() => setShowContactForm(false)} 

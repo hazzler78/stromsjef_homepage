@@ -16,7 +16,7 @@ export default function ContractChoice({ onSelect, onClose }: ContractChoiceProp
       flexDirection: 'row',
       alignItems: 'flex-start',
     }}>
-      <span style={{ fontSize: 22, marginRight: 6 }}>🐸</span>
+      <span style={{ fontSize: 22, marginRight: 6 }}>🦌</span>
       <div style={{
         background: '#f0f9ff',
         color: '#17416b',
@@ -29,7 +29,7 @@ export default function ContractChoice({ onSelect, onClose }: ContractChoiceProp
         marginLeft: 8,
       }}>
         <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8, opacity: 0.7 }}>
-          Grodan
+          Elge
         </div>
         <div style={{ marginBottom: 12 }}>
           <strong>Välj ditt avtal:</strong>

@@ -92,16 +92,16 @@ export default function Footer() {
       <div className="container">
         <FooterGrid>
           <FooterColumn>
-            <h3>Om Elchef</h3>
+            <h3>Om Strømsjef</h3>
             <p style={{ color: 'var(--gray-300)', marginBottom: '1rem' }}>
-              Vi hjälper dig hitta och byta till marknadens bästa elavtal. 
-              Enkelt, tryggt och helt kostnadsfritt.
+              Vi hjelper deg å finne og bytte til markedets beste strømavtaler. 
+              Enkelt, trygt og helt kostnadsfritt.
             </p>
             <ContactInfo>
               <p>
-                <FaPhone /> 073-686 23 60
+                <FaPhone /> +47 73 68 62 60
                 <span style={{ fontSize: '0.8rem', color: 'var(--gray-400)', marginLeft: '0.5rem' }}>
-                  09:00-13:00 Vardagar
+                  09:00-13:00 Hverdager
                 </span>
               </p>
               <p>
@@ -122,21 +122,21 @@ export default function Footer() {
           </FooterColumn>
 
           <FooterColumn>
-            <h3>Tjänster</h3>
+            <h3>Tjenester</h3>
             <ul>
-              <li><Link href={withDefaultCtaUtm('/byt-elavtal', 'footer', 'services-byt')}>Byt elavtal</Link></li>
-              <li><Link href={withDefaultCtaUtm('/jamfor-elpriser', 'footer', 'services-jamfor')}>Jämför elpriser</Link></li>
-              <li><Link href={withDefaultCtaUtm('/elpriskollen', 'footer', 'services-elpriskollen')}>Elpriskollen</Link></li>
+              <li><Link href={withDefaultCtaUtm('/byt-elavtal', 'footer', 'services-byt')}>Byt strømavtale</Link></li>
+              <li><Link href={withDefaultCtaUtm('/jamfor-elpriser', 'footer', 'services-jamfor')}>Sammenlign strømpriser</Link></li>
+              <li><Link href={withDefaultCtaUtm('/elpriskollen', 'footer', 'services-elpriskollen')}>Strømpriskollen</Link></li>
               <li><Link href={withDefaultCtaUtm('/energiradgivning', 'footer', 'services-energiradgivning')}>Energirådgivning</Link></li>
-              <li><Link href={withDefaultCtaUtm('/foretag', 'footer', 'services-foretag')}>Företag</Link></li>
+              <li><Link href={withDefaultCtaUtm('/foretag', 'footer', 'services-foretag')}>Bedrift</Link></li>
             </ul>
           </FooterColumn>
 
           <FooterColumn>
-            <h3>Information</h3>
+            <h3>Informasjon</h3>
             <ul>
               <li><Link href={withDefaultCtaUtm('/om-oss', 'footer', 'info-om-oss')}>Om oss</Link></li>
-              <li><Link href={withDefaultCtaUtm('/vanliga-fragor', 'footer', 'info-faq')}>Vanliga frågor</Link></li>
+              <li><Link href={withDefaultCtaUtm('/vanliga-fragor', 'footer', 'info-faq')}>Vanlige spørsmål</Link></li>
               <li><Link href={withDefaultCtaUtm('/kontakt', 'footer', 'info-kontakt')}>Kontakt</Link></li>
               <li><Link href={withDefaultCtaUtm('/media', 'footer', 'info-media')}>Media</Link></li>
               <li><Link href={withDefaultCtaUtm('/partner', 'footer', 'info-partner')}>Partner</Link></li>
@@ -144,10 +144,10 @@ export default function Footer() {
           </FooterColumn>
 
           <FooterColumn>
-            <h3>Juridiskt</h3>
+            <h3>Juridisk</h3>
             <ul>
-              <li><Link href={withDefaultCtaUtm('/villkor', 'footer', 'legal-villkor')}>Användarvillkor</Link></li>
-              <li><Link href={withDefaultCtaUtm('/integritetspolicy', 'footer', 'legal-integritet')}>Integritetspolicy</Link></li>
+              <li><Link href={withDefaultCtaUtm('/villkor', 'footer', 'legal-villkor')}>Bruksvilkår</Link></li>
+              <li><Link href={withDefaultCtaUtm('/integritetspolicy', 'footer', 'legal-integritet')}>Personvernpolicy</Link></li>
               <li><Link href={withDefaultCtaUtm('/cookies', 'footer', 'legal-cookies')}>Cookies</Link></li>
               <li><Link href={withDefaultCtaUtm('/gdpr', 'footer', 'legal-gdpr')}>GDPR</Link></li>
             </ul>
@@ -155,7 +155,7 @@ export default function Footer() {
         </FooterGrid>
 
         <BottomBar>
-          <p>© 2025 Elchef.se. Alla rättigheter förbehållna.</p>
+          <p>© 2025 Strømsjef.se. Alle rettigheter forbeholdt.</p>
         </BottomBar>
       </div>
     </FooterWrapper>

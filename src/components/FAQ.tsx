@@ -18,8 +18,9 @@ const Container = styled.div`
 const Title = styled.h2`
   text-align: center;
   margin-bottom: 3rem;
-  color: var(--gray-900);
+  color: white;
   font-size: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const AccordionItem = styled.div`
@@ -82,56 +83,57 @@ const AccordionContent = styled.div<{ $isOpen: boolean }>`
 
 const faqData = [
   {
-    question: "Hur hittar jag bra elavtal?",
-    answer: "Om du inte hittar ett avtal du vill på vår sida, kan du registrera din e-postadress i formuläret nere i foten av sidan. Detta ger dig möjligheten att säkra bra priser, innan erbjudanden med begränsad kapacitet blir fullbokade."
+    question: "Hvordan finner jeg gode strømavtaler?",
+    answer: "Hvis du ikke finner en avtale du vil ha på vår side, kan du registrere din e-postadresse i skjemaet nederst på siden. Dette gir deg muligheten til å sikre gode priser, før tilbud med begrenset kapasitet blir fullbooket."
   },
   {
-    question: "Hur fungerar Elchef.se?",
-    answer: "Elchef.se förhandlar fram bra elavtal från olika leverantörer och ger dig möjligheten att välja det avtal som passar dig bäst. Du kan vara säker på att de erbjudanden du hittar här är konkurrenskraftiga på marknaden!"
+    question: "Hvordan fungerer Strømsjef.se?",
+    answer: "Strømsjef.se forhandler frem gode strømavtaler fra ulike leverandører og gir deg muligheten til å velge den avtalen som passer deg best. Du kan være sikker på at de tilbudene du finner her er konkurransedyktige på markedet!"
   },
   {
-    question: "Vad ska jag välja? Fastpris, Rörligt timpris eller Rörligt månadspris?",
-    answer: "Det beror på din livsstil och vad du känner dig bekväm med. Med ett fastprisavtal har du förutsägbarhet under hela avtalsperioden. Med ett rörligt pris följer ditt elpris marknadens svängningar men kan eventuellt spara pengar i längden. Fråga dig själv: Tror du att elpriserna kommer att bli billigare eller dyrare framöver?"
+    question: "Hva skal jeg velge? Fastpris, Rørlig timepris eller Rørlig månedspris?",
+    answer: "Det avhenger av din livsstil og hva du føler deg komfortabel med. Med en fastprisavtale har du forutsigbarhet under hele avtaleperioden. Med rørlig pris følger din strømpris markedets svingninger men kan eventuelt spare penger på lengre sikt. Spør deg selv: Tror du at strømprisene kommer til å bli billigere eller dyrere fremover?"
   },
   {
-    question: "Vad är en Elchef?",
-    answer: "En \"Elchef\" tar kontroll över sitt elavtal för att hålla kostnaderna nere. Du är en elchef när du gör ett medvetet val för att säkra ett bättre avtal och undvika att betala mer än nödvändigt."
+    question: "Hva er en Strømsjef?",
+    answer: "En \"Strømsjef\" tar kontroll over sin strømavtale for å holde kostnadene nede. Du er en strømsjef når du gjør et bevisst valg for å sikre en bedre avtale og unngå å betale mer enn nødvendig."
   },
   {
-    question: "Måste jag säga upp mitt gamla elavtal om jag byter leverantör?",
-    answer: "Nej, du behöver oftast inte säga upp ditt gamla elavtal själv. När du byter elleverantör hanterar den nya leverantören vanligtvis bytet åt dig, inklusive uppsägningen av ditt tidigare avtal. Däremot är det bra att kontrollera villkoren i ditt nuvarande avtal, särskilt om du har ett fastprisavtal, eftersom det kan finnas uppsägningstid eller avgifter för att avsluta avtalet i förtid."
+    question: "Må jeg si opp min gamle strømavtale hvis jeg bytter leverandør?",
+    answer: "Nei, du trenger vanligvis ikke å si opp din gamle strømavtale selv. Når du bytter strømleverandør håndterer den nye leverandøren vanligvis byttet for deg, inkludert oppsigelsen av din tidligere avtale. Det er imidlertid bra å kontrollere vilkårene i din nåværende avtale, spesielt hvis du har en fastprisavtale, siden det kan finnes oppsigelsestid eller avgifter for å avslutte avtalen i forveien."
   },
   {
-    question: "Är det någon avgift för att säga upp ett elavtal?",
-    answer: `Rörliga elavtal kan oftast sägas upp utan avgift och har normalt en uppsägningstid på en månad.
+    question: "Er det noen avgift for å si opp en strømavtale?",
+    answer: `Rørlige strømavtaler kan vanligvis sies opp uten avgift og har normalt en oppsigelsestid på en måned.
 
-Fastprisavtal däremot har en bindningstid, och om du vill avsluta avtalet i förtid kan det tillkomma en brytavgift (även kallad lösenavgift). Avgiften varierar mellan olika leverantörer och beror på hur lång tid som återstår av avtalet samt elprisutvecklingen.
+Fastprisavtaler derimot har en bindingsperiode, og hvis du vil avslutte avtalen i forveien kan det komme en bryteavgift (også kalt løsningsavgift). Avgiften varierer mellom ulike leverandører og avhenger av hvor lang tid som gjenstår av avtalen samt strømprisutviklingen.
 
-Det är alltid bäst att kontrollera villkoren i ditt avtal eller kontakta din elleverantör för att få exakt information om vad som gäller vid en uppsägning.`
+Det er alltid best å kontrollere vilkårene i din avtale eller kontakte din strømleverandør for å få eksakt informasjon om hva som gjelder ved en oppsigelse.`
   },
   {
-    question: "Vilket Elområde/Elzon tillhör jag?",
-    answer: `Sverige är indelat i fyra elområden:
+    question: "Hvilket strømområde/strømsone tilhører jeg?",
+    answer: `Norge er delt inn i fem strømområder:
 
-SE1 - Norra Sverige
-SE2 - Norra Mellansverige
-SE3 - Södra Mellansverige
-SE4 - Södra Sverige
+NO1 - Øst-Norge
+NO2 - Sør-Norge
+NO3 - Midt-Norge
+NO4 - Nord-Norge
+NO5 - Vest-Norge
 
-Vilket elområde du tillhör beror på var du bor och påverkar elpriset i din region. Du kan se ditt elområde på din elräkning, genom att kontakta din nätleverantör, eller använda formuläret i våra avtalslistor.`
+Hvilket strømområde du tilhører avhenger av hvor du bor og påvirker strømprisen i din region. Du kan se ditt strømområde på din strømregning, ved å kontakte din nettleverandør, eller bruke skjemaet i våre avtalelister.`
   },
   {
-    question: "Vad bör jag tänka på när jag väljer elavtal?",
-    answer: "Välj elavtal utifrån din ekonomiska situation din risktolerans. Om du har en tight budget och vill undvika prissvängningar kan ett fastprisavtal vara ett bra alternativ. Rörliga avtal (spotpris) har historiskt sett varit billigare över tid, men innebär större risk för prisvariationer. Fundera på vad som passar din situation bäst innan du gör ditt val."
+    question: "Hva bør jeg tenke på når jeg velger strømavtale?",
+    answer: "Velg strømavtale ut fra din økonomiske situasjon og din risikotoleranse. Hvis du har et stramt budsjett og vil unngå prissvingninger kan en fastprisavtale være et bra alternativ. Rørlige avtaler (spotpris) har historisk sett vært billigere over tid, men innebærer større risiko for prisvariasjoner. Tenk på hva som passer din situasjon best før du gjør ditt valg."
   },
   {
-    question: "Kan jag ångra mitt elavtal?",
-    answer: `Ja, enligt distansavtalslagen har du ångerrätt i 14 dagar när du tecknar ett avtal på distans, som exempelvis digitalt eller via telefon. Det innebär att du kan ångra avtalet utan kostnad inom denna period. Det finns dock undantag:
+    question: "Kan jeg angre min strømavtale?",
+    answer: `Ja, ifølge angrerettloven har du angrerett i 14 dager når du inngår en avtale på avstand, som for eksempel digitalt eller via telefon. Det betyr at du kan angre avtalen uten kostnad innen denne perioden. Det finnes imidlertid unntak:
 
-• Om du har betalat förbrukad el under ångerperioden kan leverantören kräva ersättning för den el du använt.
-• Ångerrätten gäller inte om du har tecknat avtalet genom ett personligt möte hos leverantören eller i en butik.
-• Vissa leverantörer kan ha egna villkor gällande uppsägning efter ångerfristen, så det är alltid bra att läsa avtalet noggrant.
-• Om du vill ångra ditt avtal ska du meddela leverantören skriftligen, via e-post eller ångerformulär.`
+• Hvis du har betalt for forbrukt strøm under angreperioden kan leverandøren kreve erstatning for den strømmen du har brukt.
+• Angreretten gjelder ikke hvis du har inngått avtalen gjennom et personlig møte hos leverandøren eller i en butikk.
+• Noen leverandører kan ha egne vilkår gjelende oppsigelse etter angrefristen, så det er alltid bra å lese avtalen nøye.
+• Hvis du vil angre din avtale skal du meddele leverandøren skriftlig, via e-post eller angreskjema.`
   }
 ];
 
@@ -145,7 +147,7 @@ export default function FAQ() {
   return (
     <FAQSection>
       <Container>
-        <Title>Vanliga frågor</Title>
+        <Title>Vanlige spørsmål</Title>
         {faqData.map((faq, index) => (
           <AccordionItem key={index}>
             <AccordionHeader

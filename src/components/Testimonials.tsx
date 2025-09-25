@@ -74,12 +74,12 @@ export default function Testimonials() {
   return (
     <TestimonialsSection>
       <div className="container">
-        <SectionTitle>Vad våra kunder säger</SectionTitle>
+        <SectionTitle>Hva våre kunder sier</SectionTitle>
         <TestimonialGrid>
           <TestimonialCard>
             <p>
-              &quot;Elchef hjälpte mig spara över 2000 kr per år på min elräkning. 
-              Processen var enkel och snabb!&quot;
+              &quot;Strømsjef hjalp meg å spare over 2000 kr per år på min strømregning. 
+              Prosessen var enkel og rask!&quot;
             </p>
             <CustomerInfo>
               <Image
@@ -90,15 +90,15 @@ export default function Testimonials() {
               />
               <div>
                 <h4>Anna Andersson</h4>
-                <span>Stockholm</span>
+                <span>Oslo</span>
               </div>
             </CustomerInfo>
           </TestimonialCard>
           
           <TestimonialCard>
             <p>
-              &quot;Fantastisk service! De hittade det bästa avtalet för vårt företag 
-              och sparade oss tid och pengar.&quot;
+              &quot;Fantastisk service! De fant den beste avtalen for vårt selskap 
+              og sparte oss tid og penger.&quot;
             </p>
             <CustomerInfo>
               <Image
@@ -109,15 +109,15 @@ export default function Testimonials() {
               />
               <div>
                 <h4>Erik Svensson</h4>
-                <span>Göteborg</span>
+                <span>Bergen</span>
               </div>
             </CustomerInfo>
           </TestimonialCard>
           
           <TestimonialCard>
             <p>
-              &quot;Rekommenderar Elchef till alla! Transparent och pålitlig service 
-              som verkligen levererar besparingar.&quot;
+              &quot;Anbefaler Strømsjef til alle! Transparent og pålitelig service 
+              som virkelig leverer besparelser.&quot;
             </p>
             <CustomerInfo>
               <Image
@@ -128,7 +128,7 @@ export default function Testimonials() {
               />
               <div>
                 <h4>Maria Lindberg</h4>
-                <span>Malmö</span>
+                <span>Trondheim</span>
               </div>
             </CustomerInfo>
           </TestimonialCard>
