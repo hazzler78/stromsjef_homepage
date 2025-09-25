@@ -192,12 +192,7 @@ export default function Hero() {
           <TextContent>
             <h1>{heroTitle}</h1>
             <p>{heroSub}</p>
-            <USPList>
-              <li>✔️ Vi løfter bare frem strømavtaler som er verdt å vurdere.</li>
-              <li>✔️ Gratis bytte – din gamle avtale sies opp automatisk.</li>
-              <li>✔️ Full valgfrihet – velg mellom rørlig strømpris eller fastpris med avtalt periode.</li>
-            </USPList>
-                         <ButtonRow>
+            <ButtonRow>
                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', minWidth: 200 }}>
                                    <div style={{
                     cursor: 'pointer',
@@ -293,6 +288,11 @@ export default function Hero() {
                  </div>
                </div>
             </ButtonRow>
+            <USPList>
+              <li>✔️ Vi løfter bare frem strømavtaler som er verdt å vurdere.</li>
+              <li>✔️ Gratis bytte – din gamle avtale sies opp automatisk.</li>
+              <li>✔️ Full valgfrihet – velg mellom rørlig strømpris eller fastpris med avtalt periode.</li>
+            </USPList>
           </TextContent>
           <VideoWrapper>
             <img 
