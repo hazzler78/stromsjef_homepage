@@ -8,8 +8,14 @@ compatibility_flags = ["nodejs_compat"]
 
 ## [pages] table is not supported by this runner; using pages_build_output_dir instead
 
-# Environment variables are managed in Cloudflare Pages UI (Production + Preview).
-# Remove this comment if you later re-introduce a [vars] block.
+# Build command for Cloudflare Pages (beta config via wrangler.toml)
+[build]
+command = "npm ci && npm run build && npx @cloudflare/next-on-pages@latest --outdir .vercel/output"
+
+# Environment variables at runtime can be set here or in Pages UI. Prefer UI for secrets.
+# [vars]
+# NEXT_PUBLIC_SUPABASE_URL = "https://..."
+# NEXT_PUBLIC_SUPABASE_ANON_KEY = "ey..."
 
 # Note: Pages config does not support account_id, triggers, or build/observability blocks
 
