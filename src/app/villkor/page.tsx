@@ -71,12 +71,12 @@ export default function Villkor() {
 
         <SectionTitle>5. Erbjudanden från elbolag</SectionTitle>
         <Paragraph>
-          Elchef.se kan visa erbjudanden från alla elbolag som är listade i Konsumentverkets elpriskollen. Målet är att ge dig en bred överblick så att du kan välja det avtal som passar dig bäst.
+          Strømsjef.se kan vise tilbud fra flere strømleverandører. Målet er å gi deg en god oversikt slik at du kan velge avtalen som passer best for deg.
         </Paragraph>
 
         <SectionTitle>6. Kontakt</SectionTitle>
         <Paragraph>
-          Vid frågor om användarvillkoren, kontakta oss via e-post: <Mail href="mailto:info@elchef.se">info@elchef.se</Mail>
+          Ved spørsmål om brukervilkår, kontakt oss på e‑post: <Mail href="mailto:info@stromsjef.se">info@stromsjef.se</Mail>
         </Paragraph>
 
         <SectionTitle>7. Ångerrätt</SectionTitle>
@@ -86,12 +86,12 @@ export default function Villkor() {
 
         <SectionTitle>8. Fel i tjänsten</SectionTitle>
         <Paragraph>
-          Elchef.se ansvarar inte för skador eller förluster till följd av användning av tjänsten eller brist på tillgänglig information. Vi kan inte garantera att webbplatsen alltid är tillgänglig eller felfri. Elbolaget ansvarar för att leverera enligt det avtal du ingår. Elchef.se representerar inte elbolagen. Vid fel ska du kontakta elbolaget direkt, så snart felet upptäcks.
+          Strømsjef.se er ikke ansvarlig for skader eller tap som følge av bruk av tjenesten eller manglende informasjon. Vi kan ikke garantere at nettstedet alltid er tilgjengelig eller feilfritt. Strømleverandøren er ansvarlig for levering i henhold til avtalen du inngår. Ved feil bør du kontakte leverandøren direkte så snart feilen oppdages.
         </Paragraph>
 
         <SectionTitle>9. Priser och betalning</SectionTitle>
         <Paragraph>
-          Det är gratis att använda Elchef.se. Det tillkommer inga extra kostnader på din elräkning. Elpriserna sätts av respektive elbolag. Vi strävar efter att hålla priserna och villkoren uppdaterade, men reserverar oss för ändringar som görs av tredje part. Betalning sker direkt till det elbolag du valt, enligt deras avtal.
+          Det er gratis å bruke Strømsjef.se. Det kommer ingen ekstra kostnader på strømregningen. Prisene settes av de respektive leverandørene. Vi forsøker å holde priser og vilkår oppdatert, men tar forbehold om endringer gjort av tredjeparter. Betaling skjer direkte til leverandøren du velger, i henhold til deres avtale.
         </Paragraph>
 
         <SectionTitle>10. Tvister och tillämplig lag</SectionTitle>

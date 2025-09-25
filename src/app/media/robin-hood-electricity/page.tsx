@@ -272,11 +272,11 @@ export default function RobinHoodElectricity() {
             
             <div style={{ textAlign: 'center' }}>
               <CTAButton 
-                href="https://elchef.se" 
+                href="https://stromsjef.se" 
                 target="_blank" 
                 rel="noopener noreferrer"
               >
-                Redo att hitta bästa elavtalet? Byt enkelt på elchef.se <ArrowIcon />
+                Klar for å finne riktig strømavtale? Bytt enkelt på stromsjef.se <ArrowIcon />
               </CTAButton>
             </div>
           </Article>

@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
             value: "elchef.se",
           },
         ],
-        destination: "https://www.elchef.se/:path*",
+        destination: "https://www.stromsjef.se/:path*",
         permanent: true,
       },
     ];

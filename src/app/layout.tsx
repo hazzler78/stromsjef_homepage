@@ -31,8 +31,8 @@ export default function RootLayout({
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "Strømsjef",
-            "url": "https://elchef.se",
-            "logo": "https://elchef.se/logo.png",
+            "url": "https://stromsjef.se",
+            "logo": "https://stromsjef.se/logo.png",
             "contactPoint": [{
               "@type": "ContactPoint",
               "telephone": "+47-73-686-23-66",
@@ -41,22 +41,22 @@ export default function RootLayout({
               "availableLanguage": ["Norwegian", "English"]
             }],
             "sameAs": [
-              "https://www.facebook.com/elchef.se",
-              "https://www.instagram.com/elchef.se/"
+              "https://www.facebook.com/stromsjef.se",
+              "https://www.instagram.com/stromsjef.se/"
             ]
           }
         `}</script>
         {/* Open Graph metadata */}
         <meta property="og:title" content="Strømsjef – gjør det enkelt å velge riktig strømavtale" />
         <meta property="og:description" content="Strømsjef.se hjelper deg å raskt, gratis og uten krøll finne og bytte til det strømavtale som passer deg best. Vi viser bare avtaler som er verdt å vurdere og håndterer hele byttet for deg." />
-        <meta property="og:image" content="https://elchef.se/og-image.png" />
-        <meta property="og:url" content="https://elchef.se" />
+        <meta property="og:image" content="https://stromsjef.se/og-image.png" />
+        <meta property="og:url" content="https://stromsjef.se" />
         <meta property="og:type" content="website" />
         {/* Twitter Card metadata */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Strømsjef – gjør det enkelt å velge riktig strømavtale" />
         <meta name="twitter:description" content="Strømsjef.se hjelper deg å raskt, gratis og uten krøll finne og bytte til det strømavtale som passer deg best. Vi viser bare avtaler som er verdt å vurdere og håndterer hele byttet for deg." />
-        <meta name="twitter:image" content="https://elchef.se/og-image.png" />
+        <meta name="twitter:image" content="https://stromsjef.se/og-image.png" />
         <meta name="facebook-domain-verification" content="in9xjxefhkl6pbe4g33zjwrsnkliin" />
         <meta name="tiktok-developers-site-verification" content="i7h859t0QF0G6Dua8q4h9qJUXwuPQoof" />
       </head>

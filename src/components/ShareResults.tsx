@@ -38,10 +38,10 @@ export default function ShareResults({ analysisResult, savingsAmount, logId, onS
     const baseText = `💡 AI-analys av min elräkning visar att jag betalar ${detectedSavings > 0 ? `${detectedSavings.toLocaleString('sv-SE')} kr/år` : 'flera hundra kronor/år'} i onödiga avgifter!`;
     
     const platformTexts = {
-      facebook: `${baseText}\n\n🔍 Testa själv på elchef.se/jamfor-elpriser\n\n#Elbesparing #AI #Elchef`,
-      instagram: `${baseText}\n\n🔍 Testa själv på elchef.se/jamfor-elpriser\n\n#Elbesparing #AI #Elchef #Energi`,
-      linkedin: `${baseText}\n\nSom energikonsult ser jag många kunder som betalar onödiga avgifter på sina elräkningar. Denna AI-verktyg från Elchef hjälper dig identifiera dolda kostnader.\n\n🔍 Testa själv: elchef.se/jamfor-elpriser\n\n#Energibesparing #AI #Elchef #Hållbarhet`,
-      twitter: `${baseText}\n\n🔍 Testa själv: elchef.se/jamfor-elpriser\n\n#Elbesparing #AI #Elchef`
+      facebook: `${baseText}\n\n🔍 Test selv på stromsjef.se/jamfor-elpriser\n\n#Strømbesparing #AI #Strømsjef`,
+      instagram: `${baseText}\n\n🔍 Test selv på stromsjef.se/jamfor-elpriser\n\n#Strømbesparing #AI #Strømsjef #Energi`,
+      linkedin: `${baseText}\n\nSom energirådgiver ser jeg mange kunder som betaler unødige avgifter på strømregningen. Dette AI‑verktøyet fra Strømsjef hjelper deg å identifisere skjulte kostnader.\n\n🔍 Test selv: stromsjef.se/jamfor-elpriser\n\n#Energisparing #AI #Strømsjef #Bærekraft`,
+      twitter: `${baseText}\n\n🔍 Test selv: stromsjef.se/jamfor-elpriser\n\n#Strømbesparing #AI #Strømsjef`
     };
 
     return platformTexts[platform];
@@ -52,8 +52,8 @@ export default function ShareResults({ analysisResult, savingsAmount, logId, onS
     const encodedText = encodeURIComponent(text);
     // Generera unik delningslänk baserat på logId
     const shareUrl = logId 
-      ? `https://elchef.se/delad-kalkyl?id=${logId}`
-      : 'https://elchef.se/jamfor-elpriser';
+      ? `https://stromsjef.se/delad-kalkyl?id=${logId}`
+      : 'https://stromsjef.se/jamfor-elpriser';
     const url = encodeURIComponent(shareUrl);
     
     const urls = {
@@ -61,7 +61,7 @@ export default function ShareResults({ analysisResult, savingsAmount, logId, onS
       // Låt endast texten (som redan innehåller vår länk) delas, utan extra URL-parameter
       twitter: `https://twitter.com/intent/tweet?text=${encodedText}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
-      instagram: 'https://www.instagram.com/elchef' // Instagram har ingen direkt delnings-URL
+      instagram: 'https://www.instagram.com/stromsjef' // Instagram har ingen direkt delnings-URL
     };
 
     return urls[platform as keyof typeof urls] || urls.facebook;

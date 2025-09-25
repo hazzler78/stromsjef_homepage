@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Meddelanden saknas eller fel format' }, { status: 400 });
     }
     if (!XAI_API_KEY) {
-      return NextResponse.json({ error: 'XAI_API_KEY saknas i miljövariabler' }, { status: 500 });
+      return NextResponse.json({ error: 'XAI_API_KEY mangler i miljøvariabler' }, { status: 500 });
     }
     
     // Hämta användarens senaste meddelande för att hitta relevant kunskap
@@ -218,7 +218,7 @@ export async function POST(req: NextRequest) {
     
     // Debug: logga vad som hämtades
     if (dynamicKnowledge) {
-      console.log('Dynamisk kunskap hämtad:', {
+      console.log('Dynamisk kunnskap hentet:', {
         knowledgeCount: dynamicKnowledge.knowledge.length,
         campaignCount: dynamicKnowledge.campaigns.length,
         providerCount: dynamicKnowledge.providers.length
@@ -231,7 +231,7 @@ export async function POST(req: NextRequest) {
     if (dynamicKnowledge) {
       // Lägg till relevant kunskap
       if (dynamicKnowledge.knowledge.length > 0) {
-        enhancedSystemPrompt += '\n\n## RELEVANT KUNSKAP BASERAT PÅ DIN FRÅGA\n';
+        enhancedSystemPrompt += '\n\n## RELEVANT KUNNSKAP BASERT PÅ DITT SPØRSMÅL\n';
         dynamicKnowledge.knowledge.forEach(item => {
           enhancedSystemPrompt += `**${item.question}**\n${item.answer}\n\n`;
         });
@@ -248,7 +248,7 @@ export async function POST(req: NextRequest) {
       
       // Lägg till aktuella leverantörer
       if (dynamicKnowledge.providers.length > 0) {
-        enhancedSystemPrompt += '\n## AKTUELLA LEVERANTÖRER\n';
+        enhancedSystemPrompt += '\n## AKTUELLE LEVERANDØRER\n';
         dynamicKnowledge.providers.forEach(provider => {
           enhancedSystemPrompt += `• **${provider.name}** (${provider.type}): ${provider.features.join(', ')}\n`;
         });
@@ -271,8 +271,8 @@ export async function POST(req: NextRequest) {
     // Om användaren har valt avtal, lägg till kontext
     if (contractChoice) {
       const contractContext = contractChoice === 'rorligt' 
-        ? 'VIKTIGT: Användaren har valt rörligt avtal. Bekräfta valet och förklara att de kommer skickas till registrering. Var positiv och förtroendeingivande.'
-        : 'VIKTIGT: Användaren har valt fastpris. Bekräfta valet och förklara att de kommer skickas till registrering. Var positiv och förtroendeingivande.';
+        ? 'VIKTIGT: Brukeren har valgt rørlig avtale. Bekreft valget og forklar at de sendes til registrering. Vær positiv og tillitvekkende.'
+        : 'VIKTIGT: Brukeren har valgt fastpris. Bekreft valget og forklar at de sendes til registrering. Vær positiv og tillitvekkende.';
       
       fullMessages.push({ role: 'system', content: contractContext });
     }
@@ -296,7 +296,7 @@ export async function POST(req: NextRequest) {
     }
     const data = await xaiRes.json();
 
-    // Säkerhetsfilter: förhindra felaktiga företagsuppgifter och fabricerade org.nr
+    // Sikkerhetsfilter: forhindre feilaktige firmasopplysninger og fabrikerte org.nr
     function sanitizeAiResponse(text: string): string {
       if (!text) return text;
       const mentionsElbyte = /\bElbyte( Norden)?( AB)?\b/i.test(text);
@@ -305,11 +305,11 @@ export async function POST(req: NextRequest) {
 
       const correction = [
         '**Korrigering:**',
-        '- elchef.se tillhandahålls av VKNG LTD enligt våra [villkor](/villkor) och [integritetspolicy](/integritetspolicy).',
-        '- Vi lämnar inte ut el or gissar organisationsnummer i chatten. Verifiera via [Bolagsverket](https://www.bolagsverket.se) eller kontakta oss på info@elchef.se.'
+        '- stromsjef.se tilhandaholdes av VKNG LTD i henhold til våre [vilkår](/villkor) og [personvern](/integritetspolicy).',
+        '- Vi deler ikke ut eller gjetter organisasjonsnummer i chatten. Verifiser via offentlige registre eller kontakt oss på info@stromsjef.se.'
       ].join('\n');
 
-      // Behåll ursprunglig text men lägg till tydlig korrigering överst
+      // Behold opprinnelig tekst men legg til tydelig korrigering øverst
       return correction + '\n\n' + text;
     }
 

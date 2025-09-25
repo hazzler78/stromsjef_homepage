@@ -90,7 +90,7 @@ const initialMessages = [
   {
     role: 'assistant',
     content:
-      'Hej! Jag är Elge 🦌 – fråga mig om strømavtaler, bytte eller strømpriser så hjälper jag deg direkte.'
+      'Hei! Jeg er Elge 🦌 – spør meg om strømavtaler, bytte eller strømpriser så hjelper jeg deg med en gang.'
   }
 ];
 
@@ -278,7 +278,7 @@ export default function GrokChat() {
       // Remove greeting on subsequent assistant replies
       const assistantRepliesSoFar = newMessages.filter(m => m.role === 'assistant').length;
       if (assistantRepliesSoFar >= 1) {
-        aiMsg = aiMsg.replace(/^\s*(Hej|Hejsan|Hallå|Tjena|God\s*(morgon|dag|kväll))[,!\.\s-]*/i, '').trimStart();
+        aiMsg = aiMsg.replace(/^\s*(Hei|Heisann|Hallo|God\s*(morgen|dag|kveld))[,!\.\s-]*/i, '').trimStart();
       }
       
       setMessages([...newMessages, { role: 'assistant', content: aiMsg }]);
@@ -309,8 +309,8 @@ export default function GrokChat() {
     
     // Lägg till användarens val i chatten
     const choiceMessage = contractType === 'rorligt' 
-      ? 'Jag väljer rörligt avtal'
-      : 'Jag väljer fastpris';
+      ? 'Jeg velger rørlig avtale'
+      : 'Jeg velger fastpris';
     
     setMessages(prev => [...prev, { role: 'user', content: choiceMessage }]);
     
@@ -351,7 +351,7 @@ export default function GrokChat() {
   // Funktion för att stänga avtalsval
   const closeContractChoice = () => {
     setShowContractChoice(false);
-    const newMessages = [...messages, { role: 'user', content: 'Nej tack, jag tänker mig för' }];
+    const newMessages = [...messages, { role: 'user', content: 'Nei takk, jeg tenker meg om' }];
     setMessages(newMessages);
   };
 
@@ -378,7 +378,7 @@ export default function GrokChat() {
           WebkitBackdropFilter: 'var(--glass-blur)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
-        aria-label={open ? 'Stäng chat' : 'Öppna chat'}
+        aria-label={open ? 'Lukk chat' : 'Åpne chat'}
       >
         🦌
       </button>
@@ -458,7 +458,7 @@ export default function GrokChat() {
                   WebkitBackdropFilter: 'var(--glass-blur)',
                   transition: 'all 0.2s ease'
                 }} 
-                aria-label="Stäng"
+                aria-label="Lukk"
               >
                 ×
               </button>
@@ -556,7 +556,7 @@ export default function GrokChat() {
                       // Add a message indicating the form was submitted
                       const newMessages = [...messages, { 
                         role: 'assistant', 
-                        content: 'Tack för din kontakt! Vi återkommer så snart som möjligt. Ha en fin dag!' 
+                        content: 'Takk for din kontakt! Vi kommer tilbake så snart som mulig. Ha en fin dag!'
                       }];
                       setMessages(newMessages);
                       setContactFormSubmitted(true);
@@ -586,7 +586,7 @@ export default function GrokChat() {
               type="text"
               value={input}
               onChange={event => setInput(event.target.value)}
-              placeholder={contactFormSubmitted ? "Tack för din kontakt!" : contractChoiceSubmitted ? "Tack för ditt val!" : "Skriv din fråga…"}
+              placeholder={contactFormSubmitted ? "Takk for din kontakt!" : contractChoiceSubmitted ? "Takk for ditt valg!" : "Skriv spørsmålet ditt…"}
               style={{ 
                 flex: 1, 
                 border: '1px solid rgba(203, 213, 225, 0.5)', 

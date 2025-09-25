@@ -105,7 +105,7 @@ export default function Footer() {
                 </span>
               </p>
               <p>
-                <FaEnvelope /> info@elchef.se
+                <FaEnvelope /> info@stromsjef.se
               </p>
             </ContactInfo>
             <SocialLinks>
