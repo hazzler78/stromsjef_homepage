@@ -244,7 +244,7 @@ export async function GET() {
     );
 
     return NextResponse.json({ ok: true, sent: results.filter(Boolean).length, total: idsCount }, { status: 200 });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ ok: false, error: 'Unexpected error' }, { status: 500 });
   }
 }
