@@ -95,7 +95,13 @@ const initialMessages = [
 ];
 
 function ElgeIcon() {
-  return <span style={{ fontSize: 22, marginRight: 6 }}>🦌</span>;
+  return (
+    <img
+      src="/elge_stromsjef.jpg"
+      alt="Elge"
+      style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 20%', marginRight: 6, boxShadow: '0 0 0 2px rgba(255,255,255,0.8)' }}
+    />
+  );
 }
 
 // Generera en unik session ID för denna konversation
@@ -377,10 +383,12 @@ export default function GrokChat() {
           backdropFilter: 'var(--glass-blur)',
           WebkitBackdropFilter: 'var(--glass-blur)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          overflow: 'hidden',
+          padding: 0
         }}
         aria-label={open ? 'Lukk chat' : 'Åpne chat'}
       >
-        🦌
+        <img src="/elge_stromsjef.jpg" alt="Elge" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%' }} />
       </button>
       {/* Chat window */}
       {open && (
