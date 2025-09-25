@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@cloudflare/next-on-pages": "^1.13.6",
+    "@cloudflare/next-on-pages": "1.13.12",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
