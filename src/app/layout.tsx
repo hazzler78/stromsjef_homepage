@@ -84,6 +84,39 @@ export default function RootLayout({
               })();
             `}
           </Script>
+          {/* Ensure Cookiebot banner sits above bottom nav and chat bubble */}
+          <Script id="cookiebot-adjust" strategy="afterInteractive">{
+            `(() => {
+              function isVisible(el){
+                if(!el) return false;
+                const style = window.getComputedStyle(el);
+                if(style.display==='none' || style.visibility==='hidden' || style.opacity==='0') return false;
+                const rect = el.getBoundingClientRect();
+                return rect.height > 0 && rect.width > 0;
+              }
+              function adjust(){
+                try{
+                  const banner = document.querySelector('#CybotCookiebotDialog, [id^="CybotCookiebot"], #CookiebotDialog, .CookieConsent, .CookiebotWidget, #CookieConsent, #CookieDeclaration, .cookieconsent, .cookie-declaration');
+                  if(!banner || !isVisible(banner)) return;
+                  const nav = document.querySelector('[data-bottom-nav="true"]');
+                  const navHeight = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
+                  const chatBtn = document.querySelector('[aria-label="Åpne chat"], [aria-label="Lukk chat"]');
+                  const chatSize = chatBtn ? Math.max(chatBtn.clientHeight, 56) : 56;
+                  const gap = 20;
+                  const newBottom = navHeight + chatSize + gap;
+                  const el = banner;
+                  const style = (el as HTMLElement).style as CSSStyleDeclaration;
+                  style.position = 'fixed';
+                  style.bottom = newBottom + 'px';
+                  style.zIndex = '1002';
+                }catch{}
+              }
+              adjust();
+              window.addEventListener('resize', adjust);
+              const obs = new MutationObserver(adjust);
+              obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style','class'] });
+            })();`}
+          </Script>
           <CampaignBanner />
           <div id="app">
             {children}
