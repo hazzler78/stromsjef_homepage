@@ -4,8 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 
 const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
 const MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID;
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_IDS = process.env.TELEGRAM_CHAT_IDS?.split(',').map(id => id.trim()) || [];
+// Raw values first; sanitize below to avoid common dashboard quoting issues
+const RAW_TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const RAW_TELEGRAM_CHAT_IDS = process.env.TELEGRAM_CHAT_IDS;
 const rawSUPABASE_URL = process.env.SUPABASE_URL;
 const rawSUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -15,6 +16,12 @@ function sanitizeEnv(value: string | undefined): string | undefined {
   // Strip surrounding quotes if present (common misconfiguration in dashboards)
   return trimmed.replace(/^"|"$/g, '');
 }
+// Sanitized Telegram config
+const TELEGRAM_BOT_TOKEN = sanitizeEnv(RAW_TELEGRAM_BOT_TOKEN);
+const TELEGRAM_CHAT_IDS: string[] = (sanitizeEnv(RAW_TELEGRAM_CHAT_IDS) || '')
+  .split(',')
+  .map(id => sanitizeEnv(id)?.trim())
+  .filter((v): v is string => !!v);
 
 function getSupabaseClient() {
   const url = sanitizeEnv(rawSUPABASE_URL);
