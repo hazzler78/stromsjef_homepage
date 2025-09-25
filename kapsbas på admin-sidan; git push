@@ -1,0 +1,5 @@
+[33mfdda7ce[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Uppdaterat AI-chatten med kunskap från hemsidan och skapat dynamisk kunskapsbas
+[33mb1d2d31[m Fix build errors: resolve useEffect dependencies and remove unused components
+[33m3040eda[m Add Cheap Energy affiliate link to Rorligt Avtal page while form is being fixed
+[33mfe0c11b[m Update Svealand affiliate link to correct Elchef landing page
+[33md49804e[m Add Svealand affiliate link to Fastpris page while form is being fixed
