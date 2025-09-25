@@ -43,25 +43,31 @@ async function sendTelegramNotification(data: ContactFormData) {
     return;
   }
 
-  // Store pending reminder in database
-  const pendingReminderData = {
-    customer_name: data.name || 'Okänd',
-    email: data.email,
-    phone: data.phone || null,
-    message: data.message || null,
-    created_at: new Date().toISOString()
-  };
+  // Try to store pending reminder in database (optional)
+  let pendingId = null;
+  try {
+    const pendingReminderData = {
+      customer_name: data.name || 'Okänd',
+      email: data.email,
+      phone: data.phone || null,
+      message: data.message || null,
+      created_at: new Date().toISOString()
+    };
 
-  const supabase = getSupabaseClient();
-  const { data: pending, error: pendingError } = await supabase
-    .from('pending_reminders')
-    .insert([pendingReminderData])
-    .select()
-    .single();
+    const supabase = getSupabaseClient();
+    const { data: pending, error: pendingError } = await supabase
+      .from('pending_reminders')
+      .insert([pendingReminderData])
+      .select()
+      .single();
 
-  if (pendingError || !pending) {
-    console.error('Error creating pending reminder:', pendingError);
-    return;
+    if (!pendingError && pending) {
+      pendingId = pending.id;
+    } else {
+      console.warn('Could not create pending reminder, but continuing with notification:', pendingError);
+    }
+  } catch (error) {
+    console.warn('Database error for pending reminder, but continuing with notification:', error);
   }
 
   const message = `
@@ -73,12 +79,7 @@ ${data.message ? `\n📝 *Meddelande:* ${data.message}` : ''}
 
 ⏰ *Tidpunkt:* ${new Date().toLocaleString('sv-SE')}
 🌐 *Källa:* Elchef.se kontaktformulär
-
-🆔 *ID:* ${pending.id}
-
-💡 *Svara på detta meddelande* eller skriv t.ex. "12m #${pending.id}" för att koppla rätt kund.
-*Exempel:* "12m" eller "12m cheap" eller "12m fastavtal" (vi ringer kunden om 11 månader)
-_Du kan även ange startdatum:_ "12m 2025-02-15 cheap" eller "12m 2025-02-15 #${pending.id} fastavtal"
+${pendingId ? `\n🆔 *ID:* ${pendingId}\n\n💡 *Svara på detta meddelande* eller skriv t.ex. "12m #${pendingId}" för att koppla rätt kund.\n*Exempel:* "12m" eller "12m cheap" eller "12m fastavtal" (vi ringer kunden om 11 månader)\n_Du kan även ange startdatum:_ "12m 2025-02-15 cheap" eller "12m 2025-02-15 #${pendingId} fastavtal"` : ''}
 `;
 
   // Send to all configured chat IDs
