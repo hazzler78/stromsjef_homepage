@@ -178,6 +178,7 @@ export default function GrokChat() {
       
       // Check for cookie banner
       let cookieOffset = 0;
+      let bottomNavOffset = 0;
       try {
         const banner = selectCookieBannerElement();
         if (banner && isElementVisible(banner)) {
@@ -193,9 +194,21 @@ export default function GrokChat() {
         // Ignore errors
       }
       
-      // Account for bottom navigation height (approximately 80px) plus cookie banner
-      setChatBottom(mobile ? 120 + cookieOffset : 24 + cookieOffset);
-      setChatWindowBottom(mobile ? 140 + cookieOffset : 90 + cookieOffset);
+      // Detect our fixed bottom nav to avoid overlap
+      try {
+        const bottomNav = document.querySelector('[data-bottom-nav="true"]') as HTMLElement | null;
+        if (bottomNav) {
+          const navRect = bottomNav.getBoundingClientRect();
+          if (navRect.height > 0) {
+            bottomNavOffset = Math.ceil(navRect.height) + 16; // add small gap
+          }
+        }
+      } catch {}
+
+      // Account for bottom navigation height plus cookie banner
+      const totalOffset = cookieOffset + bottomNavOffset;
+      setChatBottom(mobile ? 24 + totalOffset : 24 + totalOffset);
+      setChatWindowBottom(mobile ? 90 + totalOffset : 90 + totalOffset);
       setChatWindowHeight(mobile ? 400 : 480);
     }
     

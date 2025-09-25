@@ -235,7 +235,7 @@ function BottomNavContent() {
   }, []);
   
   return (
-    <Nav offset={bottomOffset}>
+    <Nav offset={bottomOffset} data-bottom-nav="true">
       <NavItem href={withDefaultCtaUtm('/', 'bottomnav', 'home')} className={pathname === '/' ? 'active' : ''}>
         Hjem
         {pathname === '/' && <ActiveIndicator />}
