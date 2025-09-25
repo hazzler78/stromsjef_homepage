@@ -155,7 +155,14 @@ export default function GlassButton({
         overflow: 'hidden',
         opacity: disabled ? 0.6 : 1,
         transform: disabled ? 'none' : undefined,
-        whiteSpace: 'nowrap',
+        whiteSpace: 'normal',
+        wordBreak: 'break-word',
+        textAlign: 'center',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        lineHeight: 1.2,
+        maxWidth: '100%',
         ...(background ? { background } : {}),
       }}
     >

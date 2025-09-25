@@ -193,38 +193,38 @@ export default function Hero() {
             <h1>{heroTitle}</h1>
             <p>{heroSub}</p>
             <ButtonRow>
-               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', minWidth: 200 }}>
-                                   <div style={{
-                    cursor: 'pointer',
-                    position: 'relative',
-                    zIndex: 10,
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-                    e.currentTarget.style.filter = 'brightness(1.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.filter = 'brightness(1)';
-                  }}
-                  onClick={() => {
-                    trackHeroClick('rorligt', '/rorligt-avtal');
-                    window.location.href = '/rorligt-avtal';
-                  }}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', minWidth: 200 }}>
+                <div style={{
+                  cursor: 'pointer',
+                  position: 'relative',
+                  zIndex: 10,
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                  e.currentTarget.style.filter = 'brightness(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.filter = 'brightness(1)';
+                }}
+                onClick={() => {
+                  trackHeroClick('rorligt', '/starta-har');
+                  window.location.href = '/starta-har';
+                }}
+                >
+                  <GlassButton 
+                    variant="primary" 
+                    size="lg"
+                    background="linear-gradient(135deg, var(--primary), var(--secondary))"
+                    aria-label="Starta här – hitta rätt avtal"
+                    disableScrollEffect={true}
+                    disableHoverEffect={true}
                   >
-                                                                               <GlassButton 
-                       variant="primary" 
-                       size="lg"
-                       background="linear-gradient(135deg, var(--primary), var(--secondary))"
-                       aria-label="Rørlig avtale - 0 kr i avgifter første året – uten bindingsperiode"
-                       disableScrollEffect={true}
-                       disableHoverEffect={true}
-                     >
-                     Rørlig avtale
-                   </GlassButton>
-                 </div>
-                 <div style={{ 
+                    Starta här
+                  </GlassButton>
+                </div>
+                <div style={{ 
                   fontSize: '0.9rem', 
                   color: 'var(--foreground)', 
                   background: 'rgba(255, 255, 255, 0.95)', 
@@ -237,56 +237,9 @@ export default function Hero() {
                   position: 'relative',
                   zIndex: 10
                 }}>
-                   0 kr i avgifter første året – uten bindingsperiode
-                 </div>
-               </div>
-                               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', minWidth: 200 }}>
-                                     <div style={{
-                     cursor: 'pointer',
-                     position: 'relative',
-                     zIndex: 10,
-                     transition: 'all 0.3s ease'
-                   }}
-                   onMouseEnter={(e) => {
-                     e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-                     e.currentTarget.style.filter = 'brightness(1.1)';
-                   }}
-                   onMouseLeave={(e) => {
-                     e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                     e.currentTarget.style.filter = 'brightness(1)';
-                   }}
-                                       onClick={() => {
-                      trackHeroClick('fastpris', '/fastpris-avtal');
-                      window.location.href = '/fastpris-avtal';
-                    }}
-                   >
-                                                                                                                                                                       <GlassButton 
-                         variant="secondary" 
-                         size="lg"
-                         background="linear-gradient(135deg, var(--secondary), var(--primary))"
-                         aria-label="Fastpris - Fastpris med prisgaranti"
-                         disableScrollEffect={true}
-                         disableHoverEffect={true}
-                       >
-                      Fastpris
-                    </GlassButton>
-                  </div>
-                 <div style={{ 
-                  fontSize: '0.9rem', 
-                  color: 'var(--foreground)', 
-                  background: 'rgba(255, 255, 255, 0.95)', 
-                  border: '1px solid rgba(0,0,0,0.06)', 
-                  padding: '0.35rem 0.6rem', 
-                  borderRadius: 9999, 
-                  textAlign: 'center',
-                  backdropFilter: 'blur(8px)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-                  position: 'relative',
-                  zIndex: 10
-                }}>
-                   Fastpris med prisgaranti
-                 </div>
-               </div>
+                  Fyll i postnummer – se avtal i din strømsone
+                </div>
+              </div>
             </ButtonRow>
             <USPList>
               <li>✔️ Vi løfter bare frem strømavtaler som er verdt å vurdere.</li>
