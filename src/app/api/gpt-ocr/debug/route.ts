@@ -31,50 +31,50 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 1: Extract structured data
-    const extractionPrompt = `Du är en expert på svenska elräkningar. Din uppgift är att extrahera ALLA kostnader från fakturan och strukturera dem i JSON-format.
+    const extractionPrompt = `Du er en ekspert på norske strømregninger. Din oppgave er å ekstraktere ALLE kostnader fra regningen og strukturere dem i JSON-format.
 
 **VIKTIGT - SPRÅK:**
-- Du MÅSTE alltid svara på svenska, oavsett vilket språk fakturan är på
-- Använd endast svenska ord och termer
+- Du MÅ alltid svare på norsk, uansett hvilket språk regningen er på
+- Bruk kun norske ord og termer
 
-**EXTRAKTIONSREGEL:**
-Extrahera ALLA kostnader från fakturan och returnera dem som en JSON-array. Varje kostnad ska ha:
-- "name": exakt text från fakturan (t.ex. "Fast månadsavgift", "Elavtal årsavgift")
-- "amount": belopp i kr (t.ex. 31.20, 44.84)
-- "section": vilken sektion den tillhör ("Elnät" eller "Elhandel")
-- "description": kort beskrivning av vad kostnaden är
+**EKSTRAKSJONSREGEL:**
+Ekstraktere ALLE kostnader fra regningen og returnere dem som en JSON-array. Hver kostnad skal ha:
+- "name": eksakt tekst fra regningen (f.eks. "Fast månadsavgift", "Strømavtale årsavgift")
+- "amount": beløp i kr (f.eks. 31.20, 44.84)
+- "section": hvilken seksjon den tilhører ("Strømnett" eller "Strømhandel")
+- "description": kort beskrivelse av hva kostnaden er
 
-**EXEMPEL JSON:**
+**EKSEMPEL JSON:**
 [
   {
     "name": "Fast månadsavgift",
     "amount": 31.20,
-    "section": "Elhandel",
-    "description": "Månatlig fast avgift från elleverantören"
+    "section": "Strømhandel",
+    "description": "Månedlig fast avgift fra strømleverandøren"
   },
   {
-    "name": "Elavtal årsavgift",
+    "name": "Strømavtale årsavgift",
     "amount": 44.84,
-    "section": "Elhandel", 
-    "description": "Årsavgift för elavtalet"
+    "section": "Strømhandel", 
+    "description": "Årsavgift for strømavtalen"
   },
   {
-    "name": "Elöverföring",
+    "name": "Strømoverføring",
     "amount": 217.13,
-    "section": "Elnät",
-    "description": "Nätavgift för elöverföring"
+    "section": "Strømnett",
+    "description": "Nettavgift for strømoverføring"
   }
 ]
 
 **VIKTIGT:**
-- Inkludera ALLA kostnader, även de som inte är "onödiga"
-- Läs exakt belopp från "Totalt" eller motsvarande kolumn
-- **KRITISKT**: Leta särskilt efter "Elavtal årsavgift" - denna kostnad missas ofta men är viktig
-- Var särskilt uppmärksam på "Fast månadsavgift", "Profilpris", "Rörliga kostnader", "Fast påslag"
-- Om en kostnad har både års- och månadsbelopp, inkludera månadsbeloppet
-- **EXTRA VIKTIGT**: "Elavtal årsavgift" kan stå som en egen rad eller som del av en längre text - leta efter den överallt
+- Inkluder ALLE kostnader, også de som ikke er "unødvendige"
+- Les eksakt beløp fra "Totalt" eller tilsvarende kolonne
+- **KRITISK**: Let særlig etter "Strømavtale årsavgift" - denne kostnaden blir ofte oversett men er viktig
+- Vær særlig oppmerksom på "Fast månadsavgift", "Profilpris", "Rørlige kostnader", "Fast påslag"
+- Hvis en kostnad har både års- og månedsbeløp, inkluder månedsbeløpet
+- **EXTRA VIKTIGT**: "Strømavtale årsavgift" kan stå som en egen rad eller som del av en lengre tekst - let etter den overalt
 
-Svara ENDAST med JSON-arrayen, inget annat.`;
+Svar KUN med JSON-arrayen, ingenting annet.`;
 
     const extractionRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
