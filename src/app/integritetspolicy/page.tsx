@@ -50,20 +50,20 @@ export default function Integritetspolicy() {
         <div style={{ fontSize: '1px', color: 'transparent', position: 'absolute', left: '-9999px' }}>
           tiktok-developers-site-verification=i7h859t0QF0G6Dua8q4h9qJUXwuPQoof
         </div>
-        <Title>Integritetspolicy för elchef.se</Title>
-        <Updated>Senast uppdaterad: Augusti 2025</Updated>
+        <Title>Personvernerklæring for stromsjef.se</Title>
+        <Updated>Sist oppdatert: August 2025</Updated>
 
-        <SectionTitle>1. Vårt ansvar för din personuppgifter</SectionTitle>
+        <SectionTitle>1. Vårt ansvar for dine personopplysninger</SectionTitle>
         <Paragraph>
-          VKNG LTD (benämnt som &quot;Elchef.se&quot;, &quot;vi&quot; eller &quot;oss&quot;) är personuppgiftsansvarig för behandlingen av dina personuppgifter när du använder vår webbplats elchef.se. Denna integritetspolicy förklarar hur vi samlar in, använder och skyddar din personliga information.
+          VKNG LTD (benevnt som «Strømsjef.se», «vi» eller «oss») er behandlingsansvarlig når du bruker vårt nettsted stromsjef.se. Denne personvernerklæringen forklarer hvordan vi samler inn, bruker og beskytter dine opplysninger.
         </Paragraph>
 
-        <SectionTitle>2. Vilka personuppgifter vi samlar in</SectionTitle>
+        <SectionTitle>2. Hvilke personopplysninger vi samler inn</SectionTitle>
         <Paragraph>
           Vi samlar in information som du ger oss direkt, såsom namn, e-postadress, telefonnummer och adress när du använder våra tjänster. Vi samlar också in teknisk information om hur du använder webbplatsen, inklusive IP-adress, webbläsartyp och besöksdata.
         </Paragraph>
 
-        <SectionTitle>3. Hur vi använder dina personuppgifter</SectionTitle>
+        <SectionTitle>3. Hvordan vi bruker personopplysningene</SectionTitle>
         <Paragraph>
           Vi använder dina personuppgifter för att tillhandahålla våra tjänster, förbättra användarupplevelsen, kommunicera med dig och följa lagkrav. Vi delar inte dina personuppgifter med tredje part utan ditt samtycke, förutom när det krävs för att leverera våra tjänster.
         </Paragraph>
@@ -73,10 +73,10 @@ export default function Integritetspolicy() {
           När du laddar upp en bild av din elräkning för analys behandlas bilden för att vi ska kunna ge dig en analys här och nu. Denna omedelbara behandling sker med stöd av avtal/berättigat intresse och bilden behöver inte sparas permanent för att tjänsten ska fungera.
         </Paragraph>
         <Paragraph>
-          <strong>Samtycke för lagring:</strong> Om du vill hjälpa oss att förbättra tjänsten kan du ge ett <em>frivilligt, uttryckligt samtycke</em> till att vi lagrar din fakturabild under en begränsad tid för kvalitetssäkring och utveckling. Samtycke lämnas via en omarkerad kryssruta i samband med uppladdningen och kan återkallas när som helst.
+          <strong>Samtykke til lagring:</strong> Dersom du vil hjelpe oss å forbedre tjenesten kan du gi et <em>frivillig, uttrykkelig samtykke</em> til at vi lagrer fakturabildet ditt i en begrenset periode for kvalitetssikring og utvikling. Samtykke gis via en avmerket avkrysningsboks ved opplasting og kan trekkes tilbake når som helst.
         </Paragraph>
         <Paragraph>
-          <strong>Vad som kan lagras vid samtycke:</strong>
+          <strong>Hva som kan lagres ved samtykke:</strong>
         </Paragraph>
         <ul>
           <li>Originalbilden av fakturan</li>
@@ -85,38 +85,38 @@ export default function Integritetspolicy() {
           <li>Koppling till sessions‑ID och tidpunkt för uppladdning</li>
         </ul>
         <Paragraph>
-          <strong>Lagring, mottagare och överföringar:</strong> Bilder lagras i en privat, åtkomstskyddad lagringslösning hos vår driftleverantör (Supabase). För OCR/analys använder vi en AI‑leverantör (OpenAI) som biträde. Behandlingen kan innebära överföring av uppgifter utanför EU/EES; i sådant fall används standardavtalsklausuler (SCC) och andra relevanta skyddsåtgärder enligt GDPR.
+          <strong>Lagring, mottakere og overføringer:</strong> Bilder lagres i en privat, tilgangsbeskyttet lagringsløsning hos vår driftsleverandør (Supabase). For OCR/analyse bruker vi en AI‑leverandør (OpenAI) som databehandler. Behandlingen kan innebære overføring av opplysninger utenfor EU/EØS; i slike tilfeller brukes standard kontraktsklausuler (SCC) og relevante sikkerhetstiltak i henhold til GDPR.
         </Paragraph>
         <Paragraph>
-          <strong>Lagringstid:</strong> Vid samtycke sparas fakturabilden i upp till 90 dagar, därefter raderas den automatiskt. Du kan när som helst återkalla ditt samtycke, varpå vi raderar bilden snarast möjligt.
+          <strong>Lagringstid:</strong> Ved samtykke lagres fakturabildet i opptil 90 dager før det slettes automatisk. Du kan når som helst trekke tilbake samtykket, og vi sletter bildet så snart som mulig.
         </Paragraph>
         <Paragraph>
-          <strong>Utan samtycke:</strong> Vi sparar inte själva bilden. Vi kan dock spara AI:ns textanalys och begränsad teknisk metadata (t.ex. hashvärde) för felsökning, statistik och för att förhindra dubbla uppladdningar.
+          <strong>Uten samtykke:</strong> Vi lagrer ikke selve bildet. Vi kan lagre AI‑analysen og begrenset teknisk metadata (f.eks. hashverdi) for feilsøking, statistikk og for å forhindre duplikater.
         </Paragraph>
 
-        <SectionTitle>5. Dina rättigheter</SectionTitle>
+        <SectionTitle>5. Dine rettigheter</SectionTitle>
         <Paragraph>
           Du har rätt att få information om vilka personuppgifter vi har om dig, begära rättelse av felaktig information, begära radering av dina uppgifter och invända mot vår behandling. Du kan också begära att få dina uppgifter överförda till en annan leverantör.
         </Paragraph>
 
-        <SectionTitle>6. Cookies och spårning</SectionTitle>
+        <SectionTitle>6. Cookies og sporing</SectionTitle>
         <Paragraph>
           Vi använder cookies och liknande tekniker för att förbättra webbplatsens funktionalitet och analysera användningsmönster. Du kan hantera dina cookie-inställningar i din webbläsare.
         </Paragraph>
 
-        <SectionTitle>7. Säkerhet</SectionTitle>
+        <SectionTitle>7. Sikkerhet</SectionTitle>
         <Paragraph>
           Vi implementerar lämpliga tekniska och organisatoriska säkerhetsåtgärder för att skydda dina personuppgifter mot obehörig åtkomst, förlust eller förstörelse.
         </Paragraph>
 
         <SectionTitle>8. Kontakt</SectionTitle>
         <Paragraph>
-          Vid frågor om denna integritetspolicy eller vår behandling av personuppgifter, kontakta oss via e-post: <Mail href="mailto:info@elchef.se">info@elchef.se</Mail>
+          Ved spørsmål om denne personvernerklæringen eller vår behandling av personopplysninger, kontakt oss via e‑post: <Mail href="mailto:info@stromsjef.se">info@stromsjef.se</Mail>
         </Paragraph>
 
-        <SectionTitle>9. Ändringar av denna policy</SectionTitle>
+        <SectionTitle>9. Endringer</SectionTitle>
         <Paragraph>
-          Vi kan uppdatera denna integritetspolicy vid behov. Alla ändringar meddelas på webbplatsen och träder i kraft när de publiceras.
+          Vi kan oppdatere denne personvernerklæringen ved behov. Alle endringer publiseres på nettstedet og trer i kraft ved publisering.
         </Paragraph>
       </Container>
     </Section>

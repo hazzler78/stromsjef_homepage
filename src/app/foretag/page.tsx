@@ -34,9 +34,9 @@ export default function Foretag() {
   return (
     <Section>
       <Container>
-        <Title>Elavtal för företag</Title>
+        <Title>Strømavtale for bedrift</Title>
         <Lead>
-          Ett företagsavtal för el ger din verksamhet möjlighet att anpassa energilösningarna efter behov och förbrukning. Med rätt avtal kan ni uppnå förutsägbara kostnader, ökad flexibilitet och trygghet mot marknadens svängningar, så att ni kan fokusera på det som är viktigast – att driva verksamheten effektivt.
+          En bedriftsavtale for strøm gir virksomheten mulighet til å tilpasse energiløsningene etter behov og forbruk. Med riktig avtale kan dere få forutsigbare kostnader, økt fleksibilitet og trygghet mot markedsvingninger – slik at dere kan fokusere på det viktigste: å drive virksomheten effektivt.
         </Lead>
         <GlassButton 
           variant="primary" 
@@ -44,7 +44,7 @@ export default function Foretag() {
           onClick={() => window.open('https://energi2.se/elchef/', '_blank')}
           background={'linear-gradient(135deg, var(--primary), var(--secondary))'}
         >
-          Läs mer & teckna företagsavtal
+          Les mer & tegn bedriftsavtale
         </GlassButton>
       </Container>
     </Section>

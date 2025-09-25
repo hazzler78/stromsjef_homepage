@@ -54,37 +54,37 @@ export default function Cookies() {
   return (
     <Section>
       <Container>
-        <Title>Cookiepolicy för Elchef.se</Title>
-        <Updated>Senast uppdaterad: September 2024</Updated>
+        <Title>Cookiepolicy for Strømsjef.se</Title>
+        <Updated>Sist oppdatert: September 2024</Updated>
 
-        <SectionTitle>Vad är cookies?</SectionTitle>
+        <SectionTitle>Hva er cookies?</SectionTitle>
         <Paragraph>
-          Cookies är små textfiler som sparas på din dator, mobil eller surfplatta när du besöker en webbplats. De används för att webbplatsen ska fungera, för att förbättra användarupplevelsen och för att samla in statistik.
+          Cookies er små tekstfiler som lagres på din enhet når du besøker et nettsted. De brukes for at siden skal fungere, for å forbedre brukeropplevelsen og for å samle statistikk.
         </Paragraph>
 
-        <SectionTitle>Vilka cookies använder vi?</SectionTitle>
+        <SectionTitle>Hvilke cookies bruker vi?</SectionTitle>
         <Paragraph>
-          På Elchef.se använder vi:
+          På Strømsjef.se bruker vi:
         </Paragraph>
         <List>
-          <li><b>Nödvändiga cookies:</b> Krävs för att webbplatsen ska fungera korrekt, t.ex. för att komma ihåg dina val och inställningar.</li>
-          <li><b>Analyscookies:</b> Hjälper oss att förstå hur besökare använder webbplatsen, så att vi kan förbättra innehåll och funktionalitet. Vi använder t.ex. Google Analytics.</li>
-          <li><b>Marknadsföringscookies:</b> Kan användas för att visa relevanta erbjudanden och annonser, men vi använder i dagsläget ingen tredjepartsannonsering.</li>
+          <li><b>Nødvendige cookies:</b> Kreves for at nettstedet skal fungere riktig, f.eks. for å huske dine valg og innstillinger.</li>
+          <li><b>Analyse-cookies:</b> Hjelper oss å forstå hvordan besøkende bruker siden, slik at vi kan forbedre innhold og funksjonalitet. Vi bruker f.eks. Google Analytics.</li>
+          <li><b>Markedsføringscookies:</b> Kan brukes for å vise relevante tilbud, men vi bruker per i dag ingen tredjepartsannonsering.</li>
         </List>
 
-        <SectionTitle>Hur kan du hantera cookies?</SectionTitle>
+        <SectionTitle>Hvordan kan du håndtere cookies?</SectionTitle>
         <Paragraph>
-          Du kan själv välja att blockera eller ta bort cookies via inställningarna i din webbläsare. Tänk på att vissa funktioner på webbplatsen kan sluta fungera om du blockerar alla cookies.
+          Du kan selv blokkere eller slette cookies i nettleserinnstillingene. Merk at enkelte funksjoner kan slutte å fungere om du blokkerer alle cookies.
         </Paragraph>
 
-        <SectionTitle>Samtycke</SectionTitle>
+        <SectionTitle>Samtykke</SectionTitle>
         <Paragraph>
-          När du besöker Elchef.se för första gången får du information om att vi använder cookies. Genom att fortsätta använda webbplatsen samtycker du till vår användning av cookies enligt denna policy.
+          Når du besøker Strømsjef.se første gang får du informasjon om bruk av cookies. Ved å fortsette å bruke nettstedet samtykker du til vår bruk av cookies i henhold til denne policyen.
         </Paragraph>
 
-        <SectionTitle>Kontakta oss</SectionTitle>
+        <SectionTitle>Kontakt oss</SectionTitle>
         <Paragraph>
-          Har du frågor om vår cookiepolicy? Kontakta oss på <Mail href="mailto:info@elchef.se">info@elchef.se</Mail>.
+          Har du spørsmål om vår cookiepolicy? Kontakt oss på <Mail href="mailto:info@stromsjef.se">info@stromsjef.se</Mail>.
         </Paragraph>
       </Container>
     </Section>
