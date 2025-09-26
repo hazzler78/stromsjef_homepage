@@ -67,6 +67,13 @@ const adminSections = [
     href: "/admin/shared-cards",
     icon: "🔗",
     color: "bg-teal-500"
+  },
+  {
+    title: "Elavtal",
+    description: "Hantera elavtal och priser för alla leverantörer",
+    href: "/admin/plans",
+    icon: "⚡",
+    color: "bg-yellow-500"
   }
 ];
 

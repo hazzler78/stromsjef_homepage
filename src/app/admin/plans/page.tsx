@@ -177,7 +177,7 @@ export default function AdminPlans() {
 
   return (
     <Container>
-      <h1>Elavtal (Admin)</h1>
+      <h1 style={{ color: 'white' }}>Elavtal (Admin)</h1>
       <Toolbar>
         <input
           placeholder="Sök (leverantör, plan, zon, id)"
