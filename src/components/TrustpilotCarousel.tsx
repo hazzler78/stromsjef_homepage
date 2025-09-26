@@ -59,16 +59,14 @@ const Slide = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 90%;
+  flex: 0 0 25%;
   height: 100%;
   padding: 0.25rem 0.5rem;
 
-  /* Show 1 on mobile, 2 on tablets, 4 on desktops */
-  @media (min-width: 640px) {
-    flex-basis: 50%;
-  }
-  @media (min-width: 1024px) {
+  /* Show 4 cards on all screen sizes, but allow swiping */
+  @media (max-width: 640px) {
     flex-basis: 25%;
+    min-width: 25%;
   }
 
   img {
@@ -101,7 +99,7 @@ export default function TrustpilotCarousel({
 
   const queueDecay = () => {
     if (decayTimer.current) clearTimeout(decayTimer.current);
-    decayTimer.current = setTimeout(() => setSpeedMultiplier(1), 1200);
+    decayTimer.current = setTimeout(() => setSpeedMultiplier(1), 2000);
   };
 
   const handleWheel: React.WheelEventHandler<HTMLDivElement> = (e) => {
@@ -119,7 +117,8 @@ export default function TrustpilotCarousel({
     if (dragStartX.current == null) return;
     const dx = e.touches[0].clientX - dragStartX.current;
     setReverse(dx > 0); // swipe right -> reverse
-    setSpeedMultiplier(Math.min(6, Math.max(1.5, 1 + Math.abs(dx) / 60)));
+    // Much smoother speed changes - less aggressive
+    setSpeedMultiplier(Math.min(3, Math.max(1.2, 1 + Math.abs(dx) / 120)));
     e.preventDefault(); // Prevent page scroll during carousel interaction
   };
   const onTouchEnd: React.TouchEventHandler<HTMLDivElement> = () => {
