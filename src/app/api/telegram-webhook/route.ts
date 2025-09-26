@@ -139,12 +139,12 @@ async function summarizeWithXAI(title: string, content: string): Promise<string 
     return null;
   }
   const system = [
-    'Du är en svensk redaktör för elchef.se. Du får en artikel (titel + text) från en extern länk.',
-    'Skapa en kort sammanfattning anpassad för Telegram i Markdown med:',
-    '- En tydlig rubrik (fetstil).',
-    '- 3–6 viktigaste punkter i punktlista, konkreta och korta.',
-    '- En kort slutsats eller varför detta är relevant för våra läsare.',
-    'Undvik överdrifter. Använd svensk ton, enkel och saklig.'
+    'Du er en norsk redaktør for strømsjef.se. Du får en artikkel (tittel + tekst) fra en ekstern lenke.',
+    'Lag en kort sammendrag tilpasset for Telegram i Markdown med:',
+    '- En tydelig overskrift (fet skrift).',
+    '- 3–6 viktigste punkter i punktliste, konkrete og korte.',
+    '- En kort konklusjon eller hvorfor dette er relevant for våre lesere.',
+    'Unngå overdrivelser. Bruk norsk tone, enkel og saklig.'
   ].join('\n');
 
   const user = `TITEL: ${title}\n\nTEXT:\n${content}`;
@@ -232,10 +232,10 @@ export async function POST(request: NextRequest) {
     if (sharedUrl) {
       console.log('URL detected:', sharedUrl);
       try {
-        await sendTelegramMessage(chatId, '⏳ Analyserar länken och sammanfattar innehållet...');
+        await sendTelegramMessage(chatId, '⏳ Analyserer lenken og lager sammendrag...');
         const page = await fetchPageSummary(sharedUrl);
         if (!page) {
-          await sendTelegramMessage(chatId, '❌ Kunde inte hämta sidan. Kontrollera länken och försök igen.');
+          await sendTelegramMessage(chatId, '❌ Kunne ikke hente siden. Sjekk lenken og prøv igjen.');
           return NextResponse.json({ success: true });
         }
 
@@ -254,14 +254,14 @@ export async function POST(request: NextRequest) {
         
         // Create a fallback summary if AI summarization fails
         const fallbackSummary = summaryText || 
-          `Länk delad från ${new URL(sharedUrl).hostname}. Klicka för att läsa mer.`;
+          `Lenke delt fra ${new URL(sharedUrl).hostname}. Klikk for å lese mer.`;
         
         const card = [
           `**${decodedTitle}**`,
           '',
           fallbackSummary,
           '',
-          `[Läs mer](${sharedUrl})`
+          `[Les mer](${sharedUrl})`
         ].join('\n');
 
         // Save card to Supabase for website listing
@@ -279,20 +279,20 @@ export async function POST(request: NextRequest) {
             ]);
           if (error) {
             console.error('Error inserting shared card:', error);
-            await sendTelegramMessage(chatId, '⚠️ Kunde inte spara länken på webbplatsen, men sammanfattningen skickades ändå.');
+            await sendTelegramMessage(chatId, '⚠️ Kunne ikke lagre lenken på nettsiden, men sammendraget ble sendt likevel.');
           } else {
-            await sendTelegramMessage(chatId, '✅ Länken sparades på webbplatsen under /media');
+            await sendTelegramMessage(chatId, '✅ Lenken ble lagret på nettsiden under /media');
           }
         } catch (e) {
           console.error('Insert shared card exception:', e);
-          await sendTelegramMessage(chatId, '⚠️ Kunde inte spara länken på webbplatsen, men sammanfattningen skickades ändå.');
+          await sendTelegramMessage(chatId, '⚠️ Kunne ikke lagre lenken på nettsiden, men sammendraget ble sendt likevel.');
         }
 
         await sendTelegramMessage(chatId, card);
         return NextResponse.json({ success: true });
       } catch (err) {
         console.error('Error summarizing shared URL:', err);
-        await sendTelegramMessage(chatId, '❌ Ett fel uppstod när länken skulle sammanfattas. Försök igen.');
+        await sendTelegramMessage(chatId, '❌ En feil oppstod da lenken skulle sammendras. Prøv igjen.');
         return NextResponse.json({ success: true });
       }
     }
