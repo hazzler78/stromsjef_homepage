@@ -17,7 +17,7 @@ export default function AdminSharedCards() {
       const data = await res.json();
       setItems(data.items || []);
     } catch (e) {
-      const msg = (e as Error)?.message || 'Kunde inte hämta data';
+      const msg = (e as Error)?.message || 'Kunne ikke hente data';
       setError(msg);
     } finally {
       setLoading(false);
@@ -41,14 +41,14 @@ export default function AdminSharedCards() {
     await load();
   }
 
-  if (loading) return <div style={{padding: 24}}>Laddar…</div>;
+  if (loading) return <div style={{padding: 24}}>Laster…</div>;
   if (error) return <div style={{padding: 24, color: 'red'}}>{error}</div>;
 
   return (
     <div style={{ padding: 24 }}>
-      <h1>Delade länkar</h1>
-      <p>Hantera kort som delats via Telegram (ändra, normalisera, ta bort).</p>
-      {items.length === 0 && <p>Inga kort ännu.</p>}
+      <h1>Delte lenker</h1>
+      <p>Administrer kort som er delt via Telegram (endre, normaliser, slett).</p>
+      {items.length === 0 && <p>Ingen kort ennå.</p>}
       <div style={{ display: 'grid', gap: 16 }}>
         {items.map(item => (
           <div key={item.id} style={{ border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, background: '#fff' }}>
@@ -62,10 +62,10 @@ export default function AdminSharedCards() {
               <input style={{ padding: 8, border: '1px solid #e5e7eb', borderRadius: 8 }} value={item.url} onChange={e => setItems(prev => prev.map(p => p.id === item.id ? { ...p, url: e.target.value } : p))} />
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-              <button onClick={() => save(item)} style={{ padding: '8px 12px', background: 'var(--primary)', color: '#fff', borderRadius: 8, border: 'none' }}>Spara</button>
-              <button onClick={() => normalize(item.id)} style={{ padding: '8px 12px', background: 'var(--secondary)', color: '#000', borderRadius: 8, border: 'none' }}>Normalisera</button>
-              <button onClick={() => remove(item.id)} style={{ padding: '8px 12px', background: '#ef4444', color: '#fff', borderRadius: 8, border: 'none' }}>Ta bort</button>
-              <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 8, textDecoration: 'none' }}>Öppna</a>
+              <button onClick={() => save(item)} style={{ padding: '8px 12px', background: 'var(--primary)', color: '#fff', borderRadius: 8, border: 'none' }}>Lagre</button>
+              <button onClick={() => normalize(item.id)} style={{ padding: '8px 12px', background: 'var(--secondary)', color: '#000', borderRadius: 8, border: 'none' }}>Normaliser</button>
+              <button onClick={() => remove(item.id)} style={{ padding: '8px 12px', background: '#ef4444', color: '#fff', borderRadius: 8, border: 'none' }}>Slett</button>
+              <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 8, textDecoration: 'none' }}>Åpne</a>
             </div>
           </div>
         ))}
