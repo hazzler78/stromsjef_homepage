@@ -7,18 +7,46 @@ import { getSupabaseServerClient } from '@/lib/supabaseServer';
 export async function GET(request: NextRequest) {
   try {
     const supabase = getSupabaseServerClient();
-    const limit = Math.min(parseInt(request.nextUrl.searchParams.get('limit') || '50', 10), 100);
-    const { data, error } = await supabase
+
+    const url = request.nextUrl;
+    const limitParam = url.searchParams.get('limit');
+    const offsetParam = url.searchParams.get('offset');
+    const hostParam = url.searchParams.get('host');
+    const qParam = url.searchParams.get('q');
+    const includeArchived = url.searchParams.get('includeArchived') === 'true';
+
+    const limit = Math.min(parseInt(limitParam || '20', 10), 100);
+    const offset = Math.max(parseInt(offsetParam || '0', 10), 0);
+
+    let query = supabase
       .from('shared_cards')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(limit);
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false });
+
+    if (!includeArchived) {
+      query = query.eq('archived', false);
+    }
+    if (hostParam) {
+      query = query.eq('source_host', hostParam);
+    }
+    if (qParam && qParam.trim().length > 0) {
+      // Match in title or summary, case-insensitive
+      const like = `%${qParam.trim()}%`;
+      query = query.or(`title.ilike.${like},summary.ilike.${like}`);
+    }
+
+    // Pagination using range (offset/limit)
+    const { data, error, count } = await query.range(offset, offset + limit - 1);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ items: data || [] });
+    const items = data || [];
+    const total = typeof count === 'number' ? count : null;
+    const hasMore = total !== null ? offset + items.length < total : items.length === limit;
+
+    return NextResponse.json({ items, total, limit, offset, hasMore });
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -69,12 +97,13 @@ export async function PATCH(request: NextRequest) {
   try {
     const supabase = getSupabaseServerClient();
     const body = await request.json();
-    const { id, title, summary, url } = body || {};
+    const { id, title, summary, url, archived } = body || {};
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
-    const payload: { title?: string; summary?: string; url?: string } = {};
+    const payload: { title?: string; summary?: string; url?: string; archived?: boolean } = {};
     if (title !== undefined) payload.title = title;
     if (summary !== undefined) payload.summary = summary;
     if (url !== undefined) payload.url = url;
+    if (archived !== undefined) payload.archived = !!archived;
     const { error } = await supabase.from('shared_cards').update(payload).eq('id', id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ success: true });

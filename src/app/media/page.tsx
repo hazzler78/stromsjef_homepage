@@ -187,16 +187,27 @@ const mediaArticles = [
 
 export default function Media() {
   useEffect(() => {
-    async function load() {
+    let offset = 0;
+    let limit = 12;
+    let loading = false;
+    let hasMore = true;
+    async function load(initial = false) {
+      if (loading) return;
+      loading = true;
       try {
-        const res = await fetch('/api/shared-cards?limit=12', { cache: 'no-store' });
+        const res = await fetch(`/api/shared-cards?limit=${limit}&offset=${offset}`, { cache: 'no-store' });
         const data = await res.json();
         const mount = document.getElementById('shared-cards');
+        const loadMoreBtn = document.getElementById('load-more');
         if (!mount) return;
-        if (!data?.items?.length) {
+        if (initial) mount.innerHTML = '';
+        if (!data?.items?.length && initial) {
           mount.innerHTML = '<p style="color: var(--gray-600)">Inga delade länkar ännu.</p>';
+          hasMore = false;
+          if (loadMoreBtn) (loadMoreBtn as HTMLButtonElement).style.display = 'none';
           return;
         }
+        hasMore = !!data?.hasMore;
         function renderMarkdown(md: string) {
           const safe = String(md || '')
             .replace(/&/g, '&amp;')
@@ -233,10 +244,21 @@ export default function Media() {
             <a href="${item.url}" target="_blank" rel="noopener noreferrer" style="display:inline-block; margin-top:0.6rem; color: var(--primary); font-weight:600">Läs mer →</a>
           </div>
         `).join('');
-        mount.innerHTML = html;
+        mount.insertAdjacentHTML('beforeend', html);
+        offset += items.length;
+        if (loadMoreBtn) {
+          (loadMoreBtn as HTMLButtonElement).style.display = hasMore ? 'inline-block' : 'none';
+        }
       } catch {}
+      loading = false;
     }
-    load();
+    load(true);
+    const loadMoreBtn = document.getElementById('load-more');
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', () => {
+        load();
+      });
+    }
   }, []);
   return (
     <PageBackground>
@@ -276,6 +298,17 @@ export default function Media() {
 
           <SubTitle style={{ marginTop: '3rem' }}>Senaste delade länkar</SubTitle>
           <div id="shared-cards"></div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+            <button id="load-more" style={{
+              background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+              color: 'white',
+              border: 'none',
+              padding: '0.7rem 1.2rem',
+              borderRadius: '999px',
+              cursor: 'pointer',
+              fontWeight: 700
+            }}>Ladda fler</button>
+          </div>
         </Container>
       </Section>
     </PageBackground>

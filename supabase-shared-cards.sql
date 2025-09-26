@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS shared_cards (
   summary TEXT,
   url TEXT NOT NULL,
   source_host TEXT,
+  archived BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -16,6 +17,8 @@ CREATE TABLE IF NOT EXISTS shared_cards (
 CREATE INDEX IF NOT EXISTS idx_shared_cards_created_at ON shared_cards(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_shared_cards_source_host ON shared_cards(source_host);
 CREATE INDEX IF NOT EXISTS idx_shared_cards_url ON shared_cards(url);
+-- Unikt index för att undvika duplicerade URL:er
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_shared_cards_url ON shared_cards(url);
 
 -- RLS (Row Level Security) policies
 ALTER TABLE shared_cards ENABLE ROW LEVEL SECURITY;
