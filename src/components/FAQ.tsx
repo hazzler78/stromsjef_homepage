@@ -84,31 +84,31 @@ const AccordionContent = styled.div<{ $isOpen: boolean }>`
 const faqData = [
   {
     question: "Hvordan finner jeg gode strømavtaler?",
-    answer: "Hvis du ikke finner en avtale du vil ha på vår side, kan du registrere din e-postadresse i skjemaet nederst på siden. Dette gir deg muligheten til å sikre gode priser, før tilbud med begrenset kapasitet blir fullbooket."
+    answer: "Hvis du ikke finner en avtale du vil ha på siden vår, kan du registrere e-postadressen din i skjemaet nederst på siden. Dette gir deg muligheten til å sikre deg gode priser før tilbud med begrenset kapasitet blir fullbooket."
   },
   {
     question: "Hvordan fungerer Strømsjef.se?",
-    answer: "Strømsjef.se forhandler frem gode strømavtaler fra ulike leverandører og gir deg muligheten til å velge den avtalen som passer deg best. Du kan være sikker på at de tilbudene du finner her er konkurransedyktige på markedet!"
+    answer: "Strømsjef.no finner frem gode strømavtaler fra ulike leverandører og gir deg muligheten til å velge den avtalen som passer deg best. Du kan være trygg på at tilbudene du finner her er konkurransedyktige i markedet!"
   },
   {
     question: "Hva skal jeg velge? Fastpris, Rørlig timepris eller Rørlig månedspris?",
-    answer: "Det avhenger av din livsstil og hva du føler deg komfortabel med. Med en fastprisavtale har du forutsigbarhet under hele avtaleperioden. Med rørlig pris følger din strømpris markedets svingninger men kan eventuelt spare penger på lengre sikt. Spør deg selv: Tror du at strømprisene kommer til å bli billigere eller dyrere fremover?"
+    answer: "Det kommer an på livsstilen din og hva du føler deg mest komfortabel med. Med en fastprisavtale har du forutsigbarhet gjennom hele avtaleperioden. Med en spotprisavtale følger strømprisen markedets svingninger, men du kan potensielt spare penger på sikt. Spør deg selv: Tror du at strømprisene vil bli billigere eller dyrere fremover?"
   },
   {
     question: "Hva er en Strømsjef?",
-    answer: "En \"Strømsjef\" tar kontroll over sin strømavtale for å holde kostnadene nede. Du er en strømsjef når du gjør et bevisst valg for å sikre en bedre avtale og unngå å betale mer enn nødvendig."
+    answer: "En \"Strømsjef\" tar kontroll over strømavtalen sin for å holde kostnadene nede. Du er en Strømsjef når du tar et bevisst valg om å sikre deg en bedre avtale og unngå å betale mer enn nødvendig."
   },
   {
     question: "Må jeg si opp min gamle strømavtale hvis jeg bytter leverandør?",
-    answer: "Nei, du trenger vanligvis ikke å si opp din gamle strømavtale selv. Når du bytter strømleverandør håndterer den nye leverandøren vanligvis byttet for deg, inkludert oppsigelsen av din tidligere avtale. Det er imidlertid bra å kontrollere vilkårene i din nåværende avtale, spesielt hvis du har en fastprisavtale, siden det kan finnes oppsigelsestid eller avgifter for å avslutte avtalen i forveien."
+    answer: "Nei, du trenger som regel ikke å si opp den gamle strømavtalen selv. Når du bytter strømleverandør, håndterer den nye leverandøren vanligvis byttet for deg, inkludert oppsigelsen av din tidligere avtale. Det er likevel lurt å sjekke vilkårene i din nåværende avtale – spesielt hvis du har en fastprisavtale – siden det kan være oppsigelsestid eller gebyrer for å avslutte avtalen før tiden."
   },
   {
     question: "Er det noen avgift for å si opp en strømavtale?",
-    answer: `Rørlige strømavtaler kan vanligvis sies opp uten avgift og har normalt en oppsigelsestid på en måned.
+    answer: `Spotprisavtaler kan som regel sies opp uten kostnad.
 
-Fastprisavtaler derimot har en bindingsperiode, og hvis du vil avslutte avtalen i forveien kan det komme en bryteavgift (også kalt løsningsavgift). Avgiften varierer mellom ulike leverandører og avhenger av hvor lang tid som gjenstår av avtalen samt strømprisutviklingen.
+Fastprisavtaler har derimot en bindingstid, og hvis du ønsker å avslutte avtalen før tiden, kan det komme et bruddgebyr. Gebyret varierer mellom ulike leverandører og avhenger av hvor lang tid som gjenstår av avtalen samt utviklingen i strømprisen.
 
-Det er alltid best å kontrollere vilkårene i din avtale eller kontakte din strømleverandør for å få eksakt informasjon om hva som gjelder ved en oppsigelse.`
+Det er alltid best å sjekke vilkårene i avtalen din eller kontakte strømleverandøren din for å få eksakt informasjon om hva som gjelder ved oppsigelse.`
   },
   {
     question: "Hvilket strømområde/strømsone tilhører jeg?",
@@ -124,7 +124,7 @@ Hvilket strømområde du tilhører avhenger av hvor du bor og påvirker strømpr
   },
   {
     question: "Hva bør jeg tenke på når jeg velger strømavtale?",
-    answer: "Velg strømavtale ut fra din økonomiske situasjon og din risikotoleranse. Hvis du har et stramt budsjett og vil unngå prissvingninger kan en fastprisavtale være et bra alternativ. Rørlige avtaler (spotpris) har historisk sett vært billigere over tid, men innebærer større risiko for prisvariasjoner. Tenk på hva som passer din situasjon best før du gjør ditt valg."
+    answer: "Velg strømavtale ut fra din økonomiske situasjon og risikotoleranse. Hvis du har et stramt budsjett og vil unngå prissvingninger, kan en fastprisavtale være et godt alternativ. Spotprisavtaler har historisk sett vært billigere over tid, men innebærer større risiko for prisvariasjoner. Tenk gjennom hva som passer din situasjon best før du gjør ditt valg."
   },
   {
     question: "Kan jeg angre min strømavtale?",
