@@ -87,7 +87,7 @@ export default function TrustpilotCarousel({
     '/trustpilot/trustpilot-04.png',
     '/trustpilot/trustpilot-01.png',
   ],
-  height = 'clamp(110px, 11vw, 180px)',
+  height = 'clamp(160px, 20vw, 240px)',
   durationSeconds = 40,
   className,
 }: TrustpilotCarouselProps) {
