@@ -119,6 +119,7 @@ const CheckboxGroup = styled.div`
   gap: 0.75rem;
   justify-content: flex-start;
   text-align: left;
+  flex-wrap: nowrap;
 `;
 
 const Checkbox = styled.input`
@@ -126,6 +127,7 @@ const Checkbox = styled.input`
   width: 1rem;
   height: 1rem;
   flex-shrink: 0;
+  flex-grow: 0;
   accent-color: var(--secondary);
 `;
 
@@ -137,6 +139,8 @@ const CheckboxLabel = styled.label`
   cursor: pointer;
   text-align: left;
   word-break: break-word;
+  flex: 1;
+  min-width: 0;
 `;
 
 const ErrorMessage = styled.div`
@@ -348,7 +352,7 @@ export default function NewsletterHero() {
             />
             <CheckboxLabel htmlFor="newsletter-hero-consent">
               Jeg godkjenner å motta nyhetsbrev fra Strømsjef med tilbud og oppdateringer om strømpriser. 
-              Du kan når som helst melde deg av via lenken i e‑posten.
+              Du kan når som helst melde deg av via lenken i e‑posten. Jeg godkjenner også <a href="/villkor" target="_blank" style={{color: 'var(--primary)', textDecoration: 'underline'}}>brukervilkårene</a> og <a href="/integritetspolicy" target="_blank" style={{color: 'var(--primary)', textDecoration: 'underline'}}>personvernpolicyen</a>.
             </CheckboxLabel>
           </CheckboxGroup>
           
