@@ -87,7 +87,7 @@ const faqData = [
     answer: "Hvis du ikke finner en avtale du vil ha på siden vår, kan du registrere e-postadressen din i skjemaet nederst på siden. Dette gir deg muligheten til å sikre deg gode priser før tilbud med begrenset kapasitet blir fullbooket."
   },
   {
-    question: "Hvordan fungerer Strømsjef.se?",
+    question: "Hvordan fungerer Strømsjef.no?",
     answer: "Strømsjef.no finner frem gode strømavtaler fra ulike leverandører og gir deg muligheten til å velge den avtalen som passer deg best. Du kan være trygg på at tilbudene du finner her er konkurransedyktige i markedet!"
   },
   {
