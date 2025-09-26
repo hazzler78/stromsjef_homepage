@@ -270,7 +270,7 @@ export default function StartaHar() {
                     <div style={{ fontSize: '0.85rem', color: 'var(--gray-500)', marginTop: 4 }}>{plan.guaranteeDisclaimer}</div>
                   )}
                   <div style={{ fontSize: '0.8rem', color: 'var(--gray-600)', marginTop: 6 }}>
-                    Avtaler kan sammenlignes med andre avtaler på {""}
+                    Avtalen forutsetter godkjent kredittvurdering. Avtaler kan sammenlignes med andre avtaler på {""}
                     <a href="http://strompris.no" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>forbrukerrådets strømprisportal</a>.
                   </div>
                 </div>
