@@ -3,8 +3,18 @@ import { PendingReminder } from '@/lib/types';
 // removed unused createClient
 import { getSupabaseServerClient } from '@/lib/supabaseServer';
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const XAI_API_KEY = process.env.XAI_API_KEY;
+// Raw values first; sanitize below to avoid common dashboard quoting issues
+const RAW_TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const RAW_XAI_API_KEY = process.env.XAI_API_KEY;
+
+function sanitizeEnv(value: string | undefined): string | undefined {
+  if (!value) return value;
+  const trimmed = value.trim();
+  return trimmed.replace(/^"|"$/g, '');
+}
+
+const TELEGRAM_BOT_TOKEN = sanitizeEnv(RAW_TELEGRAM_BOT_TOKEN);
+const XAI_API_KEY = sanitizeEnv(RAW_XAI_API_KEY);
 const XAI_API_URL = 'https://api.x.ai/v1/chat/completions';
 
 // Do not throw at module load; guard inside handlers to avoid build-time failures
@@ -124,7 +134,10 @@ async function fetchPageSummary(url: string): Promise<{ title: string; text: str
 
 // Summarize content with Grok (X.ai)
 async function summarizeWithXAI(title: string, content: string): Promise<string | null> {
-  if (!XAI_API_KEY) return null;
+  if (!XAI_API_KEY) {
+    console.warn('XAI_API_KEY not configured, skipping AI summarization');
+    return null;
+  }
   const system = [
     'Du är en svensk redaktör för elchef.se. Du får en artikel (titel + text) från en extern länk.',
     'Skapa en kort sammanfattning anpassad för Telegram i Markdown med:',
@@ -197,9 +210,13 @@ function parseContractResponse(text: string): { contractType: string; startDate?
 export async function POST(request: NextRequest) {
   try {
     if (!TELEGRAM_BOT_TOKEN) {
+      console.error('TELEGRAM_BOT_TOKEN not configured');
       return NextResponse.json({ error: 'Telegram not configured' }, { status: 200 });
     }
+    
+    console.log('Telegram webhook received, processing...');
     const update = await request.json();
+    console.log('Update received:', JSON.stringify(update, null, 2));
     
     // Handle only message updates
     if (!update.message || !update.message.text) {
@@ -213,6 +230,7 @@ export async function POST(request: NextRequest) {
     // 0) If the message contains a URL, summarize it and reply with a card
     const sharedUrl = extractUrl(text);
     if (sharedUrl) {
+      console.log('URL detected:', sharedUrl);
       try {
         await sendTelegramMessage(chatId, '⏳ Analyserar länken och sammanfattar innehållet...');
         const page = await fetchPageSummary(sharedUrl);
@@ -233,10 +251,15 @@ export async function POST(request: NextRequest) {
 
         const summary = await summarizeWithXAI(decodedTitle, page.text);
         const summaryText = summary && summary.trim().length > 0 ? summary.trim() : '';
+        
+        // Create a fallback summary if AI summarization fails
+        const fallbackSummary = summaryText || 
+          `Länk delad från ${new URL(sharedUrl).hostname}. Klicka för att läsa mer.`;
+        
         const card = [
           `**${decodedTitle}**`,
           '',
-          summaryText || 'Ingen sammanfattning kunde genereras.',
+          fallbackSummary,
           '',
           `[Läs mer](${sharedUrl})`
         ].join('\n');
@@ -249,14 +272,20 @@ export async function POST(request: NextRequest) {
             .insert([
               {
                 title: decodedTitle,
-                summary: summaryText,
+                summary: fallbackSummary,
                 url: sharedUrl,
                 source_host: (() => { try { return new URL(sharedUrl).hostname; } catch { return null; } })(),
               }
             ]);
-          if (error) console.error('Error inserting shared card:', error);
+          if (error) {
+            console.error('Error inserting shared card:', error);
+            await sendTelegramMessage(chatId, '⚠️ Kunde inte spara länken på webbplatsen, men sammanfattningen skickades ändå.');
+          } else {
+            await sendTelegramMessage(chatId, '✅ Länken sparades på webbplatsen under /media');
+          }
         } catch (e) {
           console.error('Insert shared card exception:', e);
+          await sendTelegramMessage(chatId, '⚠️ Kunde inte spara länken på webbplatsen, men sammanfattningen skickades ändå.');
         }
 
         await sendTelegramMessage(chatId, card);
