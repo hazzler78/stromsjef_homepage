@@ -188,7 +188,7 @@ const mediaArticles = [
 export default function Media() {
   useEffect(() => {
     let offset = 0;
-    let limit = 12;
+    const limit = 12;
     let loading = false;
     let hasMore = true;
     async function load(initial = false) {
