@@ -23,9 +23,10 @@ export async function GET(request: NextRequest) {
       .select('*', { count: 'exact' })
       .order('created_at', { ascending: false });
 
-    if (!includeArchived) {
-      query = query.eq('archived', false);
-    }
+    // TODO: Uncomment when archived column is added to Supabase
+    // if (!includeArchived) {
+    //   query = query.eq('archived', false);
+    // }
     if (hostParam) {
       query = query.eq('source_host', hostParam);
     }
@@ -97,13 +98,14 @@ export async function PATCH(request: NextRequest) {
   try {
     const supabase = getSupabaseServerClient();
     const body = await request.json();
-    const { id, title, summary, url, archived } = body || {};
+    const { id, title, summary, url } = body || {};
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
-    const payload: { title?: string; summary?: string; url?: string; archived?: boolean } = {};
+    const payload: { title?: string; summary?: string; url?: string } = {};
     if (title !== undefined) payload.title = title;
     if (summary !== undefined) payload.summary = summary;
     if (url !== undefined) payload.url = url;
-    if (archived !== undefined) payload.archived = !!archived;
+    // TODO: Add archived support when column exists
+    // if (archived !== undefined) payload.archived = !!archived;
     const { error } = await supabase.from('shared_cards').update(payload).eq('id', id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ success: true });
