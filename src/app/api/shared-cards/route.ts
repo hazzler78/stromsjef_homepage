@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const offsetParam = url.searchParams.get('offset');
     const hostParam = url.searchParams.get('host');
     const qParam = url.searchParams.get('q');
-    const includeArchived = url.searchParams.get('includeArchived') === 'true';
+    // const includeArchived = url.searchParams.get('includeArchived') === 'true';
 
     const limit = Math.min(parseInt(limitParam || '20', 10), 100);
     const offset = Math.max(parseInt(offsetParam || '0', 10), 0);
