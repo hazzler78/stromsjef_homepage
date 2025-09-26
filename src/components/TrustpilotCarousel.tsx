@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 type TrustpilotCarouselProps = {
@@ -40,13 +40,14 @@ const scroll = keyframes`
   100% { transform: translate3d(-50%, 0, 0); }
 `;
 
-const Track = styled.div<{ $duration: number }>`
+const Track = styled.div<{ $duration: number; $reverse?: boolean }>`
   display: flex;
   align-items: center;
   gap: 1.25rem;
   width: 200%;
   animation: ${scroll} linear infinite;
   animation-duration: ${(p) => p.$duration}s;
+  animation-direction: ${(p) => (p.$reverse ? 'reverse' : 'normal')};
   will-change: transform;
 
   &:hover {
@@ -88,16 +89,55 @@ export default function TrustpilotCarousel({
     '/trustpilot/trustpilot-01.png',
   ],
   height = 'clamp(160px, 20vw, 240px)',
-  durationSeconds = 40,
+  durationSeconds = 24,
   className,
 }: TrustpilotCarouselProps) {
   const sequence = [...images, ...images];
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [speedMultiplier, setSpeedMultiplier] = useState<number>(1);
+  const [reverse, setReverse] = useState<boolean>(false);
+  const decayTimer = useRef<NodeJS.Timeout | null>(null);
+  const dragStartX = useRef<number | null>(null);
+
+  const queueDecay = () => {
+    if (decayTimer.current) clearTimeout(decayTimer.current);
+    decayTimer.current = setTimeout(() => setSpeedMultiplier(1), 1200);
+  };
+
+  const handleWheel: React.WheelEventHandler<HTMLDivElement> = (e) => {
+    const direction = e.deltaY > 0 || e.deltaX > 0 ? false : true; // down/right -> normal, up/left -> reverse
+    setReverse(!direction);
+    const delta = Math.min(8, Math.max(1, speedMultiplier + Math.abs(e.deltaY || e.deltaX) / 300));
+    setSpeedMultiplier(delta);
+    queueDecay();
+  };
+
+  const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
+    dragStartX.current = e.touches[0].clientX;
+  };
+  const onTouchMove: React.TouchEventHandler<HTMLDivElement> = (e) => {
+    if (dragStartX.current == null) return;
+    const dx = e.touches[0].clientX - dragStartX.current;
+    setReverse(dx > 0); // swipe right -> reverse
+    setSpeedMultiplier(Math.min(8, Math.max(1.2, 1 + Math.abs(dx) / 80)));
+  };
+  const onTouchEnd: React.TouchEventHandler<HTMLDivElement> = () => {
+    dragStartX.current = null;
+    queueDecay();
+  };
 
   return (
     <CarouselSection className={className}>
       <div className="container">
-        <Frame $height={height}>
-          <Track $duration={durationSeconds}>
+        <Frame
+          $height={height}
+          ref={frameRef}
+          onWheel={handleWheel}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
+          <Track $duration={durationSeconds / speedMultiplier} $reverse={reverse}>
             {sequence.map((src, idx) => (
               <Slide key={`${src}-${idx}`}>
                 <img src={src} alt="Trustpilot omdöme" loading={idx < images.length ? 'eager' : 'lazy'} />
