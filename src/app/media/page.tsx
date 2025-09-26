@@ -158,8 +158,8 @@ const ExpandIcon = styled.div`
 const mediaArticles = [
   {
     id: 'weather-electricity-prices',
-    title: 'Så påverkar vädret elpriset – förklarat på ett enkelt sätt',
-    excerpt: 'Elpriset svänger hela tiden – och vädret är en av de viktigaste faktorerna. På sommaren är priserna ofta lägre, men variationerna styrs ändå av regn, vind och temperatur.',
+    title: 'Slik påvirker været strømprisen – forklart på en enkel måte',
+    excerpt: 'Strømprisen svinger hele tiden – og været er en av de viktigste faktorene. Om sommeren er prisene ofte lavere, men variasjonene styres likevel av regn, vind og temperatur.',
     tag: 'Video',
     date: '2024',
     type: 'video',
@@ -167,17 +167,17 @@ const mediaArticles = [
   },
   {
     id: 'robin-hood-electricity',
-    title: 'Elens Robin Hood vill ha billigare el åt folket',
-    excerpt: 'Många är trötta på krångliga elavtal, dolda avgifter och dyra mellanhänder. I den här artikeln i Hallandsposten berättar Mathias Nilsson om sin plan.',
-    tag: 'Artikel',
+    title: 'Strømmens Robin Hood vil ha billigere strøm til folket',
+    excerpt: 'Mange er lei av kompliserte strømavtaler, skjulte avgifter og dyre mellomledd. I denne artikkelen i Hallandsposten forteller Mathias Nilsson om sin plan.',
+    tag: 'Artikkel',
     date: '2024',
     type: 'article',
     href: '/media/robin-hood-electricity'
   },
   {
     id: 'weekly-news',
-    title: 'Veckans nyheter från elmarknaden',
-    excerpt: 'Här samlar vi de senaste nyheterna och uppdateringarna från elmarknaden som påverkar dig som konsument.',
+    title: 'Ukens nyheter fra strømmarkedet',
+    excerpt: 'Her samler vi de siste nyhetene og oppdateringene fra strømmarkedet som påvirker deg som forbruker.',
     tag: 'Nyheter',
     date: '2024',
     type: 'news',
@@ -202,7 +202,7 @@ export default function Media() {
         if (!mount) return;
         if (initial) mount.innerHTML = '';
         if (!data?.items?.length && initial) {
-          mount.innerHTML = '<p style="color: var(--gray-600)">Inga delade länkar ännu.</p>';
+          mount.innerHTML = '<p style="color: var(--gray-600)">Ingen delte lenker ennå.</p>';
           hasMore = false;
           if (loadMoreBtn) (loadMoreBtn as HTMLButtonElement).style.display = 'none';
           return;
@@ -241,7 +241,7 @@ export default function Media() {
           <div style="margin: 1rem 0; padding: 1rem 1.2rem; border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; background: rgba(255,255,255,0.9); box-shadow: var(--glass-shadow-light)">
             <div style="font-weight:700; color: var(--primary); margin-bottom: 0.4rem">${(item.title || '').replace(/</g,'&lt;')}</div>
             <div style="color: var(--gray-700); font-size: 0.95rem; line-height: 1.6">${renderMarkdown(item.summary || '')}</div>
-            <a href="${item.url}" target="_blank" rel="noopener noreferrer" style="display:inline-block; margin-top:0.6rem; color: var(--primary); font-weight:600">Läs mer →</a>
+            <a href="${item.url}" target="_blank" rel="noopener noreferrer" style="display:inline-block; margin-top:0.6rem; color: var(--primary); font-weight:600">Les mer →</a>
           </div>
         `).join('');
         mount.insertAdjacentHTML('beforeend', html);
@@ -266,10 +266,10 @@ export default function Media() {
         <Container>
           <Title>Media</Title>
           <Lead>
-            <b>Vi arbetar aktivt med att sprida kunskap om energibesparing och hållbara elavtal.</b>
+            <b>Vi jobber aktivt med å spre kunnskap om energibesparing og bærekraftige strømavtaler.</b>
           </Lead>
           <p>
-            Läs mer om vårt arbete och våra senaste nyheter, eller upptäck våra rapporter och analyser om elmarknaden.
+            Les mer om vårt arbeid og våre siste nyheter, eller oppdag våre rapporter og analyser om strømmarkedet.
           </p>
 
           <CardsGrid>
@@ -296,7 +296,7 @@ export default function Media() {
             ))}
           </CardsGrid>
 
-          <SubTitle style={{ marginTop: '3rem' }}>Senaste delade länkar</SubTitle>
+          <SubTitle style={{ marginTop: '3rem' }}>Siste delte lenker</SubTitle>
           <div id="shared-cards"></div>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
             <button id="load-more" style={{
@@ -307,7 +307,7 @@ export default function Media() {
               borderRadius: '999px',
               cursor: 'pointer',
               fontWeight: 700
-            }}>Ladda fler</button>
+            }}>Last inn flere</button>
           </div>
         </Container>
       </Section>
