@@ -59,11 +59,11 @@ const Slide = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 80%;
+  flex: 0 0 90%;
   height: 100%;
   padding: 0.25rem 0.5rem;
 
-  /* Show 2 on tablets, 4 on desktops */
+  /* Show 1 on mobile, 2 on tablets, 4 on desktops */
   @media (min-width: 640px) {
     flex-basis: 50%;
   }
@@ -119,7 +119,8 @@ export default function TrustpilotCarousel({
     if (dragStartX.current == null) return;
     const dx = e.touches[0].clientX - dragStartX.current;
     setReverse(dx > 0); // swipe right -> reverse
-    setSpeedMultiplier(Math.min(8, Math.max(1.2, 1 + Math.abs(dx) / 80)));
+    setSpeedMultiplier(Math.min(6, Math.max(1.5, 1 + Math.abs(dx) / 60)));
+    e.preventDefault(); // Prevent page scroll during carousel interaction
   };
   const onTouchEnd: React.TouchEventHandler<HTMLDivElement> = () => {
     dragStartX.current = null;
