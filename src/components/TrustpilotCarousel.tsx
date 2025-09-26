@@ -40,7 +40,7 @@ const scroll = keyframes`
   100% { transform: translate3d(-50%, 0, 0); }
 `;
 
-const Track = styled.div<{ $duration: number; $reverse?: boolean }>`
+const Track = styled.div<{ $duration: number; $reverse?: boolean; $isPaused?: boolean }>`
   display: flex;
   align-items: center;
   gap: 1.25rem;
@@ -48,11 +48,9 @@ const Track = styled.div<{ $duration: number; $reverse?: boolean }>`
   animation: ${scroll} linear infinite;
   animation-duration: ${(p) => p.$duration}s;
   animation-direction: ${(p) => (p.$reverse ? 'reverse' : 'normal')};
+  animation-play-state: ${(p) => (p.$isPaused ? 'paused' : 'running')};
   will-change: transform;
-
-  &:hover {
-    animation-play-state: paused;
-  }
+  touch-action: pan-x;
 `;
 
 const Slide = styled.div`
@@ -94,8 +92,12 @@ export default function TrustpilotCarousel({
   const frameRef = useRef<HTMLDivElement>(null);
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(1);
   const [reverse, setReverse] = useState<boolean>(false);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const decayTimer = useRef<NodeJS.Timeout | null>(null);
   const dragStartX = useRef<number | null>(null);
+  const lastTouchX = useRef<number | null>(null);
+  const velocity = useRef<number>(0);
+  const lastTime = useRef<number>(0);
 
   const queueDecay = () => {
     if (decayTimer.current) clearTimeout(decayTimer.current);
@@ -112,17 +114,47 @@ export default function TrustpilotCarousel({
 
   const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
     dragStartX.current = e.touches[0].clientX;
+    lastTouchX.current = e.touches[0].clientX;
+    lastTime.current = Date.now();
+    velocity.current = 0;
+    setIsPaused(true);
   };
+  
   const onTouchMove: React.TouchEventHandler<HTMLDivElement> = (e) => {
-    if (dragStartX.current == null) return;
-    const dx = e.touches[0].clientX - dragStartX.current;
-    setReverse(dx > 0); // swipe right -> reverse
-    // Much smoother speed changes - less aggressive
-    setSpeedMultiplier(Math.min(3, Math.max(1.2, 1 + Math.abs(dx) / 120)));
-    e.preventDefault(); // Prevent page scroll during carousel interaction
+    if (dragStartX.current == null || lastTouchX.current == null) return;
+    
+    const currentX = e.touches[0].clientX;
+    const currentTime = Date.now();
+    const deltaX = currentX - lastTouchX.current;
+    const deltaTime = currentTime - lastTime.current;
+    
+    // Calculate velocity for momentum
+    if (deltaTime > 0) {
+      velocity.current = deltaX / deltaTime;
+    }
+    
+    setReverse(deltaX > 0); // swipe right -> reverse
+    
+    // iPhone-like momentum: gentle speed changes
+    const speedFactor = Math.min(2.5, Math.max(1.1, 1 + Math.abs(deltaX) / 200));
+    setSpeedMultiplier(speedFactor);
+    
+    lastTouchX.current = currentX;
+    lastTime.current = currentTime;
+    e.preventDefault();
   };
+  
   const onTouchEnd: React.TouchEventHandler<HTMLDivElement> = () => {
     dragStartX.current = null;
+    lastTouchX.current = null;
+    
+    // Apply momentum based on velocity
+    if (Math.abs(velocity.current) > 0.5) {
+      const momentumMultiplier = Math.min(3, Math.max(1.5, 1 + Math.abs(velocity.current) * 2));
+      setSpeedMultiplier(momentumMultiplier);
+    }
+    
+    setIsPaused(false);
     queueDecay();
   };
 
@@ -137,7 +169,7 @@ export default function TrustpilotCarousel({
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
         >
-          <Track $duration={durationSeconds / speedMultiplier} $reverse={reverse}>
+          <Track $duration={durationSeconds / speedMultiplier} $reverse={reverse} $isPaused={isPaused}>
             {sequence.map((src, idx) => (
               <Slide key={`${src}-${idx}`}>
                 <img src={src} alt="Trustpilot omdöme" loading={idx < images.length ? 'eager' : 'lazy'} />
