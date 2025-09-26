@@ -88,7 +88,7 @@ export default function TrustpilotCarousel({
     '/trustpilot/trustpilot-04.png',
     '/trustpilot/trustpilot-01.png',
   ],
-  height = 'clamp(110px, 11vw, 180px)',
+  height = 'clamp(160px, 18vw, 260px)',
   durationSeconds = 40,
   className,
 }: TrustpilotCarouselProps) {
@@ -96,6 +96,7 @@ export default function TrustpilotCarousel({
     <CarouselSection className={className}>
       <div className="container">
         <Frame $height={height}>
+          {/* Lane 1 */}
           <Lane $duration={durationSeconds} $offsetPercent={0}>
             {images.map((src, idx) => (
               <Slide key={`lane1-${src}-${idx}`}>
@@ -103,6 +104,7 @@ export default function TrustpilotCarousel({
               </Slide>
             ))}
           </Lane>
+          {/* Lane 2 starts exactly after lane 1 to ensure seamless loop */}
           <Lane $duration={durationSeconds} $offsetPercent={100}>
             {images.map((src, idx) => (
               <Slide key={`lane2-${src}-${idx}`}>
