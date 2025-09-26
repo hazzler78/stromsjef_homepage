@@ -54,7 +54,7 @@ export default function Integritetspolicy() {
         <Updated>Denne avtalen ble sist endret: Juli 2025</Updated>
 
         <Paragraph>
-          Denne erklæringen gir deg informasjon om hvordan VKNG LTD, organisasjonsnummer HE477501 (heretter kalt «Selskapet»), håndterer dine personopplysninger, og hvilke rettigheter du har ved bruk av vår nettside "Stromsjef.no". Denne erklæringen gjelder for deg som bruker våre nettsider.
+          Denne erklæringen gir deg informasjon om hvordan VKNG LTD, organisasjonsnummer HE477501 (heretter kalt «Selskapet»), håndterer dine personopplysninger, og hvilke rettigheter du har ved bruk av vår nettside &quot;Stromsjef.no&quot;. Denne erklæringen gjelder for deg som bruker våre nettsider.
         </Paragraph>
 
         <Paragraph>
