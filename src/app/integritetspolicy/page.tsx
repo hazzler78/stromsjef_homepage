@@ -50,73 +50,71 @@ export default function Integritetspolicy() {
         <div style={{ fontSize: '1px', color: 'transparent', position: 'absolute', left: '-9999px' }}>
           tiktok-developers-site-verification=i7h859t0QF0G6Dua8q4h9qJUXwuPQoof
         </div>
-        <Title>Personvernerklæring for stromsjef.se</Title>
-        <Updated>Sist oppdatert: August 2025</Updated>
+        <Title>PERSONVERN</Title>
+        <Updated>Denne avtalen ble sist endret: Juli 2025</Updated>
 
-        <SectionTitle>1. Vårt ansvar for dine personopplysninger</SectionTitle>
         <Paragraph>
-          VKNG LTD (benevnt som «Strømsjef.se», «vi» eller «oss») er behandlingsansvarlig når du bruker vårt nettsted stromsjef.se. Denne personvernerklæringen forklarer hvordan vi samler inn, bruker og beskytter dine opplysninger.
-        </Paragraph>
-
-        <SectionTitle>2. Hvilke personopplysninger vi samler inn</SectionTitle>
-        <Paragraph>
-          Vi samlar in information som du ger oss direkt, såsom namn, e-postadress, telefonnummer och adress när du använder våra tjänster. Vi samlar också in teknisk information om hur du använder webbplatsen, inklusive IP-adress, webbläsartyp och besöksdata.
+          Denne erklæringen gir deg informasjon om hvordan VKNG LTD, organisasjonsnummer HE477501 (heretter kalt «Selskapet»), håndterer dine personopplysninger, og hvilke rettigheter du har ved bruk av vår nettside "Stromsjef.no". Denne erklæringen gjelder for deg som bruker våre nettsider.
         </Paragraph>
 
-        <SectionTitle>3. Hvordan vi bruker personopplysningene</SectionTitle>
         <Paragraph>
-          Vi använder dina personuppgifter för att tillhandahålla våra tjänster, förbättra användarupplevelsen, kommunicera med dig och följa lagkrav. Vi delar inte dina personuppgifter med tredje part utan ditt samtycke, förutom när det krävs för att leverera våra tjänster.
+          Personopplysninger refererer til informasjon som kan identifisere en fysisk person. Behandling av personopplysninger inkluderer enhver bruk av slik informasjon, både automatisk og manuelt, som innsamling, strukturering, lagring og sletting.
         </Paragraph>
 
-        <SectionTitle>4. Behandling av fakturabilder (OCR)</SectionTitle>
         <Paragraph>
-          När du laddar upp en bild av din elräkning för analys behandlas bilden för att vi ska kunna ge dig en analys här och nu. Denna omedelbara behandling sker med stöd av avtal/berättigat intresse och bilden behöver inte sparas permanent för att tjänsten ska fungera.
+          <strong>Kontaktinformasjon behandlingsansvarlig:</strong>
         </Paragraph>
         <Paragraph>
-          <strong>Samtykke til lagring:</strong> Dersom du vil hjelpe oss å forbedre tjenesten kan du gi et <em>frivillig, uttrykkelig samtykke</em> til at vi lagrer fakturabildet ditt i en begrenset periode for kvalitetssikring og utvikling. Samtykke gis via en avmerket avkrysningsboks ved opplasting og kan trekkes tilbake når som helst.
+          Navn: VKNG LTD
         </Paragraph>
         <Paragraph>
-          <strong>Hva som kan lagres ved samtykke:</strong>
-        </Paragraph>
-        <ul>
-          <li>Originalbilden av fakturan</li>
-          <li>Teknisk metadata om bilden (t.ex. filtyp och storlek)</li>
-          <li>Bildens kryptografiska kontrollsumma (SHA‑256) för identifiering/deduplicering</li>
-          <li>Koppling till sessions‑ID och tidpunkt för uppladdning</li>
-        </ul>
-        <Paragraph>
-          <strong>Lagring, mottakere og overføringer:</strong> Bilder lagres i en privat, tilgangsbeskyttet lagringsløsning hos vår driftsleverandør (Supabase). For OCR/analyse bruker vi en AI‑leverandør (OpenAI) som databehandler. Behandlingen kan innebære overføring av opplysninger utenfor EU/EØS; i slike tilfeller brukes standard kontraktsklausuler (SCC) og relevante sikkerhetstiltak i henhold til GDPR.
+          Org.nr.: HE477501
         </Paragraph>
         <Paragraph>
-          <strong>Lagringstid:</strong> Ved samtykke lagres fakturabildet i opptil 90 dager før det slettes automatisk. Du kan når som helst trekke tilbake samtykket, og vi sletter bildet så snart som mulig.
-        </Paragraph>
-        <Paragraph>
-          <strong>Uten samtykke:</strong> Vi lagrer ikke selve bildet. Vi kan lagre AI‑analysen og begrenset teknisk metadata (f.eks. hashverdi) for feilsøking, statistikk og for å forhindre duplikater.
+          E-post: <Mail href="mailto:post@stromsjef.no">post@stromsjef.no</Mail>
         </Paragraph>
 
-        <SectionTitle>5. Dine rettigheter</SectionTitle>
+        <SectionTitle>1. Behandling av personopplysninger ved bruk av våre tjenester</SectionTitle>
         <Paragraph>
-          Du har rätt att få information om vilka personuppgifter vi har om dig, begära rättelse av felaktig information, begära radering av dina uppgifter och invända mot vår behandling. Du kan också begära att få dina uppgifter överförda till en annan leverantör.
+          Når du bruker Stromsjef.no til å velge strømavtaler, kan det hende vi samler inn opplysninger som postnummer og strømforbruk som kan knyttes til deg via din IP-adresse. Denne behandlingen er basert på en interesseavveining, jf. GDPR artikkel 6 bokstav f. Vi kan anse det som nødvendig å samle inn disse opplysningene for å kunne levere vår tjeneste.
         </Paragraph>
 
-        <SectionTitle>6. Cookies og sporing</SectionTitle>
+        <SectionTitle>2. Behandling av personopplysninger ved henvendelser</SectionTitle>
         <Paragraph>
-          Vi använder cookies och liknande tekniker för att förbättra webbplatsens funktionalitet och analysera användningsmönster. Du kan hantera dina cookie-inställningar i din webbläsare.
+          Hvis du kontakter oss via nettsiden eller andre kanaler, kan det hende vi behandler opplysninger som navn, telefonnummer, e-postadresse og eventuelle andre opplysninger som fremkommer av henvendelsen. Denne behandlingen er også basert på en interesseavveining, jf. GDPR artikkel 6 bokstav f. Vi trenger disse opplysningene for å kunne følge opp henvendelsen din på en god måte.
         </Paragraph>
 
-        <SectionTitle>7. Sikkerhet</SectionTitle>
+        <SectionTitle>3. Samarbeid med eksterne</SectionTitle>
         <Paragraph>
-          Vi implementerar lämpliga tekniska och organisatoriska säkerhetsåtgärder för att skydda dina personuppgifter mot obehörig åtkomst, förlust eller förstörelse.
+          For å kunne samarbeide med og følge opp våre kunder, leverandører og andre samarbeidspartnere, lagrer vi nødvendig informasjon for å oppfylle våre kontraktsforpliktelser. Dette kan inkludere navn, e-post, telefonnummer og eventuelle andre nødvendige opplysninger. Behandlingen kan være basert på å oppfylle en avtale, jf. GDPR artikkel 6 bokstav b, eller våre berettigede interesser, jf. GDPR artikkel 6 bokstav f.
         </Paragraph>
 
-        <SectionTitle>8. Kontakt</SectionTitle>
+        <SectionTitle>4. Nyhetsbrev og markedsføring</SectionTitle>
         <Paragraph>
-          Ved spørsmål om denne personvernerklæringen eller vår behandling av personopplysninger, kontakt oss via e‑post: <Mail href="mailto:info@stromsjef.se">info@stromsjef.se</Mail>
+          Ved å registrere din e-post samtykker du til at vi kan sende nyhetsbrev og markedsføring via e-post. Vi sender også nyhetsbrev og markedsføring til eksisterende kunder. Behandlingen av opplysninger som navn og kontaktinformasjon for dette formålet er basert på samtykke, jf. GDPR artikkel 6 bokstav a, eller våre berettigede interesser, jf. GDPR artikkel 6 bokstav f. Du kan når som helst trekke tilbake samtykket ved å kontakte oss.
         </Paragraph>
 
-        <SectionTitle>9. Endringer</SectionTitle>
+        <SectionTitle>5. Deling av personopplysninger</SectionTitle>
         <Paragraph>
-          Vi kan oppdatere denne personvernerklæringen ved behov. Alle endringer publiseres på nettstedet og trer i kraft ved publisering.
+          Selskapet deler dine personopplysninger kun med andre hvis det er nødvendig for å oppfylle formålet med behandlingen, og hvis det foreligger et grunnlag for slik deling. Dette kan inkludere å sende informasjon videre til strømleverandører vi samarbeider med når du fyller ut skjema for å motta tilbud eller inngå avtaler. Våre databehandlere kan ikke bruke dine opplysninger til egne formål og er bundet av databehandleravtaler. All behandling skjer innenfor EU/EØS-området.
+        </Paragraph>
+
+        <SectionTitle>6. Dine rettigheter</SectionTitle>
+        <Paragraph>
+          Du har rett til å be om innsyn i, retting av, eller sletting av dine personopplysninger. Du kan også kreve begrenset behandling, motsette deg behandlingen, og be om dataportabilitet. For mer informasjon om disse rettighetene, besøk Datatilsynets nettside: www.datatilsynet.no.
+        </Paragraph>
+        <Paragraph>
+          For å utøve dine rettigheter, kontakt oss via e-post. Vi vil svare så raskt som mulig. Vi kan be om bekreftelse på din identitet for å sikre at vi gir tilgang til riktige opplysninger.
+        </Paragraph>
+
+        <SectionTitle>7. Lagringstid</SectionTitle>
+        <Paragraph>
+          Vi oppbevarer dine personopplysninger så lenge det er nødvendig for formålet de ble samlet inn for, med mindre vi er lovpålagt å lagre dem lenger.
+        </Paragraph>
+
+        <SectionTitle>8. Klager</SectionTitle>
+        <Paragraph>
+          Hvis du mener vår behandling av personopplysninger ikke er i samsvar med denne erklæringen eller personvernlovgivningen, kan du klage til Datatilsynet. Besøk www.datatilsynet.no for mer informasjon om hvordan du kan kontakte dem.
         </Paragraph>
       </Container>
     </Section>
