@@ -185,15 +185,15 @@ export default function AdminPlans() {
           onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }}
         />
-        <button onClick={() => setEditing(newPlan())}>Nytt avtal</button>
-        <button onClick={load} disabled={loading}>{loading ? 'Laddar…' : 'Uppdatera'}</button>
+        <button onClick={() => setEditing(newPlan())}>Nytt avtale</button>
+        <button onClick={load} disabled={loading}>{loading ? 'Laster…' : 'Oppdater'}</button>
       </Toolbar>
 
       {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
 
       {editing && (
         <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 16, marginBottom: 16, background: '#fff' }}>
-          <h3>{items.find(i => i.id === editing.id) ? 'Redigera avtal' : 'Nytt avtal'}</h3>
+          <h3>{items.find(i => i.id === editing.id) ? 'Rediger avtale' : 'Nytt avtale'}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <label>ID<input value={editing.id} onChange={e => setEditing({ ...editing, id: e.target.value })} /></label>
             <label>Zon
@@ -227,7 +227,7 @@ export default function AdminPlans() {
             </label>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-            <button onClick={() => save(editing)} disabled={saving}>{saving ? 'Sparar…' : 'Spara'}</button>
+            <button onClick={() => save(editing)} disabled={saving}>{saving ? 'Lagrer…' : 'Lagre'}</button>
             <button onClick={() => setEditing(null)} disabled={saving}>Avbryt</button>
           </div>
         </div>
@@ -248,8 +248,8 @@ export default function AdminPlans() {
               <input type="checkbox" checked={p.recommended} onChange={e => toggleRecommend(p.id, e.target.checked)} /> Rek.
             </label>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => setEditing(p)}>Redigera</button>
-              <button onClick={() => remove(p.id)} style={{ color: '#b91c1c' }}>Radera</button>
+              <button onClick={() => setEditing(p)}>Rediger</button>
+              <button onClick={() => remove(p.id)} style={{ color: '#b91c1c' }}>Slett</button>
             </div>
           </div>
         ))}

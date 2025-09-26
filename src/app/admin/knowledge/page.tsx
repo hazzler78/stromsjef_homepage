@@ -431,7 +431,7 @@ export default function AdminKnowledge() {
                 cursor: "pointer"
               }}
             >
-              + Lägg till artikel
+              + Legg til artikkel
             </button>
           </div>
 
@@ -489,7 +489,7 @@ export default function AdminKnowledge() {
                         fontSize: "12px"
                       }}
                     >
-                      Redigera
+                      Rediger
                     </button>
                     <button 
                       onClick={() => deleteKnowledgeItem(item.id!)}
@@ -535,7 +535,7 @@ export default function AdminKnowledge() {
                 cursor: "pointer"
               }}
             >
-              + Lägg till kampanj
+              + Legg til kampanje
             </button>
           </div>
 
@@ -580,7 +580,7 @@ export default function AdminKnowledge() {
                         fontSize: "12px"
                       }}
                     >
-                      Redigera
+                      Rediger
                     </button>
                     <button 
                       onClick={() => deleteCampaign(campaign.id!)}
@@ -626,7 +626,7 @@ export default function AdminKnowledge() {
                 cursor: "pointer"
               }}
             >
-              + Lägg till leverantör
+              + Legg til leverandør
             </button>
           </div>
 
@@ -681,7 +681,7 @@ export default function AdminKnowledge() {
                         fontSize: "12px"
                       }}
                     >
-                      Redigera
+                      Rediger
                     </button>
                     <button 
                       onClick={() => deleteProvider(provider.id!)}
@@ -733,7 +733,7 @@ function KnowledgeForm({ item, onSave, onCancel }: {
       marginBottom: 20,
       background: "#f9fafb"
     }}>
-      <h3>{item.id ? 'Redigera' : 'Lägg till'} kunskapsartikel</h3>
+      <h3>{item.id ? 'Rediger' : 'Legg til'} kunskapsartikkel</h3>
       
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: "block", marginBottom: 4, fontWeight: "600" }}>Kategori:</label>
@@ -798,7 +798,7 @@ function KnowledgeForm({ item, onSave, onCancel }: {
           borderRadius: 6,
           cursor: "pointer"
         }}>
-          Spara
+          Lagre
         </button>
         <button type="button" onClick={onCancel} style={{ 
           padding: "8px 16px", 
@@ -835,7 +835,7 @@ function CampaignForm({ campaign, onSave, onCancel }: {
       marginBottom: 20,
       background: "#f9fafb"
     }}>
-      <h3>{campaign.id ? 'Redigera' : 'Lägg till'} kampanj</h3>
+      <h3>{campaign.id ? 'Rediger' : 'Legg til'} kampanje</h3>
       
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: "block", marginBottom: 4, fontWeight: "600" }}>Titel:</label>
@@ -901,7 +901,7 @@ function CampaignForm({ campaign, onSave, onCancel }: {
           borderRadius: 6,
           cursor: "pointer"
         }}>
-          Spara
+          Lagre
         </button>
         <button type="button" onClick={onCancel} style={{ 
           padding: "8px 16px", 
@@ -942,7 +942,7 @@ function ProviderForm({ provider, onSave, onCancel }: {
       marginBottom: 20,
       background: "#f9fafb"
     }}>
-      <h3>{provider.id ? 'Redigera' : 'Lägg till'} leverantör</h3>
+      <h3>{provider.id ? 'Rediger' : 'Legg til'} leverandør</h3>
       
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: "block", marginBottom: 4, fontWeight: "600" }}>Namn:</label>
@@ -1011,7 +1011,7 @@ function ProviderForm({ provider, onSave, onCancel }: {
           borderRadius: 6,
           cursor: "pointer"
         }}>
-          Spara
+          Lagre
         </button>
         <button type="button" onClick={onCancel} style={{ 
           padding: "8px 16px", 

@@ -14,15 +14,15 @@ export default function ShareResults({ analysisResult, savingsAmount, logId, onS
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Extrahera besparingsbelopp från analysen (prioritera årlig besparing)
+  // Ekstraher besparingsbeløp fra analysen (prioriter årlig besparelse)
   const extractSavings = (text: string): number => {
-    // Först leta efter årlig besparing (kr/år)
+    // Først let etter årlig besparelse (kr/år)
     const yearlyMatch = text.match(/(\d+[,.]?\d*)\s*kr\/år/i);
     if (yearlyMatch) {
       return parseFloat(yearlyMatch[1].replace(',', '.'));
     }
     
-    // Sedan leta efter månatlig besparing och multiplicera med 12
+    // Deretter let etter månedlig besparelse og multipliser med 12
     const monthlyMatch = text.match(/(\d+[,.]?\d*)\s*kr.*?(?:spar|bespar|minska)/i);
     if (monthlyMatch) {
       return parseFloat(monthlyMatch[1].replace(',', '.')) * 12;
@@ -33,9 +33,9 @@ export default function ShareResults({ analysisResult, savingsAmount, logId, onS
 
   const detectedSavings = extractSavings(analysisResult);
 
-  // Generera delningstext
+  // Generer delingstekst
   const generateShareText = (platform: 'facebook' | 'instagram' | 'linkedin' | 'twitter') => {
-    const baseText = `💡 AI-analys av min elräkning visar att jag betalar ${detectedSavings > 0 ? `${detectedSavings.toLocaleString('sv-SE')} kr/år` : 'flera hundra kronor/år'} i onödiga avgifter!`;
+    const baseText = `💡 AI-analyse av min strømregning viser at jeg betaler ${detectedSavings > 0 ? `${detectedSavings.toLocaleString('nb-NO')} kr/år` : 'flere hundre kroner/år'} i unødvendige avgifter!`;
     
     const platformTexts = {
       facebook: `${baseText}\n\n🔍 Test selv på stromsjef.se/jamfor-elpriser\n\n#Strømbesparing #AI #Strømsjef`,
@@ -47,10 +47,10 @@ export default function ShareResults({ analysisResult, savingsAmount, logId, onS
     return platformTexts[platform];
   };
 
-  // Generera delnings-URL
+  // Generer delings-URL
   const generateShareUrl = (platform: string, text: string) => {
     const encodedText = encodeURIComponent(text);
-    // Generera unik delningslänk baserat på logId
+    // Generer unik delingslenke basert på logId
     const shareUrl = logId 
       ? `https://stromsjef.se/delad-kalkyl?id=${logId}`
       : 'https://stromsjef.se/jamfor-elpriser';

@@ -93,56 +93,56 @@ EKSEMPEL JSON:
   }
 ]
 
-VIKTIGT - FLEXIBELT FÖR ALLA LEVERANTÖRER:
-- Inkludera ALLA kostnader, även de som inte är "onödiga"
-- KRITISKT: Läs ALLTID beloppet från "Totalt"-kolumnen eller den sista kolumnen med belopp
-- Läs INTE från "öre/kWh" eller "kr/mån" kolumner - bara slutbeloppet
-- KRITISKT: Leta särskilt efter "Elavtal årsavgift" - denna kostnad missas ofta men är viktig
-- Var särskilt uppmärksam på "Fast månadsavgift", "Profilpris", "Rörliga kostnader", "Fast påslag", "Påslag"
-- Om en kostnad har både års- och månadsbelopp, inkludera månadsbeloppet
-- EXTRA VIKTIGT: "Elavtal årsavgift" kan stå som en egen rad eller som del av en längre text - leta efter den överallt
-- BELOPPSLÄSNING: För "Påslag" - läs det exakta beloppet som står i "Totalt"-kolumnen, inte från beräkningen
+VIKTIGT - FLEKSIBELT FOR ALLE LEVERANDØRER:
+- Inkluder ALLE kostnader, også de som ikke er "unødvendige"
+- KRITISK: Les ALLTID beløpet fra "Totalt"-kolonnen eller den siste kolonnen med beløp
+- Les IKKE fra "øre/kWh" eller "kr/mån" kolonner - bare slutbeløpet
+- KRITISK: Let spesielt etter "Strømavtale årsavgift" - denne kostnaden blir ofte oversett men er viktig
+- Vær spesielt oppmerksom på "Fast månedsavgift", "Profilpris", "Rørlige kostnader", "Fast påslag", "Påslag"
+- Hvis en kostnad har både års- og månedsbeløp, inkluder månedsbeløpet
+- EXTRA VIKTIGT: "Strømavtale årsavgift" kan stå som en egen rad eller som del av en lengre tekst - let etter den overalt
+- BELØPSLESNING: For "Påslag" - les det eksakte beløpet som står i "Totalt"-kolonnen, ikke fra beregningen
 
-LEVERANTÖRSSPECIFIKA TERMER:
-- E.ON: "Elavtal årsavgift", "Fast påslag", "Rörliga kostnader"
-- Fortum: "Månadsavgift", "Påslag", "Elcertifikat"
+LEVERANDØRSPESIFIKKE TERMER:
+- E.ON: "Strømavtale årsavgift", "Fast påslag", "Rørlige kostnader"
+- Fortum: "Månedsavgift", "Påslag", "Strømsertifikat"
 - Vattenfall: "Fast avgift", "Påslag", "Årsavgift"
-- EDF: "Abonnemangsavgift", "Påslag", "Serviceavgift"
-- Göteborg Energi: "Månadsavgift", "Påslag", "Elcertifikat"
+- EDF: "Abonnementsavgift", "Påslag", "Serviceavgift"
+- Göteborg Energi: "Månedsavgift", "Påslag", "Strømsertifikat"
 - Stockholm Exergi: "Fast avgift", "Påslag", "Årsavgift"
-- Andra leverantörer: Anpassa efter fakturans terminologi
+- Andre leverandører: Tilpass etter fakturaens terminologi
 
-JSON-FORMAT KRITISKT:
-- Använd endast dubbla citattecken för strängar
-- Inga trailing commas
-- Inga kommentarer i JSON
-- Perfekt formatering krävs
-- Starta direkt med [ och sluta med ]
+JSON-FORMAT KRITISK:
+- Bruk kun doble anførselstegn for strenger
+- Ingen trailing commas
+- Ingen kommentarer i JSON
+- Perfekt formatering kreves
+- Start direkte med [ og slutt med ]
 
-SLUTLIG PÅMINNELSE:
-- Läs belopp från "Totalt"-kolumnen, INTE från "öre/kWh" eller "kr/mån"
-- För "Månadsavgift": läs från "Totalt"-kolumnen (t.ex. 55,20 kr), inte från "kr/mån"-kolumnen
-- För "Påslag": läs från "Totalt"-kolumnen (t.ex. 13,80 kr), inte från "öre/kWh"-kolumnen
+SLUTTLIG PÅMINNELSE:
+- Les beløp fra "Totalt"-kolonnen, IKKE fra "øre/kWh" eller "kr/mån"
+- For "Månedsavgift": les fra "Totalt"-kolonnen (f.eks. 55,20 kr), ikke fra "kr/mån"-kolonnen
+- For "Påslag": les fra "Totalt"-kolonnen (f.eks. 13,80 kr), ikke fra "øre/kWh"-kolonnen
 
-KRITISKT EXEMPEL FÖR FORTUM-FAKTUROR:
-På Fortum-fakturor ser du ofta:
-- "Påslag: 690 kWh at 2,00 öre/kWh, totaling 13,80 kr"
-- Läs ALLTID "13,80 kr" (slutbeloppet), INTE "2,00 öre/kWh" (enhetspriset)
-- Samma gäller för "Månadsavgift: 1 Mån at 55,20 kr/mån, totaling 55,20 kr"
-- Läs ALLTID "55,20 kr" (slutbeloppet), INTE "55,20 kr/mån" (enhetspriset)
+KRITISK EKSEMPEL FOR FORTUM-FAKTURER:
+På Fortum-fakturer ser du ofte:
+- "Påslag: 690 kWh at 2,00 øre/kWh, totaling 13,80 kr"
+- Les ALLTID "13,80 kr" (slutbeløpet), IKKE "2,00 øre/kWh" (enhetspriset)
+- Samme gjelder for "Månedsavgift: 1 Mån at 55,20 kr/mån, totaling 55,20 kr"
+- Les ALLTID "55,20 kr" (slutbeløpet), IKKE "55,20 kr/mån" (enhetspriset)
 
-VIKTIGT - FÖR ALLA LEVERANTÖRER:
-- Leta efter ordet "totaling" eller "totalt" följt av beloppet i kr
-- Ignorera alltid siffror följda av "öre/kWh", "kr/mån", "kr/kWh"
-- Slutbeloppet är det som faktiskt debiteras kunden
+VIKTIGT - FOR ALLE LEVERANDØRER:
+- Let etter ordet "totaling" eller "totalt" fulgt av beløpet i kr
+- Ignorer alltid tall fulgt av "øre/kWh", "kr/mån", "kr/kWh"
+- Slutbeløpet er det som faktisk debiteres kunden
 
-EXTRA VIKTIGT FÖR PÅSLAG:
-- På alla fakturor: läs från "Totalt"-kolumnen eller sista kolumnen med belopp
-- På Fortum-fakturor: "Påslag: 690 kWh at 2,00 öre/kWh, totaling 13,80 kr" - läs "13,80 kr"
-- På andra leverantörer: läs från "Totalt"-kolumnen eller sista kolumnen med belopp
-- KRITISKT: Läs ALLTID slutbeloppet, INTE enhetspriset (öre/kWh, kr/mån)
+EXTRA VIKTIGT FOR PÅSLAG:
+- På alle fakturer: les fra "Totalt"-kolonnen eller siste kolonnen med beløp
+- På Fortum-fakturer: "Påslag: 690 kWh at 2,00 øre/kWh, totaling 13,80 kr" - les "13,80 kr"
+- På andre leverandører: les fra "Totalt"-kolonnen eller siste kolonnen med beløp
+- KRITISK: Les ALLTID slutbeløpet, IKKE enhetspriset (øre/kWh, kr/mån)
 
-Svara ENDAST med JSON-arrayen, inget annat text.`;
+Svar BARE med JSON-arrayen, inget annet tekst.`;
 
     // Step 2: Calculate unnecessary costs from structured data
     const calculationPrompt = `Du er en ekspert på norske strømregninger fra ALLE leverandører. Basert på den ekstraherte JSON-dataen, identifiser unødvendige kostnader og beregn total besparelse.

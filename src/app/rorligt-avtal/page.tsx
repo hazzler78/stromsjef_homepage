@@ -116,7 +116,7 @@ const FormContainer = styled.div`
 `;
 
 export default function RorligtAvtalPage() {
-  // Formulärsida för rörligt elavtal - optimerad för mobil
+  // Skjema for rørlig strømavtale - optimalisert for mobil
   const [showSupplier, setShowSupplier] = React.useState(true);
   function handleFormReady(formInstance?: SalesysFormInstance) {
     try {
@@ -229,7 +229,7 @@ export default function RorligtAvtalPage() {
   return (
     <PageContainer>
       <Content>
-        <Title>Byt strømavtale</Title>
+        <Title>Bytt strømavtale</Title>
         <Subtitle>Fyll ut skjemaet nedenfor for å påbegynne byttet.</Subtitle>
 
         {showSupplier && (
@@ -241,7 +241,7 @@ export default function RorligtAvtalPage() {
               <PromoBullet>0 kr i månedsavgift – 0 øre i påslag</PromoBullet>
             </PromoBullets>
             <PromoText>
-              Byt strømavtale i dag og ta del av et virkelig fordelaktig tilbud. Du betaler bare for den strømmen du bruker – ingen skjulte avgifter, ingen påslag. Gjelder i 12 måneder fra startdato.
+              Bytt strømavtale i dag og ta del av et virkelig fordelaktig tilbud. Du betaler bare for den strømmen du bruker – ingen skjulte avgifter, ingen påslag. Gjelder i 12 måneder fra startdato.
             </PromoText>
           </SupplierInfo>
         )}

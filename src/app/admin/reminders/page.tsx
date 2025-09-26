@@ -460,7 +460,7 @@ export default function AdminReminders() {
               cursor: 'pointer'
             }}
           >
-            {showCreateForm ? 'Avbryt' : '➕ Skapa ny påminnelse'}
+            {showCreateForm ? 'Avbryt' : '➕ Opprett ny påminnelse'}
           </button>
           <button
             onClick={() => {
@@ -700,7 +700,7 @@ export default function AdminReminders() {
           borderRadius: '8px', 
           marginBottom: '2rem' 
         }}>
-          <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Redigera påminnelse</h3>
+          <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Rediger påminnelse</h3>
           <form onSubmit={handleUpdateReminder}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div>
@@ -792,7 +792,7 @@ export default function AdminReminders() {
                   opacity: updating ? 0.6 : 1
                 }}
               >
-                {updating ? 'Sparar...' : 'Spara ändringar'}
+                {updating ? 'Lagrer...' : 'Lagre endringer'}
               </button>
               <button
                 type="button"
@@ -888,14 +888,14 @@ export default function AdminReminders() {
                         onClick={() => startEditing(reminder)}
                         style={{ padding: '0.25rem 0.5rem', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '4px', fontSize: '0.875rem' }}
                       >
-                        Redigera
+                        Rediger
                       </button>
                       <button
                         onClick={() => deleteReminder(reminder.id!)}
                         disabled={deleting}
                         style={{ padding: '0.25rem 0.5rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', fontSize: '0.875rem' }}
                       >
-                        Radera
+                        Slett
                       </button>
                     </div>
                   </td>

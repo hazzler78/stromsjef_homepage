@@ -10,7 +10,7 @@ export default function GoHomeButton() {
       onClick={() => window.open('/', '_self')}
       background={'linear-gradient(135deg, var(--primary), var(--secondary))'}
     >
-      Tillbaka till startsidan
+      Tilbake til startsiden
     </GlassButton>
   );
 } 

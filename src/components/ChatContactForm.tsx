@@ -236,7 +236,7 @@ export default function ChatContactForm({ onClose, onSubmitted }: ChatContactFor
         </CheckboxGroup>
 
         <SubmitButton type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Skickar...' : 'Skicka'}
+          {isSubmitting ? 'Sender...' : 'Send'}
         </SubmitButton>
       </Form>
     </ContactFormContainer>

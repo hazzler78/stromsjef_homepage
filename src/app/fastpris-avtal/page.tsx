@@ -87,7 +87,7 @@ const FormContainer = styled.div`
     padding: 2rem;
   }
   
-  /* Dölj fortsätt-knappen i fastpris-formuläret */
+  /* Skjul fortsett-knappen i fastpris-skjemaet */
   button[type="submit"], 
   input[type="submit"],
   .submit-button,
