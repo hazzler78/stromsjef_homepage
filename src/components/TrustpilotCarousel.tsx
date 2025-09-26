@@ -32,27 +32,26 @@ const Frame = styled.div<{ $height: string }>`
   -webkit-backdrop-filter: none;
   border: none;
   box-shadow: none;
+  backface-visibility: hidden;
 `;
 
-const marquee = keyframes`
+const scroll = keyframes`
   0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-100%, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 `;
 
-const Lane = styled.div<{ $duration: number; $offsetPercent: number }>`
-  position: absolute;
-  top: 0;
-  left: ${(p) => p.$offsetPercent}%;
+const Track = styled.div<{ $duration: number }>`
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  height: 100%;
-  white-space: nowrap;
-  will-change: transform;
-  animation: ${marquee} linear infinite;
+  width: 200%;
+  animation: ${scroll} linear infinite;
   animation-duration: ${(p) => p.$duration}s;
+  will-change: transform;
 
-  &:hover { animation-play-state: paused; }
+  &:hover {
+    animation-play-state: paused;
+  }
 `;
 
 const Slide = styled.div`
@@ -88,30 +87,23 @@ export default function TrustpilotCarousel({
     '/trustpilot/trustpilot-04.png',
     '/trustpilot/trustpilot-01.png',
   ],
-  height = 'clamp(160px, 18vw, 260px)',
+  height = 'clamp(110px, 11vw, 180px)',
   durationSeconds = 40,
   className,
 }: TrustpilotCarouselProps) {
+  const sequence = [...images, ...images];
+
   return (
     <CarouselSection className={className}>
       <div className="container">
         <Frame $height={height}>
-          {/* Lane 1 */}
-          <Lane $duration={durationSeconds} $offsetPercent={0}>
-            {images.map((src, idx) => (
-              <Slide key={`lane1-${src}-${idx}`}>
-                <img src={src} alt="Trustpilot omdöme" loading={idx < 2 ? 'eager' : 'lazy'} />
+          <Track $duration={durationSeconds}>
+            {sequence.map((src, idx) => (
+              <Slide key={`${src}-${idx}`}>
+                <img src={src} alt="Trustpilot omdöme" loading={idx < images.length ? 'eager' : 'lazy'} />
               </Slide>
             ))}
-          </Lane>
-          {/* Lane 2 starts exactly after lane 1 to ensure seamless loop */}
-          <Lane $duration={durationSeconds} $offsetPercent={100}>
-            {images.map((src, idx) => (
-              <Slide key={`lane2-${src}-${idx}`}>
-                <img src={src} alt="Trustpilot omdöme" loading="lazy" />
-              </Slide>
-            ))}
-          </Lane>
+          </Track>
         </Frame>
       </div>
     </CarouselSection>
