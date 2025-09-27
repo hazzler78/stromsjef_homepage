@@ -87,7 +87,7 @@ export default function Kontakt() {
           </Lead>
           <Phone>
             <PhoneNumber>
-              Ring oss direkte: <PhoneLink href="tel:+4773686260">+47 73 68 62 60</PhoneLink>
+              Ring oss direkte: <PhoneLink href="tel:+46736862360">+46 73 68 62 360</PhoneLink>
             </PhoneNumber>
             <OpeningHours>09:00-13:00 Hverdager</OpeningHours>
           </Phone>

@@ -35,7 +35,7 @@ export default function RootLayout({
             "logo": "https://stromsjef.se/logo.png",
             "contactPoint": [{
               "@type": "ContactPoint",
-              "telephone": "+47-73-686-23-66",
+              "telephone": "+46-73-686-23-60",
               "contactType": "customer service",
               "areaServed": "NO",
               "availableLanguage": ["Norwegian", "English"]

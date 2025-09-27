@@ -99,7 +99,7 @@ export default function Footer() {
             </p>
             <ContactInfo>
               <p>
-                <FaPhone /> +47 73 68 62 60
+                <FaPhone /> +46 73 68 62 360
                 <span style={{ fontSize: '0.8rem', color: 'var(--gray-400)', marginLeft: '0.5rem' }}>
                   09:00-13:00 Hverdager
                 </span>

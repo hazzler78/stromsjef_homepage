@@ -106,7 +106,7 @@ export default function JamforElpriser() {
   }, []);
 
   // Funktion för att spåra kontraktsklick från AI-användare
-  const trackContractClick = (contractType: 'rorligt' | 'fastpris') => {
+  const trackContractClick = (contractType: 'rorligt' | 'fastpris' | 'start-her') => {
     try {
       // Extrahera besparingsbelopp från AI-analysen
       const extractSavings = (text: string): number => {
@@ -900,15 +900,15 @@ export default function JamforElpriser() {
                 marginBottom: '0.5rem',
                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
               }}>
-                Akkurat nå anbefaler vi en av disse strømavtalene, avhengig av om du vil ha rørlig avtale eller fastprisavtale.
+                Klar til å finne den beste strømavtalen for deg?
               </h4>
               <div style={{ 
                 display: 'flex', 
-                gap: '1rem', 
-                flexWrap: 'wrap', 
-                justifyContent: 'center' 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                gap: '0.5rem' 
               }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', minWidth: 200 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
                   <GlassButton 
                     variant="primary" 
                     size="lg" 
@@ -916,12 +916,12 @@ export default function JamforElpriser() {
                     disableScrollEffect={true} 
                     disableHoverEffect={true}
                     onClick={() => {
-                      trackContractClick('rorligt');
-                      window.location.href = withDefaultCtaUtm('/rorligt-avtal', 'jamfor', 'cta-rorligt');
+                      trackContractClick('start-her');
+                      window.location.href = withDefaultCtaUtm('/starta-har', 'jamfor', 'cta-start-her');
                     }}
-                    aria-label="Rörligt avtal - 0 kr i avgifter första året – utan bindningstid"
+                    aria-label="Start her – finn riktig avtale"
                   >
-                    Rörligt avtal
+                    Start her
                   </GlassButton>
                   <div style={{ 
                     fontSize: '0.9rem', 
@@ -934,36 +934,7 @@ export default function JamforElpriser() {
                     backdropFilter: 'blur(8px)',
                     boxShadow: '0 4px 16px rgba(0,0,0,0.08)'
                   }}>
-                    0 kr i avgifter första året – utan bindningstid
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', minWidth: 200 }}>
-                  <GlassButton 
-                    variant="secondary" 
-                    size="lg" 
-                    background="linear-gradient(135deg, var(--secondary), var(--primary))" 
-                    disableScrollEffect={true} 
-                    disableHoverEffect={true}
-                    onClick={() => {
-                      trackContractClick('fastpris');
-                      window.location.href = withDefaultCtaUtm('/fastpris-avtal', 'jamfor', 'cta-fastpris');
-                    }}
-                    aria-label="Fastpris - Fastpris med prisgaranti"
-                  >
-                    Fastpris
-                  </GlassButton>
-                  <div style={{ 
-                    fontSize: '0.9rem', 
-                    color: 'var(--foreground)', 
-                    background: 'rgba(255,255,255,0.95)', 
-                    border: '1px solid rgba(0,0,0,0.06)', 
-                    padding: '0.35rem 0.6rem', 
-                    borderRadius: 9999, 
-                    textAlign: 'center',
-                    backdropFilter: 'blur(8px)',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.08)'
-                  }}>
-                    Fastpris med prisgaranti
+                    Finn riktig avtale for din situasjon
                   </div>
                 </div>
               </div>

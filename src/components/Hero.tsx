@@ -217,11 +217,11 @@ export default function Hero() {
                     variant="primary" 
                     size="lg"
                     background="linear-gradient(135deg, var(--primary), var(--secondary))"
-                    aria-label="Starta här – hitta rätt avtal"
+                    aria-label="Start her – finn riktig avtale"
                     disableScrollEffect={true}
                     disableHoverEffect={true}
                   >
-                    Starta här
+                    Start her
                   </GlassButton>
                 </div>
                 <div style={{ 

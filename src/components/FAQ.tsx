@@ -91,7 +91,7 @@ const faqData = [
     answer: "Strømsjef.no finner frem gode strømavtaler fra ulike leverandører og gir deg muligheten til å velge den avtalen som passer deg best. Du kan være trygg på at tilbudene du finner her er konkurransedyktige i markedet!"
   },
   {
-    question: "Hva skal jeg velge? Fastpris, Rørlig timepris eller Rørlig månedspris?",
+    question: "Hva skal jeg velge? Fastpris eller spotpris?",
     answer: "Det kommer an på livsstilen din og hva du føler deg mest komfortabel med. Med en fastprisavtale har du forutsigbarhet gjennom hele avtaleperioden. Med en spotprisavtale følger strømprisen markedets svingninger, men du kan potensielt spare penger på sikt. Spør deg selv: Tror du at strømprisene vil bli billigere eller dyrere fremover?"
   },
   {
