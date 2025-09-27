@@ -114,16 +114,17 @@ const SubmitButton = styled.button`
 `;
 
 const CheckboxGroup = styled.div`
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 1rem 1fr;
   gap: 0.75rem;
-  justify-content: flex-start;
+  width: 100%;
   text-align: left;
-  flex-wrap: wrap;
+  align-items: start;
+  position: relative;
   
   @media (max-width: 768px) {
     gap: 0.5rem;
-    align-items: flex-start;
+    grid-template-columns: 1.125rem 1fr;
   }
 `;
 
@@ -131,9 +132,11 @@ const Checkbox = styled.input`
   margin-top: 0.25rem;
   width: 1rem;
   height: 1rem;
-  flex-shrink: 0;
-  flex-grow: 0;
   accent-color: var(--secondary);
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+  align-self: start;
   
   @media (max-width: 768px) {
     margin-top: 0.125rem;
@@ -150,8 +153,11 @@ const CheckboxLabel = styled.label`
   cursor: pointer;
   text-align: left;
   word-break: break-word;
-  flex: 1;
+  overflow-wrap: break-word;
+  grid-column: 2;
+  grid-row: 1;
   min-width: 0;
+  align-self: start;
   
   @media (max-width: 768px) {
     font-size: 0.85rem;

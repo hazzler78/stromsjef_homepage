@@ -213,7 +213,7 @@ export default function WeeklyNews() {
               </CustomListItem>
             </CustomList>
             
-            <SubTitle>🚨 Varning: Dolda avgifter och orimliga bindningstider</SubTitle>
+            <SubTitle>🚨 Varning: Dolda avgifter och orimliga bindingstider</SubTitle>
             <p>
               Vi har upptäckt några riktigt dåliga exempel på hur vissa leverantörer försöker lura kunder:
             </p>
@@ -240,7 +240,7 @@ export default function WeeklyNews() {
               </CustomListItem>
               <CustomListItem>
                 <CheckIcon />
-                <div><strong>Inga orimliga bindningstider</strong> – du är fri att byta när du vill.</div>
+                <div><strong>Inga orimliga bindingstider</strong> – du är fri att byta när du vill.</div>
               </CustomListItem>
               <CustomListItem>
                 <CheckIcon />

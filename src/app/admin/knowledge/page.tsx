@@ -976,7 +976,7 @@ function ProviderForm({ provider, onSave, onCancel }: {
           value={featuresInput}
           onChange={(e) => setFeaturesInput(e.target.value)}
           style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #d1d5db" }}
-          placeholder="0 kr månadsavgift, 0 öre påslag, Ingen bindningstid"
+          placeholder="0 kr månadsavgift, 0 öre påslag, Ingen bindingstid"
         />
       </div>
 

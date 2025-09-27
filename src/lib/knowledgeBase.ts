@@ -52,8 +52,8 @@ export const faqKnowledge: KnowledgeItem[] = [
   {
     category: "avgifter",
     question: "Är det någon avgift för att säga upp ett elavtal?",
-    answer: "Rörliga elavtal kan oftast sägas upp utan avgift och har normalt en uppsägningstid på en månad. Fastprisavtal däremot har en bindningstid, och om du vill avsluta avtalet i förtid kan det tillkomma en brytavgift (även kallad lösenavgift).",
-    keywords: ["avgift", "uppsaga", "brytavgift", "lösenavgift", "bindningstid"],
+    answer: "Rörliga elavtal kan oftast sägas upp utan avgift och har normalt en uppsägningstid på en månad. Fastprisavtal däremot har en bindingstid, och om du vill avsluta avtalet i förtid kan det tillkomma en brytavgift (även kallad lösenavgift).",
+    keywords: ["avgift", "uppsaga", "brytavgift", "lösenavgift", "bindingstid"],
     lastUpdated: "2025-01-20"
   },
   {
@@ -77,7 +77,7 @@ export const activeCampaigns: CampaignInfo[] = [
   {
     id: "rorligt-2025",
     title: "Rörligt avtal - 0 kr i avgifter",
-    description: "0 kr i avgifter första året – utan bindningstid",
+    description: "0 kr i avgifter första året – utan bindingstid",
     validFrom: "2025-01-01",
     validTo: "2025-12-31",
     active: true
@@ -85,7 +85,7 @@ export const activeCampaigns: CampaignInfo[] = [
   {
     id: "fastpris-2025",
     title: "Fastprisavtal med prisgaranti",
-    description: "Prisgaranti med valfri bindningstid (1-3 år)",
+    description: "Prisgaranti med valfri bindingstid (1-3 år)",
     validFrom: "2025-01-01",
     validTo: "2025-12-31",
     active: true
@@ -105,14 +105,14 @@ export const providers: ProviderInfo[] = [
   {
     name: "Cheap Energy",
     type: "rorligt",
-    features: ["0 kr månadsavgift", "0 öre påslag", "Ingen bindningstid"],
+    features: ["0 kr månadsavgift", "0 öre påslag", "Ingen bindingstid"],
     url: "https://www.cheapenergy.se/elchef-rorligt/",
     active: true
   },
   {
     name: "Svealands Elbolag",
     type: "fastpris",
-    features: ["Prisgaranti", "Valfri bindningstid", "Inga dolda avgifter"],
+    features: ["Prisgaranti", "Valfri bindingstid", "Inga dolda avgifter"],
     url: "https://www.svealandselbolag.se/elchef-fastpris/",
     active: true
   },

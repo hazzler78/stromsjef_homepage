@@ -60,20 +60,20 @@ INSERT INTO ai_knowledge (category, question, answer, keywords, active) VALUES
 ('elavtal', 'Hur hittar jag bra elavtal?', 'Registrera din e-post i formuläret i foten av sidan för att få tidiga erbjudanden innan de blir fullbokade.', ARRAY['hitta', 'bra', 'erbjudanden', 'registrera', 'e-post'], true),
 ('elavtal', 'Vad ska jag välja - Fastpris eller Rörligt?', '**Fastpris**: Förutsägbart under hela avtalsperioden, bra om du vill undvika prisschocker. **Rörligt**: Följer marknaden, historiskt billigare över tid men kan variera. Fundera: Tror du elpriserna blir billigare eller dyrare framöver?', ARRAY['fastpris', 'rorligt', 'val', 'prisschocker', 'marknad'], true),
 ('byte', 'Måste jag säga upp mitt gamla elavtal om jag byter leverantör?', 'Nej, du behöver oftast inte säga upp ditt gamla elavtal själv. När du byter elleverantör hanterar den nya leverantören vanligtvis bytet åt dig, inklusive uppsägningen av ditt tidigare avtal.', ARRAY['uppsaga', 'gamla', 'avtal', 'byte', 'leverantör'], true),
-('avgifter', 'Är det någon avgift för att säga upp ett elavtal?', 'Rörliga elavtal kan oftast sägas upp utan avgift och har normalt en uppsägningstid på en månad. Fastprisavtal däremot har en bindningstid, och om du vill avsluta avtalet i förtid kan det tillkomma en brytavgift (även kallad lösenavgift).', ARRAY['avgift', 'uppsaga', 'brytavgift', 'lösenavgift', 'bindningstid'], true),
+('avgifter', 'Är det någon avgift för att säga upp ett elavtal?', 'Rörliga elavtal kan oftast sägas upp utan avgift och har normalt en uppsägningstid på en månad. Fastprisavtal däremot har en bindingstid, och om du vill avsluta avtalet i förtid kan det tillkomma en brytavgift (även kallad lösenavgift).', ARRAY['avgift', 'uppsaga', 'brytavgift', 'lösenavgift', 'bindingstid'], true),
 ('elomraden', 'Vilket Elområde/Elzon tillhör jag?', 'Sverige är indelat i fyra elområden: **SE1** - Norra Sverige, **SE2** - Norra Mellansverige, **SE3** - Södra Mellansverige, **SE4** - Södra Sverige. Vilket elområde du tillhör beror på var du bor och påverkar elpriset i din region.', ARRAY['elområde', 'elzon', 'SE1', 'SE2', 'SE3', 'SE4', 'region'], true),
 ('angerratt', 'Kan jag ångra mitt elavtal?', 'Ja, enligt distansavtalslagen har du ångerrätt i 14 dagar när du tecknar ett avtal på distans. Det innebär att du kan ångra avtalet utan kostnad inom denna period. Undantag: betald förbrukad el under ångerperioden.', ARRAY['ångra', 'avtal', '14 dagar', 'distansavtalslagen', 'kostnad'], true);
 
 -- Lägg till exempel kampanjer
 INSERT INTO ai_campaigns (title, description, validFrom, validTo, active) VALUES
-('Rörligt avtal - 0 kr i avgifter', '0 kr i avgifter första året – utan bindningstid', '2025-01-01', '2025-12-31', true),
-('Fastprisavtal med prisgaranti', 'Prisgaranti med valfri bindningstid (1-3 år)', '2025-01-01', '2025-12-31', true),
+('Rörligt avtal - 0 kr i avgifter', '0 kr i avgifter första året – utan bindingstid', '2025-01-01', '2025-12-31', true),
+('Fastprisavtal med prisgaranti', 'Prisgaranti med valfri bindingstid (1-3 år)', '2025-01-01', '2025-12-31', true),
 ('Företagsavtal via Energi2.se', 'Särskilda företagsavtal för företag', '2025-01-01', '2025-12-31', true);
 
 -- Lägg till exempel leverantörer
 INSERT INTO ai_providers (name, type, features, url, active) VALUES
-('Cheap Energy', 'rorligt', ARRAY['0 kr månadsavgift', '0 öre påslag', 'Ingen bindningstid'], 'https://www.cheapenergy.se/elchef-rorligt/', true),
- ('Svealands Elbolag', 'fastpris', ARRAY['Prisgaranti', 'Valfri bindningstid', 'Inga dolda avgifter'], 'https://www.svealandselbolag.se/elchef-fastpris/', true),
+('Cheap Energy', 'rorligt', ARRAY['0 kr månadsavgift', '0 öre påslag', 'Ingen bindingstid'], 'https://www.cheapenergy.se/elchef-rorligt/', true),
+ ('Svealands Elbolag', 'fastpris', ARRAY['Prisgaranti', 'Valfri bindingstid', 'Inga dolda avgifter'], 'https://www.svealandselbolag.se/elchef-fastpris/', true),
 ('Energi2.se', 'foretag', ARRAY['Företagsavtal', 'Skräddarsydda lösningar', 'Volymrabatter'], 'https://energi2.se/elchef/', true);
 ```
 

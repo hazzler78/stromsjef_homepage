@@ -14,7 +14,7 @@ Priserna hämtas från: `https://www.cheapenergy.se/Site_Priser_CheapEnergy_de.j
 
 **Inkluderar:**
 - Rörliga priser (spot) för alla elområden (SE1, SE2, SE3, SE4)
-- Fastprisavtal för olika bindningstider (3, 6, 12, 24, 36, 48, 60, 120 månader)
+- Fastprisavtal för olika bindingstider (3, 6, 12, 24, 36, 48, 60, 120 månader)
 - Fasta avgifter
 
 ### 3. Automatisk uppdatering

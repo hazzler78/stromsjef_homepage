@@ -133,7 +133,7 @@ export default function BytElavtal() {
                 variant="primary" 
                 size="lg"
                 background="linear-gradient(135deg, var(--primary), var(--secondary))"
-                aria-label="Rörligt avtal - 0 kr i avgifter första året – utan bindningstid"
+                aria-label="Rörligt avtal - 0 kr i avgifter första året – utan bindingstid"
                 disableScrollEffect={true}
                 disableHoverEffect={true}
               >
@@ -141,7 +141,7 @@ export default function BytElavtal() {
               </GlassButton>
             </div>
             <RorligtLabel>
-              0 kr i avgifter första året – utan bindningstid
+              0 kr i avgifter första året – utan bindingstid
             </RorligtLabel>
           </ButtonWrapper>
 
