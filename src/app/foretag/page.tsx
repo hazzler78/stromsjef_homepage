@@ -41,7 +41,7 @@ export default function Foretag() {
         <GlassButton 
           variant="primary" 
           size="lg" 
-          onClick={() => window.open('https://energi2.se/elchef/', '_blank')}
+          onClick={() => window.open('https://www.vstrom.no/renspot?utm_source=stromsjef&utm_medium=cpc&utm_campaign=renspot', '_blank')}
           background={'linear-gradient(135deg, var(--primary), var(--secondary))'}
         >
           Les mer & tegn bedriftsavtale
