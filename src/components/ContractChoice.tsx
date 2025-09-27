@@ -66,7 +66,7 @@ export default function ContractChoice({ onSelect, onClose }: ContractChoiceProp
           >
             <div style={{ fontWeight: 700, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Image src="/globe.svg" alt="Globe" width={16} height={16} />
-              Rørlig avtale
+              Spotpris avtale
             </div>
             <div style={{ fontSize: 12, opacity: 0.8 }}>
               Følger markedsprisen • Ofte billigst over tid • Ingen bindingstid

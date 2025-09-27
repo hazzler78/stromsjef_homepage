@@ -244,7 +244,7 @@ export default function Hero() {
             <USPList>
               <li>✔️ Vi løfter bare frem strømavtaler som er verdt å vurdere.</li>
               <li>✔️ Gratis bytte – din gamle avtale sies opp automatisk.</li>
-              <li>✔️ Full valgfrihet – velg mellom rørlig strømpris eller fastpris med avtalt periode.</li>
+              <li>✔️ Velg mellom spotpris eller fastpris med avtalt periode.</li>
             </USPList>
           </TextContent>
           <VideoWrapper>

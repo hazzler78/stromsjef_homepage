@@ -116,7 +116,7 @@ const FormContainer = styled.div`
 `;
 
 export default function RorligtAvtalPage() {
-  // Skjema for rørlig strømavtale - optimalisert for mobil
+  // Skjema for spotpris strømavtale - optimalisert for mobil
   const [showSupplier, setShowSupplier] = React.useState(true);
   function handleFormReady(formInstance?: SalesysFormInstance) {
     try {
@@ -235,7 +235,7 @@ export default function RorligtAvtalPage() {
         {showSupplier && (
           <SupplierInfo>
             <SupplierLogo src="/cheap-logo.png" alt="Cheap Energi" />
-            <SupplierText>Du kommer til å få en rørlig strømavtale fra Cheap Energi</SupplierText>
+            <SupplierText>Du kommer til å få en spotpris strømavtale fra Cheap Energi</SupplierText>
             <PromoTitle style={{ marginTop: '1rem' }}>Kampanjepris i 12 måneder</PromoTitle>
             <PromoBullets>
               <PromoBullet>0 kr i månedsavgift – 0 øre i påslag</PromoBullet>

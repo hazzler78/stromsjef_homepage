@@ -292,7 +292,7 @@ export default function WeatherElectricityPrices() {
               </CustomListItem>
               <CustomListItem>
                 <CheckIcon />
-                <div>Hos oss på stromsjef.se får du rørlig pris uten påslag – kun markedsprisen.</div>
+                <div>Hos oss på stromsjef.se får du spotpris uten påslag – kun markedsprisen.</div>
               </CustomListItem>
               <CustomListItem>
                 <CheckIcon />
