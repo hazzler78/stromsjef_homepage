@@ -190,17 +190,17 @@ export default function ChatContactForm({ onClose, onSubmitted }: ChatContactFor
 
   return (
     <ContactFormContainer>
-      <Title style={{ color: '#22c55e' }}>📞 Kontakta oss</Title>
+      <Title style={{ color: '#22c55e' }}>📞 Kontakt oss</Title>
       
       {submitStatus === 'success' && (
         <Message $type="success">
-          ✅ Tack! Vi återkommer så snart som möjligt.
+          ✅ Takk! Vi kommer tilbake så snart som mulig.
         </Message>
       )}
 
       {submitStatus === 'error' && (
         <Message $type="error">
-          ❌ Ett fel uppstod. Försök igen.
+          ❌ En feil oppstod. Prøv igjen.
         </Message>
       )}
 
@@ -217,7 +217,7 @@ export default function ChatContactForm({ onClose, onSubmitted }: ChatContactFor
         <Input
           type="tel"
           name="phone"
-          placeholder="Telefonnummer (valfritt)"
+          placeholder="Telefonnummer (valgfritt)"
           value={formData.phone}
           onChange={handleInputChange}
         />

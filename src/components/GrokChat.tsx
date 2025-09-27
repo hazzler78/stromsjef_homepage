@@ -318,7 +318,7 @@ export default function GrokChat() {
       
       setMessages([...newMessages, { role: 'assistant', content: aiMsg }]);
     } catch {
-      setError('Kunde inte kontakta AI:n.');
+      setError('Kunne ikke kontakte AI-en.');
     } finally {
       setLoading(false);
     }
@@ -843,7 +843,7 @@ export default function GrokChat() {
                 WebkitBackdropFilter: 'var(--glass-blur)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
-              title="Kontakta oss"
+              title="Kontakt oss"
             >
               📞
             </button>
