@@ -237,7 +237,7 @@ export default function Hero() {
                   position: 'relative',
                   zIndex: 10
                 }}>
-                  Fyll i postnummer – se avtal i din strømsone
+                  Fyll i postnummer – se avtaler i din strømsone
                 </div>
               </div>
             </ButtonRow>
