@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ChatContactForm from './ChatContactForm';
-import ContractChoice from './ContractChoice';
 
 function renderMarkdown(text: string) {
   if (!text) return '';
@@ -118,8 +117,10 @@ export default function GrokChat() {
   const [sessionId, setSessionId] = useState<string>('');
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactFormSubmitted, setContactFormSubmitted] = useState(false);
-  const [showContractChoice, setShowContractChoice] = useState(false);
-  const [contractChoiceSubmitted, setContractChoiceSubmitted] = useState(false);
+  const [showStartHere, setShowStartHere] = useState(false);
+  const [startHereSubmitted, setStartHereSubmitted] = useState(false);
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calculatorSubmitted, setCalculatorSubmitted] = useState(false);
 
   
   // Debug: Log when showContactForm changes
@@ -279,19 +280,34 @@ export default function GrokChat() {
         setShowContactForm(false);
       }
       
-      // Check if AI wants to show contract choice
-      if (aiMsg.includes('[SHOW_CONTRACT_CHOICE]')) {
-        console.log('Contract choice trigger detected!');
-        aiMsg = aiMsg.replace('[SHOW_CONTRACT_CHOICE]', '');
-        setShowContractChoice(true);
+      // Check if AI wants to show start here button
+      if (aiMsg.includes('[SHOW_START_HERE]')) {
+        console.log('Start here trigger detected!');
+        aiMsg = aiMsg.replace('[SHOW_START_HERE]', '');
+        setShowStartHere(true);
       }
       
-      // Check if contract choice has been submitted
-      if (aiMsg.includes('[CONTRACT_CHOICE_SUBMITTED]')) {
-        console.log('Contract choice submitted trigger detected!');
-        aiMsg = aiMsg.replace('[CONTRACT_CHOICE_SUBMITTED]', '');
-        setContractChoiceSubmitted(true);
-        setShowContractChoice(false);
+      // Check if start here has been submitted
+      if (aiMsg.includes('[START_HERE_SUBMITTED]')) {
+        console.log('Start here submitted trigger detected!');
+        aiMsg = aiMsg.replace('[START_HERE_SUBMITTED]', '');
+        setStartHereSubmitted(true);
+        setShowStartHere(false);
+      }
+      
+      // Check if AI wants to show calculator
+      if (aiMsg.includes('[SHOW_CALCULATOR]')) {
+        console.log('Calculator trigger detected!');
+        aiMsg = aiMsg.replace('[SHOW_CALCULATOR]', '');
+        setShowCalculator(true);
+      }
+      
+      // Check if calculator has been submitted
+      if (aiMsg.includes('[CALCULATOR_SUBMITTED]')) {
+        console.log('Calculator submitted trigger detected!');
+        aiMsg = aiMsg.replace('[CALCULATOR_SUBMITTED]', '');
+        setCalculatorSubmitted(true);
+        setShowCalculator(false);
       }
       
       // Remove greeting on subsequent assistant replies
@@ -315,21 +331,48 @@ export default function GrokChat() {
     setSessionId(generateSessionId()); // Generera ny session ID
     setShowContactForm(false);
     setContactFormSubmitted(false);
-    setShowContractChoice(false);
-    setContractChoiceSubmitted(false);
+    setShowStartHere(false);
+    setStartHereSubmitted(false);
+    setShowCalculator(false);
+    setCalculatorSubmitted(false);
   };
 
-  // Funktion för att hantera avtalsval
-  const handleContractChoice = async (contractType: 'rorligt' | 'fastpris') => {
-    setShowContractChoice(false);
-    setContractChoiceSubmitted(true);
-    
-
+  // Funktion för att hantera Start här knapp
+  const handleStartHere = () => {
+    setShowStartHere(false);
+    setStartHereSubmitted(true);
     
     // Lägg till användarens val i chatten
-    const choiceMessage = contractType === 'rorligt' 
-      ? 'Jeg velger rørlig avtale'
-      : 'Jeg velger fastpris';
+    const choiceMessage = 'Jeg vil starte her og finne riktig avtale';
+    
+    setMessages(prev => [...prev, { role: 'user', content: choiceMessage }]);
+    
+    // Lägg till en notifiering i chatten
+    setMessages(prev => [...prev, { 
+      role: 'assistant', 
+      content: '**🎯 Perfekt!** Du sendes nå til vår avtalsfinner...' 
+    }]);
+    
+    // Navigering till starta-har sidan efter kort fördröjning
+    setTimeout(() => {
+      window.location.href = '/starta-har';
+    }, 2000); // 2 sekunders fördröjning så användaren hinner se AI-svaret
+  };
+
+  // Funktion för att stänga Start här
+  const closeStartHere = () => {
+    setShowStartHere(false);
+    const newMessages = [...messages, { role: 'user', content: 'Nei takk, jeg tenker meg om' }];
+    setMessages(newMessages);
+  };
+
+  // Funktion för att hantera AI-kalkylator
+  const handleCalculator = async () => {
+    setShowCalculator(false);
+    setCalculatorSubmitted(true);
+    
+    // Lägg till användarens val i chatten
+    const choiceMessage = 'Jeg vil bruke AI-kalkylatoren';
     
     setMessages(prev => [...prev, { role: 'user', content: choiceMessage }]);
     
@@ -340,7 +383,7 @@ export default function GrokChat() {
       body: JSON.stringify({
         messages: [...messages, { role: 'user', content: choiceMessage }],
         sessionId,
-        contractChoice: contractType,
+        contractChoice: 'calculator',
       }),
     });
     
@@ -350,27 +393,17 @@ export default function GrokChat() {
       
       setMessages(prev => [...prev, { role: 'assistant', content: aiMessage }]);
       
-      // Navigering till rätt sida efter kort fördröjning
+      // Navigering till jamfor-elpriser sidan efter kort fördröjning
       setTimeout(() => {
-        const targetPage = contractType === 'rorligt' 
-          ? '/rorligt-avtal'
-          : '/fastpris-avtal';
-        
-        // Lägg till en notifiering i chatten
-        setMessages(prev => [...prev, { 
-          role: 'assistant', 
-          content: '**🎯 Perfekt val!** Du skickas nu till registrering...' 
-        }]);
-        
-        window.location.href = targetPage;
+        window.location.href = '/jamfor-elpriser';
       }, 2000); // 2 sekunders fördröjning så användaren hinner se AI-svaret
     }
   };
 
-  // Funktion för att stänga avtalsval
-  const closeContractChoice = () => {
-    setShowContractChoice(false);
-    const newMessages = [...messages, { role: 'user', content: 'Nei takk, jeg tenker meg om' }];
+  // Funktion för att stänga AI-kalkylator
+  const closeCalculator = () => {
+    setShowCalculator(false);
+    const newMessages = [...messages, { role: 'user', content: 'Nei takk, jeg trenger ikke kalkulator' }];
     setMessages(newMessages);
   };
 
@@ -586,11 +619,157 @@ export default function GrokChat() {
                 </div>
               </div>
             )}
-            {showContractChoice && (
-              <ContractChoice 
-                onSelect={handleContractChoice}
-                onClose={closeContractChoice}
-              />
+            {showStartHere && (
+              <div style={{
+                marginBottom: 18,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+              }}>
+                <ElgeIcon />
+                <div style={{
+                  background: '#e0f2fe',
+                  color: '#17416b',
+                  borderRadius: '16px 16px 16px 4px',
+                  padding: '12px 16px',
+                  maxWidth: 300,
+                  fontSize: 16,
+                  fontWeight: 500,
+                  boxShadow: '0 2px 8px rgba(0,106,167,0.12)',
+                  marginLeft: 8,
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2, opacity: 0.7 }}>
+                    Elge
+                  </div>
+                  <div style={{ marginBottom: 12 }}>
+                    <strong>🎯 Perfekt!</strong> La meg hjelpe deg finne riktig avtale for din situasjon.
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
+                    <button
+                      onClick={handleStartHere}
+                      style={{
+                        background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                        color: 'white',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        padding: '12px 16px',
+                        borderRadius: 12,
+                        fontSize: 14,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        backdropFilter: 'var(--glass-blur)',
+                        WebkitBackdropFilter: 'var(--glass-blur)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: 'var(--glass-shadow-light)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                        e.currentTarget.style.boxShadow = 'var(--glass-shadow-medium)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        e.currentTarget.style.boxShadow = 'var(--glass-shadow-light)';
+                      }}
+                    >
+                      Start her
+                    </button>
+                    <button
+                      onClick={closeStartHere}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        color: '#17416b',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        padding: '8px 12px',
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        backdropFilter: 'var(--glass-blur)',
+                        WebkitBackdropFilter: 'var(--glass-blur)',
+                      }}
+                    >
+                      Nei takk, jeg tenker meg om
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {showCalculator && (
+              <div style={{
+                marginBottom: 18,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+              }}>
+                <ElgeIcon />
+                <div style={{
+                  background: '#e0f2fe',
+                  color: '#17416b',
+                  borderRadius: '16px 16px 16px 4px',
+                  padding: '12px 16px',
+                  maxWidth: 300,
+                  fontSize: 16,
+                  fontWeight: 500,
+                  boxShadow: '0 2px 8px rgba(0,106,167,0.12)',
+                  marginLeft: 8,
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2, opacity: 0.7 }}>
+                    Elge
+                  </div>
+                  <div style={{ marginBottom: 12 }}>
+                    <strong>🧮 Perfekt!</strong> La meg hjelpe deg beregne dine strømkostnader og finne besparelser.
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
+                    <button
+                      onClick={handleCalculator}
+                      style={{
+                        background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                        color: 'white',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        padding: '12px 16px',
+                        borderRadius: 12,
+                        fontSize: 14,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        backdropFilter: 'var(--glass-blur)',
+                        WebkitBackdropFilter: 'var(--glass-blur)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: 'var(--glass-shadow-light)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                        e.currentTarget.style.boxShadow = 'var(--glass-shadow-medium)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        e.currentTarget.style.boxShadow = 'var(--glass-shadow-light)';
+                      }}
+                    >
+                      AI-kalkulator
+                    </button>
+                    <button
+                      onClick={closeCalculator}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        color: '#17416b',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        padding: '8px 12px',
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        backdropFilter: 'var(--glass-blur)',
+                        WebkitBackdropFilter: 'var(--glass-blur)',
+                      }}
+                    >
+                      Nei takk, jeg trenger ikke kalkulator
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
             {error && <div style={{ color: 'red', fontSize: 15, marginLeft: 8 }}>{error}</div>}
             <div ref={chatEndRef} />
@@ -607,7 +786,7 @@ export default function GrokChat() {
               type="text"
               value={input}
               onChange={event => setInput(event.target.value)}
-              placeholder={contactFormSubmitted ? "Takk for din kontakt!" : contractChoiceSubmitted ? "Takk for ditt valg!" : "Skriv spørsmålet ditt…"}
+              placeholder={contactFormSubmitted ? "Takk for din kontakt!" : startHereSubmitted ? "Takk for ditt valg!" : calculatorSubmitted ? "Takk for ditt valg!" : "Skriv spørsmålet ditt…"}
               style={{ 
                 flex: 1, 
                 border: '1px solid rgba(203, 213, 225, 0.5)', 
@@ -615,18 +794,18 @@ export default function GrokChat() {
                 padding: '0.8rem 1rem', 
                 fontSize: 16, 
                 outline: 'none', 
-                background: contactFormSubmitted || contractChoiceSubmitted ? 'rgba(243, 244, 246, 0.8)' : 'rgba(255, 255, 255, 0.9)', 
+                background: contactFormSubmitted || startHereSubmitted || calculatorSubmitted ? 'rgba(243, 244, 246, 0.8)' : 'rgba(255, 255, 255, 0.9)', 
                 marginRight: 8,
                 backdropFilter: 'var(--glass-blur)',
                 WebkitBackdropFilter: 'var(--glass-blur)',
               }}
-              disabled={loading || contactFormSubmitted || contractChoiceSubmitted}
+              disabled={loading || contactFormSubmitted || startHereSubmitted || calculatorSubmitted}
               maxLength={500}
               autoFocus
             />
             <button 
               type="submit" 
-              disabled={loading || !input.trim() || contactFormSubmitted || contractChoiceSubmitted} 
+              disabled={loading || !input.trim() || contactFormSubmitted || startHereSubmitted || calculatorSubmitted} 
               style={{ 
                 background: 'linear-gradient(135deg, var(--primary), var(--secondary))', 
                 color: 'white', 
@@ -647,9 +826,9 @@ export default function GrokChat() {
             <button 
               type="button" 
               onClick={() => setShowContactForm(true)}
-              disabled={contactFormSubmitted || contractChoiceSubmitted}
+              disabled={contactFormSubmitted || startHereSubmitted || calculatorSubmitted}
               style={{ 
-                background: contactFormSubmitted || contractChoiceSubmitted ? 'rgba(148, 163, 184, 0.5)' : 'linear-gradient(135deg, var(--secondary), var(--primary))', 
+                background: contactFormSubmitted || startHereSubmitted || calculatorSubmitted ? 'rgba(148, 163, 184, 0.5)' : 'linear-gradient(135deg, var(--secondary), var(--primary))', 
                 color: 'white', 
                 border: '1px solid rgba(255, 255, 255, 0.2)', 
                 padding: '0 12px', 

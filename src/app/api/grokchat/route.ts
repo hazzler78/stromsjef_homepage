@@ -170,14 +170,18 @@ Ja, 14 dagers angrerett i henhold til distansavtaleloven. Unntak: betalt forbruk
 • Hvis brukeren ber om skjemaet igjen etter at det er vist: påpeke at det allerede finnes i chatten
 
 ## AVTALSVAL OG KØPSSIGNALER
-• Når brukeren uttrykker tydelig interesse for bytte ("Ja", "Absolutt", "Gjerne", etc.), vis avtalsval og inkluder [SHOW_CONTRACT_CHOICE]
-• Forklar kort forskjellen:
-  - **Rørlig**: følger markedet, kan variere, 0 kr avgifter første året
-  - **Fastpris**: låst pris i 1–3 år, mer forutsigbart
-• Bekreft valget og forklar at registrering åpnes i nytt vindu
+• Når brukeren uttrykker tydelig interesse for bytte ("Ja", "Absolutt", "Gjerne", etc.), vis "Start her" knapp og inkluder [SHOW_START_HERE]
+• Forklar at vi hjelper dem finne riktig avtale for deres situasjon
+• Bekreft at de sendes til vår avtalsfinner hvor de kan oppgi sitt postnummer
+
+## AI-KALKULATOR OG BEREGNING
+• Når brukeren spør om kalkulator, beregning, kostnader, besparelse eller "hvor mye kan jeg spare", vis AI-kalkulator knapp og inkluder [SHOW_CALCULATOR]
+• Forklar at vi kan hjelpe dem beregne strømkostnader og finne besparelser
+• Bekreft at de sendes til vår AI-kalkulator hvor de kan laste opp sin faktura for analys
 
 ## VIKTIGE TRIGGERS – bruk alltid
-• [SHOW_CONTRACT_CHOICE] – ved tydelig kjøpssignal
+• [SHOW_START_HERE] – ved tydelig kjøpssignal
+• [SHOW_CALCULATOR] – ved spørsmål om kalkulator eller beregning
 • [SHOW_CONTACT_FORM] – ved ønske om personlig hjelp
 
 ## SAMTALEREGLER
@@ -268,13 +272,13 @@ export async function POST(req: NextRequest) {
       ...messages,
     ];
     
-    // Om användaren har valt avtal, lägg till kontext
+    // Om användaren har valt Start her eller kalkylator, lägg till kontext
     if (contractChoice) {
-      const contractContext = contractChoice === 'rorligt' 
-        ? 'VIKTIGT: Brukeren har valgt rørlig avtale. Bekreft valget og forklar at de sendes til registrering. Vær positiv og tillitvekkende.'
-        : 'VIKTIGT: Brukeren har valgt fastpris. Bekreft valget og forklar at de sendes til registrering. Vær positiv og tillitvekkende.';
+      const contextMessage = contractChoice === 'calculator' 
+        ? 'VIKTIGT: Brukeren vil bruke AI-kalkulatoren for å beregne strømkostnader. Bekreft valget og forklar at de sendes til vår AI-kalkulator hvor de kan laste opp sin faktura for analys. Vær positiv og tillitvekkende.'
+        : 'VIKTIGT: Brukeren vil starte her og finne riktig avtale. Bekreft valget og forklar at de sendes til vår avtalsfinner hvor de kan oppgi sitt postnummer. Vær positiv og tillitvekkende.';
       
-      fullMessages.push({ role: 'system', content: contractContext });
+      fullMessages.push({ role: 'system', content: contextMessage });
     }
     
     const xaiRes = await fetch(XAI_API_URL, {
