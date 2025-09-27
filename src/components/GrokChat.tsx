@@ -258,12 +258,12 @@ export default function GrokChat() {
       });
       if (!res.ok) {
         const err = await res.json();
-        setError(err.error || 'Något gick fel.');
+        setError(err.error || 'Noe gikk galt.');
         setLoading(false);
         return;
       }
       const data = await res.json();
-      let aiMsg = data.choices?.[0]?.message?.content || 'Jag kunde tyvärr inte svara just nu.';
+      let aiMsg = data.choices?.[0]?.message?.content || 'Jeg kunne dessverre ikke svare akkurat nå.';
       
       // Check if AI wants to show contact form
       if (aiMsg.includes('[SHOW_CONTACT_FORM]')) {
@@ -415,7 +415,7 @@ export default function GrokChat() {
         style={{
           position: 'fixed',
           bottom: chatBottom,
-          right: 24,
+          right: 16,
           zIndex: 1004,
           background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
           color: 'white',
@@ -442,9 +442,10 @@ export default function GrokChat() {
           style={{
             position: 'fixed',
             bottom: chatWindowBottom,
-            right: 24,
-            width: 360,
-            maxWidth: '98vw',
+            right: 12,
+            left: 12,
+            width: 'auto',
+            maxWidth: 'none',
             height: chatWindowHeight,
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'var(--glass-blur)',
@@ -535,7 +536,7 @@ export default function GrokChat() {
                   color: msg.role === 'user' ? 'white' : '#17416b',
                   borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                   padding: '12px 16px',
-                  maxWidth: 260,
+                  maxWidth: 'calc(100vw - 80px)',
                   fontSize: 16,
                   fontWeight: 500,
                   boxShadow: 'var(--glass-shadow-light)',
@@ -566,7 +567,7 @@ export default function GrokChat() {
                   color: '#17416b',
                   borderRadius: '16px 16px 16px 4px',
                   padding: '12px 16px',
-                  maxWidth: 260,
+                  maxWidth: 'calc(100vw - 80px)',
                   fontSize: 16,
                   fontWeight: 500,
                   boxShadow: 'var(--glass-shadow-light)',
@@ -595,7 +596,7 @@ export default function GrokChat() {
                   color: '#17416b',
                   borderRadius: '16px 16px 16px 4px',
                   padding: '12px 16px',
-                  maxWidth: 300,
+                  maxWidth: 'calc(100vw - 80px)',
                   fontSize: 16,
                   fontWeight: 500,
                   boxShadow: '0 2px 8px rgba(0,106,167,0.12)',
@@ -632,7 +633,7 @@ export default function GrokChat() {
                   color: '#17416b',
                   borderRadius: '16px 16px 16px 4px',
                   padding: '12px 16px',
-                  maxWidth: 300,
+                  maxWidth: 'calc(100vw - 80px)',
                   fontSize: 16,
                   fontWeight: 500,
                   boxShadow: '0 2px 8px rgba(0,106,167,0.12)',
@@ -708,7 +709,7 @@ export default function GrokChat() {
                   color: '#17416b',
                   borderRadius: '16px 16px 16px 4px',
                   padding: '12px 16px',
-                  maxWidth: 300,
+                  maxWidth: 'calc(100vw - 80px)',
                   fontSize: 16,
                   fontWeight: 500,
                   boxShadow: '0 2px 8px rgba(0,106,167,0.12)',

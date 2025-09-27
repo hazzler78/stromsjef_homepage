@@ -59,13 +59,13 @@ const PhoneNumber = styled.div`
 `;
 
 const PhoneLink = styled.a`
-  color: var(--primary);
+  color: #22c55e;
   text-decoration: underline;
   font-weight: 700;
   transition: color var(--transition-normal) ease;
   
   &:hover {
-    color: var(--primary-dark);
+    color: #16a34a;
   }
 `;
 
