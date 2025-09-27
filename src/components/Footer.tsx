@@ -99,13 +99,7 @@ export default function Footer() {
             </p>
             <ContactInfo>
               <p>
-                <FaPhone /> +46 73 68 62 360
-                <span style={{ fontSize: '0.8rem', color: 'var(--gray-400)', marginLeft: '0.5rem' }}>
-                  09:00-13:00 Hverdager
-                </span>
-              </p>
-              <p>
-                <FaEnvelope /> info@stromsjef.se
+                <FaEnvelope /> post@stromsjef.no
               </p>
             </ContactInfo>
             <SocialLinks>
@@ -124,7 +118,7 @@ export default function Footer() {
           <FooterColumn>
             <h3>Tjenester</h3>
             <ul>
-              <li><Link href={withDefaultCtaUtm('/byt-elavtal', 'footer', 'services-byt')}>Byt strømavtale</Link></li>
+              <li><Link href={withDefaultCtaUtm('/byt-elavtal', 'footer', 'services-byt')}>Bytt strømavtale</Link></li>
               <li><Link href={withDefaultCtaUtm('/jamfor-elpriser', 'footer', 'services-jamfor')}>Sammenlign strømpriser</Link></li>
               <li><Link href={withDefaultCtaUtm('/elpriskollen', 'footer', 'services-elpriskollen')}>Strømpriskollen</Link></li>
               <li><Link href={withDefaultCtaUtm('/energiradgivning', 'footer', 'services-energiradgivning')}>Energirådgivning</Link></li>

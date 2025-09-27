@@ -310,7 +310,7 @@ export async function POST(req: NextRequest) {
       const correction = [
         '**Korrigering:**',
         '- stromsjef.se tilhandaholdes av VKNG LTD i henhold til våre [vilkår](/villkor) og [personvern](/integritetspolicy).',
-        '- Vi deler ikke ut eller gjetter organisasjonsnummer i chatten. Verifiser via offentlige registre eller kontakt oss på info@stromsjef.se.'
+        '- Vi deler ikke ut eller gjetter organisasjonsnummer i chatten. Verifiser via offentlige registre eller kontakt oss på post@stromsjef.no.'
       ].join('\n');
 
       // Behold opprinnelig tekst men legg til tydelig korrigering øverst

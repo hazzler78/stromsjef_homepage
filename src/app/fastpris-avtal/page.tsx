@@ -200,7 +200,7 @@ export default function FastprisAvtalPage() {
   return (
     <PageContainer>
       <Content>
-        <Title>Byt strømavtale</Title>
+        <Title>Bytt strømavtale</Title>
         <Subtitle>Fyll ut skjemaet nedenfor for å se priser før du påbegynner byttet.</Subtitle>
         
         <SupplierInfo>

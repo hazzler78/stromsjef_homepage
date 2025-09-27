@@ -84,7 +84,7 @@ export default function Cookies() {
 
         <SectionTitle>Kontakt oss</SectionTitle>
         <Paragraph>
-          Har du spørsmål om vår cookiepolicy? Kontakt oss på <Mail href="mailto:info@stromsjef.se">info@stromsjef.se</Mail>.
+          Har du spørsmål om vår cookiepolicy? Kontakt oss på <Mail href="mailto:post@stromsjef.no">post@stromsjef.no</Mail>.
         </Paragraph>
       </Container>
     </Section>
