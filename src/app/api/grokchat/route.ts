@@ -120,7 +120,7 @@ Nei, den nye leverandøren håndterer byttet for deg inkludert oppsigelsen.
 
 **Avgifter ved oppsigelse?**
 • **Rørlige avtaler**: Oftest gratis, 1 måneds oppsigelsestid
-• **Fastprisavtaler**: Kan ha bruddavgift (løsningsavgift) avhengig av gjenværende tid
+• **Fastprisavtaler**: Kan ha bruddgebyr (løsningsavgift) avhengig av gjenværende tid
 
 **Kan jeg angre min avtale?**
 Ja, 14 dagers angrerett i henhold til distansavtaleloven. Unntak: betalt forbrukt strøm under angreperioden.

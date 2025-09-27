@@ -214,7 +214,7 @@ export default function AdminPlans() {
             <label>Bindingstid (text)<input value={editing.binding_time_text || ''} onChange={e => setEditing({ ...editing, binding_time_text: e.target.value })} /></label>
             <label>Vilkårsgaranti<input value={editing.terms_guarantee || ''} onChange={e => setEditing({ ...editing, terms_guarantee: e.target.value })} /></label>
             <label>Disclaimer<textarea value={editing.guarantee_disclaimer || ''} onChange={e => setEditing({ ...editing, guarantee_disclaimer: e.target.value })} /></label>
-            <label>Bruddavgift<input type="number" step="0.01" value={editing.termination_fee || 0} onChange={e => setEditing({ ...editing, termination_fee: Number(e.target.value) })} /></label>
+            <label>Bruddgebyr<input type="number" step="0.01" value={editing.termination_fee || 0} onChange={e => setEditing({ ...editing, termination_fee: Number(e.target.value) })} /></label>
             <label>Logo URL<input value={editing.logo_url || ''} onChange={e => setEditing({ ...editing, logo_url: e.target.value })} placeholder="/logos/cheap-energy.png" /></label>
             <label>Affiliate URL<input value={editing.affiliate_link || ''} onChange={e => setEditing({ ...editing, affiliate_link: e.target.value })} /></label>
             <label>Pris-badge (svart fet tekst over pris)<input value={editing.price_badge || ''} onChange={e => setEditing({ ...editing, price_badge: e.target.value })} placeholder="Kampanje" /></label>
@@ -239,7 +239,7 @@ export default function AdminPlans() {
             <img src={p.logo_url || '/favicon.svg'} alt="logo" style={{ width: 64, height: 64, objectFit: 'contain' }} />
             <div>
               <div style={{ fontWeight: 700 }}>{p.supplier_name} · {p.plan_name} <span style={{ color: '#64748b' }}>({p.price_zone})</span></div>
-              <div style={{ color: '#475569', fontSize: 14 }}>{p.price_per_kwh} øre/kWh · {p.monthly_fee} kr/mån · {p.binding_time > 0 ? `${p.binding_time} mån bindingstid` : 'Ingen bindingstid'}</div>
+              <div style={{ color: '#475569', fontSize: 14 }}>{p.price_per_kwh} øre/kWh · {p.monthly_fee} kr/mån · {p.binding_time > 0 ? `${p.binding_time} mån bindingstid` : 'Ingen bindingstid'}{p.termination_fee ? ` · Bruddgebyr ${p.termination_fee} kr` : ''}</div>
               {p.price_badge && <div style={{ fontWeight: 800, color: '#111827', marginTop: 4 }}>{p.price_badge}</div>}
               {p.terms_guarantee && <div style={{ color: '#64748b', fontSize: 12 }}>{p.terms_guarantee}</div>}
               {p.guarantee_disclaimer && <div style={{ color: '#94a3b8', fontSize: 12 }}>{p.guarantee_disclaimer}</div>}

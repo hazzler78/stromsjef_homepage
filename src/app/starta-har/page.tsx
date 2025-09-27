@@ -264,6 +264,7 @@ export default function StartaHar() {
                   <div style={{ fontWeight: 700 }}>{plan.supplierName} · {plan.planName}</div>
                   <div style={{ fontSize: '0.95rem', color: 'var(--gray-600)' }}>
                     {plan.bindingTime > 0 ? `Bindingstid ${plan.bindingTime} mnd` : 'Ingen bindingstid'}
+                    {plan.terminationFee ? ` · Bruddgebyr ${plan.terminationFee} kr` : ''}
                     {plan.termsGuarantee ? ` · ${plan.termsGuarantee}` : ''}
                   </div>
                   {plan.guaranteeDisclaimer && (
