@@ -119,7 +119,12 @@ const CheckboxGroup = styled.div`
   gap: 0.75rem;
   justify-content: flex-start;
   text-align: left;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
 `;
 
 const Checkbox = styled.input`
@@ -129,6 +134,12 @@ const Checkbox = styled.input`
   flex-shrink: 0;
   flex-grow: 0;
   accent-color: var(--secondary);
+  
+  @media (max-width: 768px) {
+    margin-top: 0.125rem;
+    width: 1.125rem;
+    height: 1.125rem;
+  }
 `;
 
 const CheckboxLabel = styled.label`
@@ -141,6 +152,13 @@ const CheckboxLabel = styled.label`
   word-break: break-word;
   flex: 1;
   min-width: 0;
+  
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    word-break: break-word;
+    hyphens: auto;
+  }
 `;
 
 const ErrorMessage = styled.div`
