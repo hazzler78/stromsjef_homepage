@@ -3,7 +3,7 @@
 import styled from 'styled-components';
 import Link from 'next/link';
 import { withDefaultCtaUtm } from '@/lib/utm';
-import { FaPhone, FaEnvelope, FaFacebook, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FaEnvelope, FaFacebook, FaInstagram, FaLinkedin } from 'react-icons/fa';
 
 const FooterWrapper = styled.div`
   background: var(--gray-700);
