@@ -388,13 +388,16 @@ export default function NewsletterHero() {
           <BenefitsTitle>Nyhetsbrev med ekstra verdi – vi sier fra når:</BenefitsTitle>
           <BenefitsList>
             <BenefitItem>
-              Avtalen din er i ferd med å utløpe
+              Eksklusive tilbud
             </BenefitItem>
             <BenefitItem>
-              En ny kampanje er tilgjengelig
+              Få tidlig tilgang til de beste strømprisene
             </BenefitItem>
             <BenefitItem>
-              Det er lurt å bytte for å unngå dyrere strøm
+              Varsling når det er lurt å bytte
+            </BenefitItem>
+            <BenefitItem>
+              Ingen spam - kun nyttige oppdateringer
             </BenefitItem>
           </BenefitsList>
         </NewsletterBenefits>
