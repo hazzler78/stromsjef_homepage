@@ -829,7 +829,7 @@ export default function GrokChat() {
               onClick={() => setShowContactForm(true)}
               disabled={contactFormSubmitted || startHereSubmitted || calculatorSubmitted}
               style={{ 
-                background: contactFormSubmitted || startHereSubmitted || calculatorSubmitted ? 'rgba(148, 163, 184, 0.5)' : 'linear-gradient(135deg, var(--secondary), var(--primary))', 
+                background: contactFormSubmitted || startHereSubmitted || calculatorSubmitted ? 'rgba(148, 163, 184, 0.5)' : '#22c55e', 
                 color: 'white', 
                 border: '1px solid rgba(255, 255, 255, 0.2)', 
                 padding: '0 12px', 

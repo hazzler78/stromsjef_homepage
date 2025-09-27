@@ -190,7 +190,7 @@ export default function ChatContactForm({ onClose, onSubmitted }: ChatContactFor
 
   return (
     <ContactFormContainer>
-      <Title>📞 Kontakta oss</Title>
+      <Title style={{ color: '#22c55e' }}>📞 Kontakta oss</Title>
       
       {submitStatus === 'success' && (
         <Message $type="success">
