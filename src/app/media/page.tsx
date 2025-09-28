@@ -112,12 +112,6 @@ const CardTitle = styled.h2`
   }
 `;
 
-const CardExcerpt = styled.p`
-  color: var(--gray-600);
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.5;
-`;
 
 const CardMeta = styled.div`
   display: flex;
