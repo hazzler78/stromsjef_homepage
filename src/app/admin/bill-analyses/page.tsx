@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { getSupabaseServerClient } from '@/lib/supabaseServer';
 
 interface BillAnalysis {
   id: number;
