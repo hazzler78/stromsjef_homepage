@@ -10,7 +10,7 @@ interface SharedCard {
   summary: string;
   url: string;
   created_at: string;
-  type?: string;
+  type: string;
   tag?: string;
   icon?: string;
   readTime?: number;
@@ -521,7 +521,7 @@ export default function Media() {
         
         return {
           ...card,
-          type: category.type,
+          type: category.type || 'article', // Fallback to 'article' if type is undefined
           tag: category.tag,
           icon: category.icon,
           readTime,
