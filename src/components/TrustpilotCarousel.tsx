@@ -35,6 +35,7 @@ const Frame = styled.div<{ $height: string; $isDragging?: boolean }>`
   backface-visibility: hidden;
   cursor: ${(p) => p.$isDragging ? 'grabbing' : 'grab'};
   user-select: none;
+  touch-action: none; /* Disable default touch behaviors */
   
   &:active {
     cursor: grabbing;
@@ -123,20 +124,24 @@ export default function TrustpilotCarousel({
   const velocity = useRef<number>(0);
   const momentumAnimation = useRef<number | null>(null);
 
-  // Get current animation position
+  // Get current animation position - simplified approach
   const getCurrentPosition = () => {
     if (!trackRef.current) return 0;
     
     const computedStyle = window.getComputedStyle(trackRef.current);
     const transform = computedStyle.transform;
     
-    if (transform === 'none') return 0;
+    // If there's a transform, use it directly
+    if (transform && transform !== 'none' && transform !== 'matrix(1, 0, 0, 1, 0, 0)') {
+      const matrix = new DOMMatrix(transform);
+      return matrix.m41; // translateX value
+    }
     
-    const matrix = new DOMMatrix(transform);
-    return matrix.m41; // translateX value
+    // If no transform, animation is at start position
+    return 0;
   };
 
-  // iPhone-like momentum animation
+  // Improved momentum animation
   const startMomentumAnimation = (startVelocity: number, startPosition: number) => {
     if (momentumAnimation.current) {
       cancelAnimationFrame(momentumAnimation.current);
@@ -144,8 +149,8 @@ export default function TrustpilotCarousel({
 
     let currentVelocity = startVelocity;
     let currentPosition = startPosition;
-    const friction = 0.95; // iPhone-like friction
-    const minVelocity = 0.1;
+    const friction = 0.95; // Less friction for more momentum
+    const minVelocity = 0.1; // Lower threshold for longer momentum
 
     const animate = () => {
       // Apply velocity to position
@@ -170,9 +175,11 @@ export default function TrustpilotCarousel({
         }
         setIsPaused(false);
         momentumAnimation.current = null;
+        console.log('Momentum animation finished');
       }
     };
 
+    console.log('Starting momentum animation with velocity:', startVelocity);
     momentumAnimation.current = requestAnimationFrame(animate);
   };
 
@@ -189,6 +196,13 @@ export default function TrustpilotCarousel({
     dragStartOffset.current = currentPos;
     currentOffset.current = currentPos;
     
+    console.log('Mouse down - current position:', currentPos);
+    console.log('Animation state before pause:', {
+      animation: trackRef.current?.style.animation,
+      transform: trackRef.current?.style.transform,
+      computedTransform: trackRef.current ? window.getComputedStyle(trackRef.current).transform : 'none'
+    });
+    
     setIsDragging(true);
     setIsPaused(true);
     
@@ -200,11 +214,15 @@ export default function TrustpilotCarousel({
     
     // Pause animation and freeze at current position
     if (trackRef.current) {
-      trackRef.current.style.animationPlayState = 'paused';
+      // Disable animation completely and set position
+      trackRef.current.style.animation = 'none';
       trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`;
     }
     
-    console.log('Mouse down - starting iPhone-like drag at position:', currentPos);
+    console.log('Animation state after pause:', {
+      animation: trackRef.current?.style.animation,
+      transform: trackRef.current?.style.transform
+    });
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -213,12 +231,14 @@ export default function TrustpilotCarousel({
     const currentTime = Date.now();
     const currentX = e.clientX;
     
-    // Calculate velocity for momentum
+    // Calculate velocity for momentum with better smoothing
     const deltaTime = currentTime - lastMoveTime.current;
     const deltaX = currentX - lastMoveX.current;
     
     if (deltaTime > 0) {
-      velocity.current = deltaX / deltaTime; // pixels per millisecond
+      // Smooth velocity calculation with better responsiveness
+      const instantVelocity = deltaX / deltaTime;
+      velocity.current = velocity.current * 0.7 + instantVelocity * 0.3; // Smoothing
     }
     
     // Update position
@@ -240,28 +260,36 @@ export default function TrustpilotCarousel({
   const handleMouseUp = () => {
     if (!isDragging) return;
     
-    console.log('Mouse up - starting iPhone-like momentum with velocity:', velocity.current);
+    console.log('Mouse up - starting momentum with velocity:', velocity.current);
     setIsDragging(false);
     
-    // Start momentum animation with calculated velocity
-    const momentumVelocity = velocity.current * 16; // Convert to pixels per frame (60fps)
-    startMomentumAnimation(momentumVelocity, currentOffset.current);
-    
-    // Apply speed multiplier based on velocity
-    const speedMultiplier = Math.min(3, 1 + Math.abs(velocity.current) * 10);
-    setSpeedMultiplier(speedMultiplier);
-    setReverse(velocity.current > 0);
-    
-    // Reset after delay
-    setTimeout(() => {
-      setSpeedMultiplier(1);
-      setReverse(false);
-    }, 3000);
+    // If there's significant velocity, start momentum animation
+    if (Math.abs(velocity.current) > 0.05) {
+      const momentumVelocity = velocity.current * 30; // Increased multiplier for more momentum
+      startMomentumAnimation(momentumVelocity, currentOffset.current);
+      
+      // Apply speed multiplier based on velocity
+      const speedMultiplier = Math.min(5, 1 + Math.abs(velocity.current) * 20);
+      setSpeedMultiplier(speedMultiplier);
+      setReverse(velocity.current > 0);
+      
+      // Reset after delay
+      setTimeout(() => {
+        setSpeedMultiplier(1);
+        setReverse(false);
+      }, 5000);
+    } else {
+      // No significant velocity, resume normal animation
+      if (trackRef.current) {
+        trackRef.current.style.animation = '';
+        trackRef.current.style.transform = '';
+      }
+      setIsPaused(false);
+    }
   };
 
   // Touch handlers for mobile (iPhone-like)
   const handleTouchStart = (e: React.TouchEvent) => {
-    e.preventDefault();
     const touch = e.touches[0];
     dragStartX.current = touch.clientX;
     lastMoveX.current = touch.clientX;
@@ -272,6 +300,13 @@ export default function TrustpilotCarousel({
     const currentPos = getCurrentPosition();
     dragStartOffset.current = currentPos;
     currentOffset.current = currentPos;
+    
+    console.log('Touch start - current position:', currentPos);
+    console.log('Animation state before pause:', {
+      animation: trackRef.current?.style.animation,
+      transform: trackRef.current?.style.transform,
+      computedTransform: trackRef.current ? window.getComputedStyle(trackRef.current).transform : 'none'
+    });
     
     setIsDragging(true);
     setIsPaused(true);
@@ -284,27 +319,32 @@ export default function TrustpilotCarousel({
     
     // Pause animation and freeze at current position
     if (trackRef.current) {
-      trackRef.current.style.animationPlayState = 'paused';
+      // Disable animation completely and set position
+      trackRef.current.style.animation = 'none';
       trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`;
     }
     
-    console.log('Touch start - starting iPhone-like drag at position:', currentPos);
+    console.log('Animation state after pause:', {
+      animation: trackRef.current?.style.animation,
+      transform: trackRef.current?.style.transform
+    });
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
     
-    e.preventDefault();
     const touch = e.touches[0];
     const currentTime = Date.now();
     const currentX = touch.clientX;
     
-    // Calculate velocity for momentum
+    // Calculate velocity for momentum with better smoothing
     const deltaTime = currentTime - lastMoveTime.current;
     const deltaX = currentX - lastMoveX.current;
     
     if (deltaTime > 0) {
-      velocity.current = deltaX / deltaTime; // pixels per millisecond
+      // Smooth velocity calculation with better responsiveness
+      const instantVelocity = deltaX / deltaTime;
+      velocity.current = velocity.current * 0.7 + instantVelocity * 0.3; // Smoothing
     }
     
     // Update position
@@ -326,23 +366,32 @@ export default function TrustpilotCarousel({
   const handleTouchEnd = () => {
     if (!isDragging) return;
     
-    console.log('Touch end - starting iPhone-like momentum with velocity:', velocity.current);
+    console.log('Touch end - starting momentum with velocity:', velocity.current);
     setIsDragging(false);
     
-    // Start momentum animation with calculated velocity
-    const momentumVelocity = velocity.current * 16; // Convert to pixels per frame (60fps)
-    startMomentumAnimation(momentumVelocity, currentOffset.current);
-    
-    // Apply speed multiplier based on velocity
-    const speedMultiplier = Math.min(3, 1 + Math.abs(velocity.current) * 10);
-    setSpeedMultiplier(speedMultiplier);
-    setReverse(velocity.current > 0);
-    
-    // Reset after delay
-    setTimeout(() => {
-      setSpeedMultiplier(1);
-      setReverse(false);
-    }, 3000);
+    // If there's significant velocity, start momentum animation
+    if (Math.abs(velocity.current) > 0.05) {
+      const momentumVelocity = velocity.current * 30; // Increased multiplier for more momentum
+      startMomentumAnimation(momentumVelocity, currentOffset.current);
+      
+      // Apply speed multiplier based on velocity
+      const speedMultiplier = Math.min(5, 1 + Math.abs(velocity.current) * 20);
+      setSpeedMultiplier(speedMultiplier);
+      setReverse(velocity.current > 0);
+      
+      // Reset after delay
+      setTimeout(() => {
+        setSpeedMultiplier(1);
+        setReverse(false);
+      }, 5000);
+    } else {
+      // No significant velocity, resume normal animation
+      if (trackRef.current) {
+        trackRef.current.style.animation = '';
+        trackRef.current.style.transform = '';
+      }
+      setIsPaused(false);
+    }
   };
 
   // Wheel handler for additional control

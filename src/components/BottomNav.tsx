@@ -168,8 +168,8 @@ function BottomNavContent() {
           const navHeight = 80; // Approximate height of bottom nav
           const isOverlappingNav = rect.bottom > window.innerHeight - navHeight;
           
-          // Debug logging (only in development)
-          if (process.env.NODE_ENV === 'development') {
+          // Debug logging (only in development) - reduced frequency
+          if (process.env.NODE_ENV === 'development' && Math.random() < 0.1) {
             console.log('Cookie banner detected:', {
               height: rect.height,
               bottom: rect.bottom,
@@ -218,8 +218,8 @@ function BottomNavContent() {
     const observer = new MutationObserver(() => updateOffset());
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
 
-    // More frequent polling for Safari and mobile devices
-    const pollInterval = window.innerWidth <= 768 ? 500 : 1000;
+    // Reduced polling frequency to avoid console spam
+    const pollInterval = window.innerWidth <= 768 ? 2000 : 3000;
     const interval = window.setInterval(updateOffset, pollInterval);
     
     // Immediate check after a short delay for Safari
