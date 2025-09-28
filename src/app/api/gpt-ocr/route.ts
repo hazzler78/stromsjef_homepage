@@ -22,6 +22,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 }
 
 export async function POST(req: NextRequest) {
+  const startTime = Date.now();
   try {
     const formData = await req.formData();
     const file = formData.get('file');
