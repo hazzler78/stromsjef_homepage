@@ -11,9 +11,48 @@ import Footer from '@/components/Footer';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Strømsjef – gjør det enkelt å velge riktig strømavtale",
-  description: "Strømsjef.se hjelper deg å raskt, gratis og uten krøll finne og bytte til det strømavtale som passer deg best. Vi viser bare avtaler som er verdt å vurdere og håndterer hele byttet for deg.",
-  keywords: "strømavtale, strømpriser, bytte strømavtale, sammenlign strømpriser, strømselskap, strømhandelselskap",
+  title: "Strømsjef – Sammenlign og bytt strømavtale enkelt | Gratis strømpris-sammenligning",
+  description: "Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis. Vi håndterer hele byttet for deg - raskt og enkelt.",
+  keywords: "strømavtale, strømpriser, bytte strømavtale, sammenlign strømpriser, strømselskap, strømhandelselskap, billig strøm, strømpris-sammenligning, strømleverandør",
+  authors: [{ name: "Strømsjef" }],
+  creator: "Strømsjef",
+  publisher: "Strømsjef",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'no_NO',
+    url: 'https://stromsjef.se',
+    siteName: 'Strømsjef',
+    title: 'Strømsjef – Sammenlign og bytt strømavtale enkelt',
+    description: 'Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis. Vi håndterer hele byttet for deg - raskt og enkelt.',
+    images: [
+      {
+        url: 'https://stromsjef.se/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Strømsjef - Sammenlign strømpriser',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Strømsjef – Sammenlign og bytt strømavtale enkelt',
+    description: 'Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis.',
+    images: ['https://stromsjef.se/og-image.png'],
+  },
+  alternates: {
+    canonical: 'https://stromsjef.se',
+  },
 };
 
 export default function RootLayout({
@@ -32,7 +71,8 @@ export default function RootLayout({
             "@type": "Organization",
             "name": "Strømsjef",
             "url": "https://stromsjef.se",
-            "logo": "https://stromsjef.se/logo.png",
+            "logo": "https://stromsjef.se/og-image.png",
+            "description": "Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis.",
             "contactPoint": [{
               "@type": "ContactPoint",
               "telephone": "+46-73-686-23-60",
@@ -43,20 +83,18 @@ export default function RootLayout({
             "sameAs": [
               "https://www.facebook.com/stromsjef.se",
               "https://www.instagram.com/stromsjef.se/"
-            ]
+            ],
+            "service": {
+              "@type": "Service",
+              "name": "Strømpris-sammenligning",
+              "description": "Hjelper deg å finne og bytte til det beste strømavtalet",
+              "provider": {
+                "@type": "Organization",
+                "name": "Strømsjef"
+              }
+            }
           }
         `}</script>
-        {/* Open Graph metadata */}
-        <meta property="og:title" content="Strømsjef – gjør det enkelt å velge riktig strømavtale" />
-        <meta property="og:description" content="Strømsjef.se hjelper deg å raskt, gratis og uten krøll finne og bytte til det strømavtale som passer deg best. Vi viser bare avtaler som er verdt å vurdere og håndterer hele byttet for deg." />
-        <meta property="og:image" content="https://stromsjef.se/og-image.png" />
-        <meta property="og:url" content="https://stromsjef.se" />
-        <meta property="og:type" content="website" />
-        {/* Twitter Card metadata */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Strømsjef – gjør det enkelt å velge riktig strømavtale" />
-        <meta name="twitter:description" content="Strømsjef.se hjelper deg å raskt, gratis og uten krøll finne og bytte til det strømavtale som passer deg best. Vi viser bare avtaler som er verdt å vurdere og håndterer hele byttet for deg." />
-        <meta name="twitter:image" content="https://stromsjef.se/og-image.png" />
         <meta name="facebook-domain-verification" content="in9xjxefhkl6pbe4g33zjwrsnkliin" />
         <meta name="tiktok-developers-site-verification" content="i7h859t0QF0G6Dua8q4h9qJUXwuPQoof" />
       </head>

@@ -6,6 +6,17 @@ import ContactForm from '@/components/ContactForm';
 import ShareResults from '@/components/ShareResults';
 import { withDefaultCtaUtm } from '@/lib/utm';
 
+export const metadata = {
+  title: 'Sammenlign strømpriser - Finn det beste strømavtalet | Strømsjef',
+  description: 'Sammenlign strømpriser fra alle leverandører. Finn det beste strømavtalet for deg og spar penger på strømregningen. Gratis sammenligning og enkel bytteprosess.',
+  keywords: 'sammenlign strømpriser, strømpris-sammenligning, billig strøm, strømavtale, strømleverandør, bytte strømavtale',
+  openGraph: {
+    title: 'Sammenlign strømpriser - Finn det beste strømavtalet',
+    description: 'Sammenlign strømpriser fra alle leverandører. Finn det beste strømavtalet for deg og spar penger på strømregningen.',
+    url: 'https://stromsjef.se/jamfor-elpriser',
+  },
+};
+
 // SVG Ikoner i glassmorphism-stil
 const AnalysisIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ marginRight: 8, filter: 'drop-shadow(0 2px 4px rgba(0,106,167,0.2))' }}>
