@@ -67,6 +67,30 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://stromsjef.no/delt-kalkulator</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://stromsjef.no/start-her</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://stromsjef.no/vilkar</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://stromsjef.no/personvernpolicy</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://stromsjef.no/kontakt</loc>
     <lastmod>2024-12-19</lastmod>
     <changefreq>monthly</changefreq>
