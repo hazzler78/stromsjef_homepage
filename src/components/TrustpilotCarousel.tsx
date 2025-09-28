@@ -115,7 +115,7 @@ export default function TrustpilotCarousel({
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   
-  // iPhone-like momentum scroll state
+  // Physical momentum state - like spinning a bicycle wheel
   const dragStartX = useRef<number>(0);
   const dragStartOffset = useRef<number>(0);
   const currentOffset = useRef<number>(0);
@@ -123,8 +123,19 @@ export default function TrustpilotCarousel({
   const lastMoveX = useRef<number>(0);
   const velocity = useRef<number>(0);
   const momentumAnimation = useRef<number | null>(null);
+  
+  // Physical properties for bicycle wheel effect
+  const angularVelocity = useRef<number>(0); // Like spinning speed
+  const angularPosition = useRef<number>(0); // Current rotation position
+  const gravity = useRef<number>(0.98); // Gravity effect (like air resistance)
+  const friction = useRef<number>(0.95); // Friction coefficient
+  const isSpinning = useRef<boolean>(false);
+  
+  // Manual animation tracking
+  const animationStartTime = useRef<number>(Date.now());
+  const isAnimationRunning = useRef<boolean>(true);
 
-  // Get current animation position - simplified approach
+  // Get current animation position - manual tracking approach
   const getCurrentPosition = () => {
     if (!trackRef.current) return 0;
     
@@ -137,49 +148,82 @@ export default function TrustpilotCarousel({
       return matrix.m41; // translateX value
     }
     
-    // If no transform, animation is at start position
+    // If no transform, calculate based on manual tracking
+    if (isAnimationRunning.current && trackRef.current) {
+      const now = Date.now();
+      const elapsed = (now - animationStartTime.current) % (durationSeconds * 1000 * 2); // Loop every 2 cycles
+      const progress = elapsed / (durationSeconds * 1000);
+      
+      // Calculate position based on animation progress
+      const trackWidth = trackRef.current.offsetWidth;
+      const maxOffset = -trackWidth / 2; // -50% of width
+      const position = maxOffset * progress;
+      
+      console.log('Manual position calculation:', {
+        elapsed,
+        progress,
+        trackWidth,
+        maxOffset,
+        position,
+        isAnimationRunning: isAnimationRunning.current
+      });
+      
+      return position;
+    }
+    
     return 0;
   };
 
-  // Improved momentum animation
-  const startMomentumAnimation = (startVelocity: number, startPosition: number) => {
+  // Physical momentum animation - like spinning a bicycle wheel
+  const startPhysicalMomentum = (initialVelocity: number, startPosition: number) => {
     if (momentumAnimation.current) {
       cancelAnimationFrame(momentumAnimation.current);
     }
 
-    let currentVelocity = startVelocity;
-    let currentPosition = startPosition;
-    const friction = 0.95; // Less friction for more momentum
-    const minVelocity = 0.1; // Lower threshold for longer momentum
+    // Set initial physical properties
+    angularVelocity.current = initialVelocity;
+    angularPosition.current = startPosition;
+    isSpinning.current = true;
 
     const animate = () => {
-      // Apply velocity to position
-      currentPosition += currentVelocity;
+      // Apply physics: gravity and friction
+      angularVelocity.current *= gravity.current; // Gravity effect (like air resistance)
+      angularVelocity.current *= friction.current; // Friction effect
       
-      // Apply friction to velocity
-      currentVelocity *= friction;
+      // Update position based on angular velocity
+      angularPosition.current += angularVelocity.current;
       
       // Update transform
       if (trackRef.current) {
-        trackRef.current.style.transform = `translate3d(${currentPosition}px, 0, 0)`;
+        trackRef.current.style.transform = `translate3d(${angularPosition.current}px, 0, 0)`;
       }
       
-      // Continue animation if velocity is significant
-      if (Math.abs(currentVelocity) > minVelocity) {
+      // Continue if still spinning (like a bicycle wheel)
+      if (Math.abs(angularVelocity.current) > 0.1) {
         momentumAnimation.current = requestAnimationFrame(animate);
       } else {
-        // Animation finished, resume normal carousel
+        // Wheel stopped, resume normal carousel
         if (trackRef.current) {
+          const trackWidth = trackRef.current.offsetWidth;
+          const maxOffset = -trackWidth / 2;
+          const progress = Math.abs(angularPosition.current) / Math.abs(maxOffset);
+          const animationDuration = (durationSeconds / speedMultiplier) * 1000;
+          const delay = progress * animationDuration;
+          
+          // Resume animation with calculated delay
           trackRef.current.style.transform = '';
+          trackRef.current.style.animation = '';
           trackRef.current.style.animationPlayState = 'running';
+          trackRef.current.style.animationDelay = `-${delay}ms`;
         }
+        isSpinning.current = false;
         setIsPaused(false);
         momentumAnimation.current = null;
-        console.log('Momentum animation finished');
+        console.log('Bicycle wheel stopped, resuming from position:', angularPosition.current);
       }
     };
 
-    console.log('Starting momentum animation with velocity:', startVelocity);
+    console.log('Starting bicycle wheel spin with velocity:', initialVelocity, 'from position:', startPosition);
     momentumAnimation.current = requestAnimationFrame(animate);
   };
 
@@ -200,11 +244,17 @@ export default function TrustpilotCarousel({
     console.log('Animation state before pause:', {
       animation: trackRef.current?.style.animation,
       transform: trackRef.current?.style.transform,
-      computedTransform: trackRef.current ? window.getComputedStyle(trackRef.current).transform : 'none'
+      computedTransform: trackRef.current ? window.getComputedStyle(trackRef.current).transform : 'none',
+      isSpinning: isSpinning.current,
+      angularVelocity: angularVelocity.current,
+      isAnimationRunning: isAnimationRunning.current,
+      animationStartTime: animationStartTime.current
     });
     
     setIsDragging(true);
     setIsPaused(true);
+    isSpinning.current = false;
+    isAnimationRunning.current = false;
     
     // Cancel any ongoing momentum animation
     if (momentumAnimation.current) {
@@ -216,6 +266,7 @@ export default function TrustpilotCarousel({
     if (trackRef.current) {
       // Disable animation completely and set position
       trackRef.current.style.animation = 'none';
+      trackRef.current.style.animationPlayState = 'paused';
       trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`;
     }
     
@@ -245,9 +296,11 @@ export default function TrustpilotCarousel({
     const totalOffset = dragStartOffset.current + (currentX - dragStartX.current);
     currentOffset.current = totalOffset;
     
-    // Apply drag transform from saved position
+    // Apply drag transform from saved position - make sure it's visible
     if (trackRef.current) {
       trackRef.current.style.transform = `translate3d(${totalOffset}px, 0, 0)`;
+      trackRef.current.style.animation = 'none'; // Ensure animation is off
+      trackRef.current.style.animationPlayState = 'paused'; // Ensure paused
     }
     
     // Update tracking variables
@@ -260,16 +313,16 @@ export default function TrustpilotCarousel({
   const handleMouseUp = () => {
     if (!isDragging) return;
     
-    console.log('Mouse up - starting momentum with velocity:', velocity.current);
+    console.log('Mouse up - starting bicycle wheel spin with velocity:', velocity.current);
     setIsDragging(false);
     
-    // If there's significant velocity, start momentum animation
+    // If there's significant velocity, start physical momentum (like spinning a bicycle wheel)
     if (Math.abs(velocity.current) > 0.05) {
-      const momentumVelocity = velocity.current * 30; // Increased multiplier for more momentum
-      startMomentumAnimation(momentumVelocity, currentOffset.current);
+      const physicalVelocity = velocity.current * 20; // Convert to physical velocity
+      startPhysicalMomentum(physicalVelocity, currentOffset.current);
       
-      // Apply speed multiplier based on velocity
-      const speedMultiplier = Math.min(5, 1 + Math.abs(velocity.current) * 20);
+      // Apply speed multiplier based on velocity (like giving more spin)
+      const speedMultiplier = Math.min(4, 1 + Math.abs(velocity.current) * 15);
       setSpeedMultiplier(speedMultiplier);
       setReverse(velocity.current > 0);
       
@@ -277,12 +330,29 @@ export default function TrustpilotCarousel({
       setTimeout(() => {
         setSpeedMultiplier(1);
         setReverse(false);
-      }, 5000);
+      }, 4000);
     } else {
-      // No significant velocity, resume normal animation
+      // No significant velocity, resume normal animation from current position
       if (trackRef.current) {
+        // Calculate animation delay to resume from current position
+        const currentPos = currentOffset.current;
+        const trackWidth = trackRef.current.offsetWidth;
+        const maxOffset = -trackWidth / 2;
+        const progress = Math.abs(currentPos) / Math.abs(maxOffset);
+        const animationDuration = (durationSeconds / speedMultiplier) * 1000;
+        const delay = progress * animationDuration;
+        
+        console.log('Resuming animation from position:', currentPos, 'with delay:', delay);
+        
+        // Resume animation with calculated delay
         trackRef.current.style.animation = '';
+        trackRef.current.style.animationPlayState = 'running';
+        trackRef.current.style.animationDelay = `-${delay}ms`;
         trackRef.current.style.transform = '';
+        
+        // Update manual tracking
+        isAnimationRunning.current = true;
+        animationStartTime.current = Date.now() - delay;
       }
       setIsPaused(false);
     }
@@ -305,11 +375,17 @@ export default function TrustpilotCarousel({
     console.log('Animation state before pause:', {
       animation: trackRef.current?.style.animation,
       transform: trackRef.current?.style.transform,
-      computedTransform: trackRef.current ? window.getComputedStyle(trackRef.current).transform : 'none'
+      computedTransform: trackRef.current ? window.getComputedStyle(trackRef.current).transform : 'none',
+      isSpinning: isSpinning.current,
+      angularVelocity: angularVelocity.current,
+      isAnimationRunning: isAnimationRunning.current,
+      animationStartTime: animationStartTime.current
     });
     
     setIsDragging(true);
     setIsPaused(true);
+    isSpinning.current = false;
+    isAnimationRunning.current = false;
     
     // Cancel any ongoing momentum animation
     if (momentumAnimation.current) {
@@ -321,6 +397,7 @@ export default function TrustpilotCarousel({
     if (trackRef.current) {
       // Disable animation completely and set position
       trackRef.current.style.animation = 'none';
+      trackRef.current.style.animationPlayState = 'paused';
       trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`;
     }
     
@@ -351,9 +428,11 @@ export default function TrustpilotCarousel({
     const totalOffset = dragStartOffset.current + (currentX - dragStartX.current);
     currentOffset.current = totalOffset;
     
-    // Apply drag transform from saved position
+    // Apply drag transform from saved position - make sure it's visible
     if (trackRef.current) {
       trackRef.current.style.transform = `translate3d(${totalOffset}px, 0, 0)`;
+      trackRef.current.style.animation = 'none'; // Ensure animation is off
+      trackRef.current.style.animationPlayState = 'paused'; // Ensure paused
     }
     
     // Update tracking variables
@@ -366,16 +445,16 @@ export default function TrustpilotCarousel({
   const handleTouchEnd = () => {
     if (!isDragging) return;
     
-    console.log('Touch end - starting momentum with velocity:', velocity.current);
+    console.log('Touch end - starting bicycle wheel spin with velocity:', velocity.current);
     setIsDragging(false);
     
-    // If there's significant velocity, start momentum animation
+    // If there's significant velocity, start physical momentum (like spinning a bicycle wheel)
     if (Math.abs(velocity.current) > 0.05) {
-      const momentumVelocity = velocity.current * 30; // Increased multiplier for more momentum
-      startMomentumAnimation(momentumVelocity, currentOffset.current);
+      const physicalVelocity = velocity.current * 20; // Convert to physical velocity
+      startPhysicalMomentum(physicalVelocity, currentOffset.current);
       
-      // Apply speed multiplier based on velocity
-      const speedMultiplier = Math.min(5, 1 + Math.abs(velocity.current) * 20);
+      // Apply speed multiplier based on velocity (like giving more spin)
+      const speedMultiplier = Math.min(4, 1 + Math.abs(velocity.current) * 15);
       setSpeedMultiplier(speedMultiplier);
       setReverse(velocity.current > 0);
       
@@ -383,14 +462,31 @@ export default function TrustpilotCarousel({
       setTimeout(() => {
         setSpeedMultiplier(1);
         setReverse(false);
-      }, 5000);
+      }, 4000);
     } else {
-      // No significant velocity, resume normal animation
+      // No significant velocity, resume normal animation from current position
       if (trackRef.current) {
+        // Calculate animation delay to resume from current position
+        const currentPos = currentOffset.current;
+        const trackWidth = trackRef.current.offsetWidth;
+        const maxOffset = -trackWidth / 2;
+        const progress = Math.abs(currentPos) / Math.abs(maxOffset);
+        const animationDuration = (durationSeconds / speedMultiplier) * 1000;
+        const delay = progress * animationDuration;
+        
+        console.log('Resuming animation from position:', currentPos, 'with delay:', delay);
+        
+        // Resume animation with calculated delay
         trackRef.current.style.animation = '';
+        trackRef.current.style.animationPlayState = 'running';
+        trackRef.current.style.animationDelay = `-${delay}ms`;
         trackRef.current.style.transform = '';
+        
+        // Update manual tracking
+        isAnimationRunning.current = true;
+        animationStartTime.current = Date.now() - delay;
       }
-      setIsPaused(false);
+    setIsPaused(false);
     }
   };
 
