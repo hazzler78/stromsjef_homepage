@@ -3,15 +3,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-export const metadata = {
-  title: 'Vilkår - Strømsjef.no',
-  description: 'Brukervilkår for Strømsjef.no - våre vilkår og betingelser.',
-  openGraph: {
-    title: 'Vilkår - Strømsjef.no',
-    description: 'Brukervilkår for Strømsjef.no - våre vilkår og betingelser.',
-    url: 'https://stromsjef.no/vilkar',
-  },
-};
 
 const Section = styled.section`
   padding: 4rem 0;

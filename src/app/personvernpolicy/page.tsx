@@ -3,15 +3,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-export const metadata = {
-  title: 'Personvernpolicy - Strømsjef.no',
-  description: 'Personvernpolicy for Strømsjef.no - hvordan vi håndterer dine personopplysninger.',
-  openGraph: {
-    title: 'Personvernpolicy - Strømsjef.no',
-    description: 'Personvernpolicy for Strømsjef.no - hvordan vi håndterer dine personopplysninger.',
-    url: 'https://stromsjef.no/personvernpolicy',
-  },
-};
 
 const Section = styled.section`
   padding: 4rem 0;
