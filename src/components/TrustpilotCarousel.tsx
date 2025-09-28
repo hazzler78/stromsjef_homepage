@@ -99,15 +99,16 @@ const Slide = styled.div`
 
 export default function TrustpilotCarousel({
   images = [
+    '/trustpilot/trustpilot-01.png',
     '/trustpilot/trustpilot-02.png',
     '/trustpilot/trustpilot-03.png',
     '/trustpilot/trustpilot-04.png',
-    '/trustpilot/trustpilot-01.png',
   ],
   height = 'clamp(160px, 20vw, 240px)',
   durationSeconds = 24,
   className,
 }: TrustpilotCarouselProps) {
+  // Create a longer sequence for smoother carousel - duplicate images 2 times (8 total)
   const sequence = [...images, ...images];
   const trackRef = useRef<HTMLDivElement>(null);
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(1);
@@ -223,66 +224,57 @@ export default function TrustpilotCarousel({
     momentumAnimation.current = requestAnimationFrame(animate);
   };
 
-  // Enhanced iPhone-like drag handlers - only start dragging on actual movement
+  // Enhanced iPhone-like drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
-    // Don't prevent default or start dragging immediately
-    // Just store the initial position for potential drag
+    e.preventDefault();
     dragStartX.current = e.clientX;
     dragStartY.current = e.clientY;
     lastMoveX.current = e.clientX;
     lastMoveTime.current = Date.now();
     velocity.current = 0;
+    
+    // Get current position when drag starts
+    const currentPos = getCurrentPosition();
+    dragStartOffset.current = currentPos;
+    currentOffset.current = currentPos;
+    
+    console.log('🖱️ Mouse down - current position:', currentPos);
+    
+    setIsDragging(true);
+    setIsPaused(true);
+    isSpinning.current = false;
+    isAnimationRunning.current = false;
+    
+    // Cancel any ongoing momentum animation
+    if (momentumAnimation.current) {
+      cancelAnimationFrame(momentumAnimation.current);
+      momentumAnimation.current = null;
+    }
+    
+    // Pause animation and freeze at current position
+    if (trackRef.current) {
+      trackRef.current.style.animation = 'none';
+      trackRef.current.style.animationPlayState = 'paused';
+      trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`;
+      trackRef.current.style.willChange = 'transform';
+      trackRef.current.style.transition = 'none';
+    }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    // Only start dragging if mouse is actually moving (not just clicking)
-    const moveDeltaX = e.clientX - dragStartX.current;
-    const moveDeltaY = e.clientY - dragStartY.current;
-    
-    // Start dragging only if there's significant movement (threshold to avoid accidental drags)
-    if (!isDragging && (Math.abs(moveDeltaX) > 5 || Math.abs(moveDeltaY) > 5)) {
-      // Now start the actual drag
-      e.preventDefault();
-      const currentPos = getCurrentPosition();
-      dragStartOffset.current = currentPos;
-      currentOffset.current = currentPos;
-      
-      console.log('🖱️ Starting drag from position:', currentPos);
-      
-      setIsDragging(true);
-      setIsPaused(true);
-      isSpinning.current = false;
-      isAnimationRunning.current = false;
-      
-      // Cancel any ongoing momentum animation
-      if (momentumAnimation.current) {
-        cancelAnimationFrame(momentumAnimation.current);
-        momentumAnimation.current = null;
-      }
-      
-      // Pause animation and freeze at current position
-      if (trackRef.current) {
-        trackRef.current.style.animation = 'none';
-        trackRef.current.style.animationPlayState = 'paused';
-        trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`;
-        trackRef.current.style.willChange = 'transform';
-        trackRef.current.style.transition = 'none';
-      }
-    }
-    
     if (!isDragging) return;
     
     const currentTime = Date.now();
     const currentX = e.clientX;
     
-    // Calculate velocity for momentum with enhanced smoothing
+    // Calculate velocity for momentum with simpler smoothing
     const deltaTime = currentTime - lastMoveTime.current;
     const deltaX = currentX - lastMoveX.current;
     
     if (deltaTime > 0) {
-      // Enhanced velocity calculation with better responsiveness
+      // Simpler velocity calculation for better performance
       const instantVelocity = deltaX / deltaTime;
-      velocity.current = velocity.current * 0.6 + instantVelocity * 0.4; // More responsive smoothing
+      velocity.current = velocity.current * 0.8 + instantVelocity * 0.2; // Simpler smoothing
     }
     
     // Update position with smooth tracking
@@ -303,7 +295,12 @@ export default function TrustpilotCarousel({
   };
 
   const handleMouseUp = () => {
-    if (!isDragging) return;
+    if (!isDragging) {
+      // Reset drag start position when not dragging
+      dragStartX.current = 0;
+      dragStartY.current = 0;
+      return;
+    }
     
     console.log('📱 Mouse up - starting bicycle wheel spin with velocity:', velocity.current);
     setIsDragging(false);
@@ -413,14 +410,14 @@ export default function TrustpilotCarousel({
     const currentTime = Date.now();
     const currentX = touch.clientX;
     
-    // Calculate velocity for momentum with enhanced smoothing
+    // Calculate velocity for momentum with simpler smoothing
     const deltaTime = currentTime - lastMoveTime.current;
     const deltaX = currentX - lastMoveX.current;
     
     if (deltaTime > 0) {
-      // Enhanced velocity calculation with better responsiveness
+      // Simpler velocity calculation for better performance
       const instantVelocity = deltaX / deltaTime;
-      velocity.current = velocity.current * 0.6 + instantVelocity * 0.4; // More responsive smoothing
+      velocity.current = velocity.current * 0.8 + instantVelocity * 0.2; // Simpler smoothing
     }
     
     // Update position with smooth tracking
