@@ -152,8 +152,7 @@ export default function StartaHar() {
       .from('electricity_plans')
       .select('*')
       .in('price_zone', [z, PriceZone.ALL])
-      .order('recommended', { ascending: false })
-      .order('sort_order', { ascending: true, nullsFirst: false })
+      .order('binding_time', { ascending: true })
       .then(({ data, error }: { data: DbPlanRow[] | null; error: unknown }) => {
         if (error) {
           const msg = (error as { message?: string })?.message || 'Unknown error';
@@ -179,8 +178,8 @@ export default function StartaHar() {
           sortOrder: r.sort_order != null ? Number(r.sort_order) : undefined,
           priceBadge: r.price_badge || undefined,
         }));
-        // Safety: ensure recommended first even if DB order changes
-        setPlans(mapped.sort((a, b) => Number(!!b.featured) - Number(!!a.featured)));
+        // Sort by binding time (lowest to highest)
+        setPlans(mapped.sort((a, b) => a.bindingTime - b.bindingTime));
       })
       .then(() => setLoading(false), (e: unknown) => {
         setError(String(e));
