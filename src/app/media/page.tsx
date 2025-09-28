@@ -14,7 +14,7 @@ interface SharedCard {
   tag?: string;
   icon?: string;
   readTime?: number;
-  href?: string;
+  href: string;
   featured?: boolean;
   date?: string;
 }
@@ -525,7 +525,7 @@ export default function Media() {
           tag: category.tag,
           icon: category.icon,
           readTime,
-          href: card.url, // Använd extern URL istället för intern route
+          href: card.url || '#', // Använd extern URL eller fallback
           featured: false, // Kan läggas till senare baserat på popularitet
           date: new Date(card.created_at).getFullYear().toString()
         };
