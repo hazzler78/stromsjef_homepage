@@ -231,7 +231,8 @@ export default function ChatContactForm({ onClose, onSubmitted }: ChatContactFor
             onChange={handleInputChange}
           />
           <CheckboxLabel htmlFor="chatSubscribeNewsletter">
-            Prenumerera på nyhetsbrev
+            Jeg godkjenner å motta nyhetsbrev fra Strømsjef med tilbud og oppdateringer om strømpriser. 
+            Du kan når som helst melde deg av via lenken i e‑posten. Jeg godkjenner også <a href="/villkor" target="_blank" style={{color: 'var(--primary)', textDecoration: 'underline'}}>brukervilkårene</a> og <a href="/integritetspolicy" target="_blank" style={{color: 'var(--primary)', textDecoration: 'underline'}}>personvernpolicyen</a>.
           </CheckboxLabel>
         </CheckboxGroup>
 
