@@ -109,15 +109,15 @@ export default function StartHer() {
 
     try {
       if (!postalCode || !email) {
-        throw new Error('Vennligst fyll ut alle felt');
+        throw new globalThis.Error('Vennligst fyll ut alle felt');
       }
 
       if (postalCode.length < 4) {
-        throw new Error('Postnummer må være minst 4 siffer');
+        throw new globalThis.Error('Postnummer må være minst 4 siffer');
       }
 
       if (!email.includes('@')) {
-        throw new Error('Vennligst oppgi en gyldig e-postadresse');
+        throw new globalThis.Error('Vennligst oppgi en gyldig e-postadresse');
       }
 
       // Logg til Supabase
@@ -134,7 +134,7 @@ export default function StartHer() {
         ]);
 
       if (insertError) {
-        throw new Error('Det oppstod en feil. Prøv igjen senere.');
+        throw new globalThis.Error('Det oppstod en feil. Prøv igjen senere.');
       }
 
       setSuccess(true);
