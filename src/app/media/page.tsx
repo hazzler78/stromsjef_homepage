@@ -4,6 +4,21 @@ import styled from 'styled-components';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+interface SharedCard {
+  id: string;
+  title: string;
+  summary: string;
+  url: string;
+  created_at: string;
+  type?: string;
+  tag?: string;
+  icon?: string;
+  readTime?: number;
+  href?: string;
+  featured?: boolean;
+  date?: string;
+}
+
 
 const Section = styled.section`
   padding: var(--section-spacing) 0;
@@ -34,25 +49,7 @@ const Lead = styled.p`
   margin-bottom: 2rem;
 `;
 
-const SubTitle = styled.h3`
-  font-size: 1.3rem;
-  margin: 2.5rem 0 1.5rem 0;
-  color: var(--primary-dark);
-  font-weight: 700;
-  position: relative;
-  padding-bottom: 0.5rem;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    border-radius: 2px;
-  }
-`;
+// Removed unused SubTitle component
 
 const PageBackground = styled.div`
   min-height: 100vh;
@@ -500,8 +497,8 @@ const getMediaIcon = (type: string) => {
 export default function Media() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
-  const [sharedCards, setSharedCards] = useState<any[]>([]);
-  const [filteredCards, setFilteredCards] = useState<any[]>([]);
+  const [sharedCards, setSharedCards] = useState<SharedCard[]>([]);
+  const [filteredCards, setFilteredCards] = useState<SharedCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -518,7 +515,7 @@ export default function Media() {
       }
       
       // Bearbeta kort med kategorisering och läsningstid
-      const processedCards = data.items.map((card: any) => {
+      const processedCards = data.items.map((card: SharedCard) => {
         const category = categorizeContent(card.url, card.title, card.summary);
         const readTime = calculateReadTime(`${card.title} ${card.summary}`);
         
@@ -545,7 +542,7 @@ export default function Media() {
   };
 
   // Social sharing funktioner
-  const shareToSocial = (platform: string, card: any) => {
+  const shareToSocial = (platform: string, card: SharedCard) => {
     const url = card.url; // Använd den externa URL:en direkt
     const title = card.title;
 
