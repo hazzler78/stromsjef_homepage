@@ -35,25 +35,6 @@ const Lead = styled.p`
   margin-bottom: 2rem;
 `;
 
-const SubTitle = styled.h3`
-  font-size: 1.3rem;
-  margin: 2.5rem 0 1.5rem 0;
-  color: var(--primary-dark);
-  font-weight: 700;
-  position: relative;
-  padding-bottom: 0.5rem;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    border-radius: 2px;
-  }
-`;
 
 const PageBackground = styled.div`
   min-height: 100vh;
