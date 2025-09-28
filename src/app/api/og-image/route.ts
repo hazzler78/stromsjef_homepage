@@ -93,10 +93,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ imageUrl: null });
     } catch (fetchError) {
       clearTimeout(timeoutId);
-      if (fetchError.name === 'AbortError') {
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
         console.log('Request timeout for:', url);
-      } else {
+      } else if (fetchError instanceof Error) {
         console.log('Fetch error for:', url, fetchError.message);
+      } else {
+        console.log('Unknown fetch error for:', url);
       }
       return NextResponse.json({ imageUrl: null });
     }
