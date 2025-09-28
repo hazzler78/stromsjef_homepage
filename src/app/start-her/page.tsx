@@ -147,7 +147,7 @@ export default function StartHer() {
       }, 2000);
 
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'En feil oppstod');
+      setError(err instanceof globalThis.Error ? err.message : 'En feil oppstod');
     } finally {
       setLoading(false);
     }
