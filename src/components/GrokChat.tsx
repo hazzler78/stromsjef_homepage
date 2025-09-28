@@ -353,9 +353,9 @@ export default function GrokChat() {
       content: '**🎯 Perfekt!** Du sendes nå til vår avtalsfinner...' 
     }]);
     
-    // Navigering till starta-har sidan efter kort fördröjning
+    // Navigering till start-her sidan efter kort fördröjning
     setTimeout(() => {
-      window.location.href = '/starta-har';
+      window.location.href = '/start-her';
     }, 2000); // 2 sekunders fördröjning så användaren hinner se AI-svaret
   };
 

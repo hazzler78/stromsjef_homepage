@@ -918,7 +918,7 @@ export default function JamforElpriser() {
                     disableHoverEffect={true}
                     onClick={() => {
                       trackContractClick('start-her');
-                      window.location.href = withDefaultCtaUtm('/starta-har', 'jamfor', 'cta-start-her');
+                      window.location.href = withDefaultCtaUtm('/start-her', 'jamfor', 'cta-start-her');
                     }}
                     aria-label="Start her – finn riktig avtale"
                   >

@@ -209,8 +209,8 @@ export default function Hero() {
                   e.currentTarget.style.filter = 'brightness(1)';
                 }}
                 onClick={() => {
-                  trackHeroClick('rorligt', '/starta-har');
-                  window.location.href = '/starta-har';
+                  trackHeroClick('rorligt', '/start-her');
+                  window.location.href = '/start-her';
                 }}
                 >
                   <GlassButton 
