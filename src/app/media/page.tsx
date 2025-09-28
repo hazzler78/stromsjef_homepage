@@ -4,20 +4,6 @@ import styled from 'styled-components';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-interface SharedCard {
-  id: string;
-  title: string;
-  summary: string;
-  url: string;
-  created_at: string;
-  type: string;
-  tag?: string;
-  icon?: string;
-  readTime?: number;
-  href: string;
-  featured?: boolean;
-  date?: string;
-}
 
 
 const Section = styled.section`
@@ -222,10 +208,15 @@ const FilterButton = styled.button<{ active: boolean }>`
   }
 `;
 
-const MediaImage = styled.div<{ imageUrl?: string }>`
+const MediaImage = styled.div<{ imageUrl?: string; hasImage?: boolean }>`
   width: 100%;
   height: 200px;
-  background: ${props => props.imageUrl ? `url(${props.imageUrl})` : 'linear-gradient(135deg, var(--primary), var(--secondary))'};
+  background: ${props => {
+    if (props.imageUrl && props.hasImage) {
+      return `url(${props.imageUrl})`;
+    }
+    return 'linear-gradient(135deg, var(--primary), var(--secondary))';
+  }};
   background-size: cover;
   background-position: center;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
@@ -239,7 +230,69 @@ const MediaImage = styled.div<{ imageUrl?: string }>`
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(0, 32, 91, 0.3), rgba(186, 12, 47, 0.3));
+    background: ${props => props.hasImage 
+      ? 'linear-gradient(135deg, rgba(0, 32, 91, 0.2), rgba(186, 12, 47, 0.2))'
+      : 'linear-gradient(135deg, rgba(0, 32, 91, 0.3), rgba(186, 12, 47, 0.3))'
+    };
+  }
+`;
+
+const MarkdownContent = styled.div`
+  color: var(--gray-700);
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  
+  h1, h2, h3 {
+    color: var(--primary);
+    margin: 0.5rem 0;
+    font-size: 1rem;
+  }
+  
+  h1 { font-size: 1.1rem; }
+  h2 { font-size: 1.05rem; }
+  h3 { font-size: 1rem; }
+  
+  strong {
+    color: var(--primary-dark);
+    font-weight: 700;
+  }
+  
+  em {
+    font-style: italic;
+    color: var(--gray-600);
+  }
+  
+  a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  
+  p {
+    margin: 0.5rem 0;
+    
+    &:first-child {
+      margin-top: 0;
+    }
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  /* Mobil-optimering */
+  @media (max-width: 640px) {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    
+    h1, h2, h3 {
+      font-size: 0.95rem;
+    }
   }
 `;
 
@@ -412,10 +465,94 @@ const categorizeContent = (url: string, title: string, summary: string) => {
 
 // Funktion för att beräkna läsningstid baserat på textlängd
 const calculateReadTime = (text: string) => {
-  const wordsPerMinute = 200;
-  const wordCount = text.split(/\s+/).length;
-  const minutes = Math.ceil(wordCount / wordsPerMinute);
+  if (!text || text.trim().length === 0) return '1 min läsning';
+  
+  // Ta bort markdown-syntax för mer exakt beräkning
+  const cleanText = text
+    .replace(/\*\*(.*?)\*\*/g, '$1') // Bold
+    .replace(/\*(.*?)\*/g, '$1') // Italic
+    .replace(/\[(.*?)\]\((.*?)\)/g, '$1') // Links
+    .replace(/^\s*[-*+]\s+/gm, '') // List items
+    .replace(/#+\s+/g, '') // Headers
+    .replace(/```[\s\S]*?```/g, '') // Code blocks
+    .replace(/`([^`]+)`/g, '$1') // Inline code
+    .trim();
+  
+  // Räkna ord (inte bara whitespace-split)
+  const words = cleanText.split(/\s+/).filter(word => word.length > 0);
+  const wordCount = words.length;
+  
+  // Anpassad beräkning för olika språk och innehåll
+  const wordsPerMinute = 180; // Lågre för svenska/norska
+  const minutes = Math.max(1, Math.ceil(wordCount / wordsPerMinute));
+  
   return `${minutes} min läsning`;
+};
+
+// Funktion för att hämta Open Graph-bild från URL
+const getOpenGraphImage = async (url: string): Promise<string | null> => {
+  try {
+    // För YouTube-videos, använd thumbnail
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+      if (videoId) {
+        return `https://img.youtube.com/vi/${videoId[1]}/maxresdefault.jpg`;
+      }
+    }
+    
+    // För andra länkar, försök hämta Open Graph-bild
+    // Detta skulle kräva en server-side API endpoint för att undvika CORS-problem
+    return null;
+  } catch (error) {
+    console.error('Error getting Open Graph image:', error);
+    return null;
+  }
+};
+
+// Funktion för att rendera Markdown till HTML
+const renderMarkdown = (text: string): string => {
+  if (!text) return '';
+  
+  let html = text
+    // Bold text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // Italic text
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // Links
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+    // Headers
+    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+    // Line breaks
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+  
+  // Wrap in paragraphs if not already wrapped
+  if (!html.startsWith('<p>')) {
+    html = '<p>' + html + '</p>';
+  }
+  
+  return html;
+};
+
+// TypeScript-typer
+type SharedCard = {
+  id: number;
+  title: string;
+  summary: string;
+  url: string;
+  source_host?: string;
+  created_at: string;
+  type?: string;
+  tag?: string;
+  icon?: string;
+  readTime?: string;
+  href?: string;
+  featured?: boolean;
+  date?: string;
+  imageUrl?: string | null;
+  hasImage?: boolean;
 };
 
 // Ikoner för olika mediatyper
@@ -514,10 +651,11 @@ export default function Media() {
         return;
       }
       
-      // Bearbeta kort med kategorisering och läsningstid
-      const processedCards = data.items.map((card: SharedCard) => {
+      // Bearbeta kort med kategorisering, läsningstid och bilder
+      const processedCards = await Promise.all(data.items.map(async (card: SharedCard) => {
         const category = categorizeContent(card.url, card.title, card.summary);
         const readTime = calculateReadTime(`${card.title} ${card.summary}`);
+        const imageUrl = await getOpenGraphImage(card.url);
         
         return {
           ...card,
@@ -527,9 +665,11 @@ export default function Media() {
           readTime,
           href: card.url || '#', // Använd extern URL eller fallback
           featured: false, // Kan läggas till senare baserat på popularitet
-          date: new Date(card.created_at).getFullYear().toString()
+          date: new Date(card.created_at).getFullYear().toString(),
+          imageUrl,
+          hasImage: !!imageUrl
         };
-      });
+      }));
       
       setSharedCards(processedCards);
       setFilteredCards(processedCards);
@@ -675,20 +815,22 @@ export default function Media() {
               {filteredCards.map((card) => (
                 <MediaCard 
                   key={card.id} 
-                  href={card.href}
+                  href={card.href || card.url}
                   isExpanded={false}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <MediaImage>
+                  <MediaImage imageUrl={card.imageUrl || undefined} hasImage={card.hasImage}>
                     {card.featured && <FeaturedBadge>Utvald</FeaturedBadge>}
-                    <MediaTypeIcon type={card.type}>
-                      {getMediaIcon(card.type)}
+                    <MediaTypeIcon type={card.type || 'link'}>
+                      {getMediaIcon(card.type || 'link')}
                     </MediaTypeIcon>
                   </MediaImage>
                   <CardHeader>
                     <CardTitle>{card.title}</CardTitle>
-                    <CardExcerpt>{card.summary}</CardExcerpt>
+                    <MarkdownContent 
+                      dangerouslySetInnerHTML={{ __html: renderMarkdown(card.summary || '') }}
+                    />
                     <CardMeta>
                       <CardTag>{card.tag}</CardTag>
                       <ReadTime>

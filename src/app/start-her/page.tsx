@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import GlassButton from '@/components/GlassButton';
-import { ElectricityPlan, PriceZone, inferZoneFromPostalCode } from '@/lib/electricity';
+import { inferZoneFromPostalCode } from '@/lib/electricity';
 import { createClient } from '@supabase/supabase-js';
 
 
