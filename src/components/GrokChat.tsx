@@ -89,7 +89,7 @@ const initialMessages = [
   {
     role: 'assistant',
     content:
-      'Hei! Jeg er Elge 🦌 – spør meg om strømavtaler, bytte eller strømpriser så hjelper jeg deg med en gang.'
+      'Hei! Jeg er Elge – spør meg om strømavtaler, bytte eller strømpriser så hjelper jeg deg med en gang.'
   }
 ];
 

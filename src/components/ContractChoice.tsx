@@ -16,7 +16,7 @@ export default function ContractChoice({ onSelect, onClose }: ContractChoiceProp
       flexDirection: 'row',
       alignItems: 'flex-start',
     }}>
-      <span style={{ fontSize: 22, marginRight: 6 }}>🦌</span>
+      <span style={{ fontSize: 16, marginRight: 6, fontWeight: 'bold' }}>Elge</span>
       <div style={{
         background: '#f0f9ff',
         color: '#17416b',
