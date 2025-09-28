@@ -101,8 +101,7 @@ export default function StartHer() {
     return null;
   }, [postalCode]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
     setError('');
     setSuccess(false);
@@ -161,7 +160,7 @@ export default function StartHer() {
           Fyll ut informasjonen nedenfor så hjelper vi deg å finne det beste strømavtalet for din situasjon.
         </Lead>
 
-        <form onSubmit={handleSubmit}>
+        <form>
           <div style={{ marginBottom: '1.5rem' }}>
             <Label htmlFor="postalCode">Postnummer</Label>
             <Input
@@ -200,11 +199,11 @@ export default function StartHer() {
 
           <Row>
             <GlassButton
-              type="submit"
               variant="primary"
               size="lg"
               disabled={loading}
               background={'linear-gradient(135deg, var(--primary), var(--secondary))'}
+              onClick={handleSubmit}
             >
               {loading ? 'Analyserer...' : 'Start analyse'}
             </GlassButton>
