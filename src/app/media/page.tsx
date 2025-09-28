@@ -212,6 +212,7 @@ const MediaImage = styled.div<{ imageUrl?: string; hasImage?: boolean; fallbackG
   }};
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   position: relative;
   overflow: hidden;
@@ -227,6 +228,27 @@ const MediaImage = styled.div<{ imageUrl?: string; hasImage?: boolean; fallbackG
       ? 'linear-gradient(135deg, rgba(0, 32, 91, 0.2), rgba(186, 12, 47, 0.2))'
       : 'linear-gradient(135deg, rgba(0, 32, 91, 0.3), rgba(186, 12, 47, 0.3))'
     };
+  }
+  
+  /* Lägg till en liten loading-indikator */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    opacity: ${props => props.hasImage ? '0' : '1'};
+  }
+  
+  @keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
   }
 `;
 
@@ -456,7 +478,7 @@ const categorizeContent = (url: string, title: string, summary: string) => {
   return { type: 'link', tag: 'Lenke', icon: 'link' };
 };
 
-// Funktion för att beräkna läsningstid baserat på textlängd
+// Funktion för att beräkna läsningstid baserat på textlängd och innehåll
 const calculateReadTime = (text: string) => {
   if (!text || text.trim().length === 0) return '1 min läsning';
   
@@ -469,17 +491,74 @@ const calculateReadTime = (text: string) => {
     .replace(/#+\s+/g, '') // Headers
     .replace(/```[\s\S]*?```/g, '') // Code blocks
     .replace(/`([^`]+)`/g, '$1') // Inline code
+    .replace(/https?:\/\/[^\s]+/g, '') // URLs
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ') // Ta bort specialtecken
+    .replace(/\s+/g, ' ') // Normalisera whitespace
     .trim();
   
-  // Räkna ord (inte bara whitespace-split)
+  // Räkna ord och tecken för mer exakt beräkning
   const words = cleanText.split(/\s+/).filter(word => word.length > 0);
   const wordCount = words.length;
+  const charCount = cleanText.length;
   
-  // Anpassad beräkning för olika språk och innehåll
-  const wordsPerMinute = 180; // Lågre för svenska/norska
-  const minutes = Math.max(1, Math.ceil(wordCount / wordsPerMinute));
+  // Beräkna genomsnittlig ordlängd
+  const avgWordLength = wordCount > 0 ? charCount / wordCount : 0;
   
-  return `${minutes} min läsning`;
+  // Anpassa läsningshastighet baserat på innehåll
+  let baseWordsPerMinute = 200; // Grundhastighet för svenska/norska
+  
+  // Justera baserat på genomsnittlig ordlängd
+  if (avgWordLength > 7) {
+    baseWordsPerMinute = 160; // Längre ord = långsammare läsning
+  } else if (avgWordLength < 4) {
+    baseWordsPerMinute = 240; // Kortare ord = snabbare läsning
+  }
+  
+  // Justera baserat på textlängd
+  if (wordCount > 1000) {
+    baseWordsPerMinute *= 0.9; // Längre texter läses lite långsammare
+  } else if (wordCount < 100) {
+    baseWordsPerMinute *= 1.1; // Kortare texter läses lite snabbare
+  }
+  
+  // Beräkna exakt tid
+  const exactMinutes = wordCount / baseWordsPerMinute;
+  const minutes = Math.max(1, Math.round(exactMinutes * 2) / 2); // Avrunda till närmaste 0.5
+  
+  // Formatera utdata
+  if (minutes === 1) {
+    return '1 min läsning';
+  } else if (minutes < 1.5) {
+    return '1 min läsning';
+  } else if (minutes < 2.5) {
+    return '2 min läsning';
+  } else {
+    return `${Math.round(minutes)} min läsning`;
+  }
+};
+
+// Retry-funktion för bildhämtning
+const getOpenGraphImageWithRetry = async (url: string, maxRetries: number = 2): Promise<string | null> => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const result = await getOpenGraphImage(url);
+      if (result) {
+        return result;
+      }
+      
+      // Om första försöket misslyckades och vi har fler försök, vänta lite
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
+    } catch (error) {
+      console.log(`Image fetch attempt ${attempt} failed for ${url}:`, error);
+      if (attempt === maxRetries) {
+        return null;
+      }
+    }
+  }
+  
+  return null;
 };
 
 // Funktion för att hämta Open Graph-bild från URL
@@ -493,11 +572,46 @@ const getOpenGraphImage = async (url: string): Promise<string | null> => {
       }
     }
     
+    // För Vimeo-videos
+    if (url.includes('vimeo.com')) {
+      const videoId = url.match(/vimeo\.com\/(\d+)/);
+      if (videoId) {
+        try {
+          const response = await fetch(`https://vimeo.com/api/v2/video/${videoId[1]}.json`);
+          if (response.ok) {
+            const data = await response.json();
+            return data[0]?.thumbnail_large || data[0]?.thumbnail_medium;
+          }
+        } catch (error) {
+          console.log('Vimeo thumbnail fetch failed:', error);
+        }
+      }
+    }
+    
+    // För Twitter/X länkar
+    if (url.includes('twitter.com') || url.includes('x.com')) {
+      const tweetId = url.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/);
+      if (tweetId) {
+        // Twitter har begränsad API, så vi hoppar över för nu
+        return null;
+      }
+    }
+    
     // För andra länkar, använd vår API endpoint
-    const response = await fetch(`/api/og-image?url=${encodeURIComponent(url)}`);
-    if (response.ok) {
-      const data = await response.json();
-      return data.imageUrl;
+    try {
+      const response = await fetch(`/api/og-image?url=${encodeURIComponent(url)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.imageUrl;
+      }
+    } catch (apiError) {
+      console.log('API fetch failed for:', url, apiError);
     }
     
     return null;
@@ -681,12 +795,12 @@ export default function Media() {
           const category = categorizeContent(card.url, card.title, card.summary);
           const readTime = calculateReadTime(`${card.title} ${card.summary}`);
           
-          // Försök hämta bild, men falla tillbaka snabbt om det tar för lång tid
+          // Försök hämta bild med retry-mekanism
           let imageUrl = null;
           try {
             imageUrl = await Promise.race([
-              getOpenGraphImage(card.url),
-              new Promise(resolve => setTimeout(() => resolve(null), 2000)) // 2 sek timeout
+              getOpenGraphImageWithRetry(card.url, 2),
+              new Promise(resolve => setTimeout(() => resolve(null), 3000)) // 3 sek timeout
             ]);
           } catch (imgError) {
             console.warn('Error getting image for', card.url, imgError);
