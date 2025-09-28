@@ -83,12 +83,26 @@ export default function AdminKnowledge() {
 
   const fetchKnowledgeData = async () => {
     try {
-      // Fetch knowledge items
       const supabase = getSupabase();
-      const { data: knowledgeData } = await supabase
+      
+      // Test connection first
+      console.log('Testing Supabase connection...');
+      console.log('SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing');
+      console.log('SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Set' : 'Missing');
+      
+      // Fetch knowledge items
+      const { data: knowledgeData, error: knowledgeError } = await supabase
         .from('ai_knowledge')
         .select('*')
         .order('category', { ascending: true });
+      
+      if (knowledgeError) {
+        console.error('Knowledge fetch error:', knowledgeError);
+        setError('Kunde inte hämta kunskapsdata: ' + knowledgeError.message);
+        return;
+      }
+      
+      console.log('Knowledge data:', knowledgeData);
       
       if (knowledgeData) {
         // Map DB snake_case to UI camelCase for timestamps
@@ -105,26 +119,39 @@ export default function AdminKnowledge() {
       }
 
       // Fetch campaigns
-      const { data: campaignData } = await supabase
+      const { data: campaignData, error: campaignError } = await supabase
         .from('ai_campaigns')
         .select('*')
         .order('title', { ascending: true });
+      
+      if (campaignError) {
+        console.error('Campaign fetch error:', campaignError);
+        setError('Kunde inte hämta kampanjdata: ' + campaignError.message);
+        return;
+      }
       
       if (campaignData) {
         setCampaigns(campaignData);
       }
 
       // Fetch providers
-      const { data: providerData } = await supabase
+      const { data: providerData, error: providerError } = await supabase
         .from('ai_providers')
         .select('*')
         .order('name', { ascending: true });
+      
+      if (providerError) {
+        console.error('Provider fetch error:', providerError);
+        setError('Kunde inte hämta leverantörsdata: ' + providerError.message);
+        return;
+      }
       
       if (providerData) {
         setProviders(providerData);
       }
     } catch (error) {
       console.error('Error fetching knowledge data:', error);
+      setError('Fel vid hämtning av data: ' + (error as Error).message);
     }
   };
 
@@ -335,6 +362,26 @@ export default function AdminKnowledge() {
   return (
     <div style={{ maxWidth: 1200, margin: "2rem auto", padding: 24 }}>
       <h1>AI Kunskapsbas - Admin</h1>
+      
+      <div style={{ marginBottom: 20, padding: 12, background: '#f0f9ff', border: '1px solid #0ea5e9', borderRadius: 6 }}>
+        <button 
+          onClick={fetchKnowledgeData}
+          style={{ 
+            padding: "8px 16px", 
+            background: "#0ea5e9", 
+            color: "white", 
+            border: "none", 
+            borderRadius: 4,
+            cursor: "pointer",
+            marginRight: 8
+          }}
+        >
+          Testa databasanslutning
+        </button>
+        <span style={{ fontSize: 14, color: '#0369a1' }}>
+          Klicka för att testa anslutning och se felmeddelanden i konsolen
+        </span>
+      </div>
       
       {error && (
         <div style={{ 
