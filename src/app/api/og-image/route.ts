@@ -81,11 +81,11 @@ export async function GET(request: NextRequest) {
         // Validera att det verkligen är en bild-URL
         const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
         const hasImageExtension = imageExtensions.some(ext => 
-          imageUrl.toLowerCase().includes(ext)
+          imageUrl!.toLowerCase().includes(ext)
         );
         
         // Acceptera även om det inte har extension (kan vara CDN-URLer)
-        if (hasImageExtension || imageUrl.includes('img') || imageUrl.includes('image')) {
+        if (hasImageExtension || imageUrl!.includes('img') || imageUrl!.includes('image')) {
           return NextResponse.json({ imageUrl });
         }
       }
