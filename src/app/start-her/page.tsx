@@ -196,7 +196,7 @@ export default function StartHer() {
           termsGuarantee: r.terms_guarantee || undefined,
           guaranteeDisclaimer: r.guarantee_disclaimer || undefined,
           terminationFee: r.termination_fee != null ? Number(r.termination_fee) : undefined,
-          priceZone: r.price_zone,
+          priceZone: r.price_zone as PriceZone,
           logoUrl: r.logo_url || undefined,
           affiliateLink: r.affiliate_link || undefined,
           featured: !!r.featured,
