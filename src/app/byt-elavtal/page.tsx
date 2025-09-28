@@ -1,17 +1,9 @@
+"use client";
+
 import React from 'react';
 import styled from 'styled-components';
 import GlassButton from '@/components/GlassButton';
 
-export const metadata = {
-  title: 'Byt strømavtale - Enkelt og raskt bytte av strømleverandør | Strømsjef',
-  description: 'Byt strømavtale enkelt og raskt. Vi håndterer hele bytteprosessen for deg - fra sammenligning til overgang til ny leverandør. Spar penger på strømregningen.',
-  keywords: 'byt strømavtale, bytte strømleverandør, strømavtale bytte, bytte strøm, strømleverandør bytte',
-  openGraph: {
-    title: 'Byt strømavtale - Enkelt og raskt bytte',
-    description: 'Byt strømavtale enkelt og raskt. Vi håndterer hele bytteprosessen for deg.',
-    url: 'https://stromsjef.no/byt-elavtal',
-  },
-};
 
 const PageContainer = styled.div`
   min-height: 100vh;

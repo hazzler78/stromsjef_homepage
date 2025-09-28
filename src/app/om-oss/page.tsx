@@ -1,16 +1,6 @@
 import styled from 'styled-components';
 import GoHomeButton from './GoHomeButton';
 
-export const metadata = {
-  title: 'Om oss - Strømsjef | Din strømpris-ekspert',
-  description: 'Lær mer om Strømsjef og vårt team. Vi hjelper deg å finne det beste strømavtalet og bytte enkelt og raskt. Gratis tjeneste for alle.',
-  keywords: 'om strømsjef, strømpris-ekspert, strømavtale-hjelp, strømleverandør-sammenligning',
-  openGraph: {
-    title: 'Om oss - Strømsjef',
-    description: 'Lær mer om Strømsjef og vårt team. Vi hjelper deg å finne det beste strømavtalet.',
-    url: 'https://stromsjef.no/om-oss',
-  },
-};
 
 const Section = styled.section`
   padding: 4rem 0;
