@@ -146,10 +146,6 @@ interface DbPlanRow {
   price_badge?: string | null;
 }
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export default function StartHer() {
   const [postalCode, setPostalCode] = useState('');
