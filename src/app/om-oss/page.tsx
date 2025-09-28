@@ -51,23 +51,23 @@ export default function OmOss() {
   return (
     <Section>
       <Container>
-        <Title>Strømsjef.se – Om oss</Title>
+        <Title>Stromsjef.no – Om oss</Title>
         <Lead>
-          <b>Hvem er vi – og hvorfor finnes Strømsjef.se?</b>
+          <b>Hvem er vi – og hvorfor finnes Stromsjef.no?</b>
         </Lead>
         <p>
           Strømmarkedet i Norge er ett stort kaos. Over 100 strømselskaper, en jungel av strømavtaler og prismodeller, og mengder av påslag, faste avgifter og ekstratjenester sniker seg inn på regningen. Mange har ingen aning om hva de faktisk betaler for – og det vet strømselskapene. Det er akkurat der de tjener sine penger.
         </p>
         <p>
-          Vi opprettet Strømsjef.se fordi vi var lei av å se mennesker betale for mye – uten å engang vite om det. Vi har sett hvor vanskelig det er å finne en god strømavtale blant alle tilbud, påslag og finstilt.
+          Vi opprettet Stromsjef.no fordi vi var lei av å se mennesker betale for mye – uten å engang vite om det. Vi har sett hvor vanskelig det er å finne en god strømavtale blant alle tilbud, påslag og finstilt.
         </p>
         <p>
-          Vi som står bak Strømsjef.se har selv jobbet i bransjen i over 30 år. Vi har sett hvordan det fungerer bak kulissene – og hvor vanskelig det er for vanlige mennesker å vite hva som er en god avtale, og hva som bare ser bra ut på overflaten.
+          Vi som står bak Stromsjef.no har selv jobbet i bransjen i over 30 år. Vi har sett hvordan det fungerer bak kulissene – og hvor vanskelig det er for vanlige mennesker å vite hva som er en god avtale, og hva som bare ser bra ut på overflaten.
         </p>
         <List>
           <li>Vi er <b>ikke</b> et strømselskap.</li>
           <li>Du får aldri en strømregning fra oss.</li>
-          <li>Vi jobber helt uavhengig og samarbeider med flere strømleverandører for å løfte frem kampanjer og rabatter som faktisk gjør forskjell – inkludert unike tilbud som bare gjelder via Strømsjef.se.</li>
+          <li>Vi jobber helt uavhengig og samarbeider med flere strømleverandører for å løfte frem kampanjer og rabatter som faktisk gjør forskjell – inkludert unike tilbud som bare gjelder via Stromsjef.no.</li>
           <li>Samtidig leter vi aktivt etter nye strømselskaper som vil tilby skikkelige og prisverdige avtaler, uten skjulte avgifter eller unødvendige tillegg.</li>
         </List>
         <p>

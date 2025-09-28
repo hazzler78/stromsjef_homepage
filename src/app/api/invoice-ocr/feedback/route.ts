@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const { error } = await supabase
-      .from('invoice_ocr')
+      .from('invoice_ocr_logs')
       .update({
         is_correct: typeof isCorrect === 'boolean' ? isCorrect : null,
         correction_notes: typeof correctionNotes === 'string' ? correctionNotes : null,

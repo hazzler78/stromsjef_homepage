@@ -74,7 +74,7 @@ export default function Testimonials() {
   return (
     <TestimonialsSection>
       <div className="container">
-        <SectionTitle>Hva våre kunder sier</SectionTitle>
+        <SectionTitle>Hva våre strømsjefer sier</SectionTitle>
         <TestimonialGrid>
           <TestimonialCard>
             <p>

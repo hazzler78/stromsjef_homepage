@@ -571,14 +571,16 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
 
     // Försök logga analysen i Supabase
     let logId: number | null = null;
+    let billAnalysisId: number | null = null;
     try {
       if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
         const sessionId = req.headers.get('x-session-id') || `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
         const userAgent = req.headers.get('user-agent') || 'unknown';
 
+        // Först spara i invoice_ocr tabellen
         const { data: insertData, error } = await supabase
-          .from('invoice_ocr')
+          .from('invoice_ocr_logs')
           .insert([
             {
               session_id: sessionId,
@@ -597,6 +599,73 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
 
         if (!error && insertData) {
           logId = insertData.id as number;
+          
+          // Extrahera besparingsbelopp från GPT-svaret
+          const extractSavings = (text: string): number => {
+            const patterns = [
+              /spara totalt\s*(\d+(?:[,.]\d+)?)/i,
+              /spara\s*(\d+(?:[,.]\d+)?)\s*kr\/år/i,
+              /(\d+(?:[,.]\d+)?)\s*kr.*?(?:spar|bespar|minska)/i,
+              /Din årliga besparing:\s*(\d+(?:[,.]\d+)?)/i,
+              /Total besparing:\s*(\d+(?:[,.]\d+)?)/i
+            ];
+            
+            for (const pattern of patterns) {
+              const match = text.match(pattern);
+              if (match) {
+                const amount = parseFloat(match[1].replace(',', '.'));
+                if (amount > 0) {
+                  return amount;
+                }
+              }
+            }
+            return 0;
+          };
+
+          const potentialSavings = extractSavings(gptAnswer);
+          
+          // Extrahera totala kostnader från GPT-svaret
+          const extractTotalCosts = (text: string): { electricity: number; extraFees: number } => {
+            const electricityMatch = text.match(/total.*?el.*?(\d+(?:[,.]\d+)?)/i);
+            const extraFeesMatch = text.match(/total.*?extra.*?(\d+(?:[,.]\d+)?)/i);
+            
+            return {
+              electricity: electricityMatch ? parseFloat(electricityMatch[1].replace(',', '.')) : 0,
+              extraFees: extraFeesMatch ? parseFloat(extraFeesMatch[1].replace(',', '.')) : 0
+            };
+          };
+
+          const totalCosts = extractTotalCosts(gptAnswer);
+
+          // Spara i den nya bill_analysis tabellen
+          const { data: billAnalysisData, error: billAnalysisError } = await supabase
+            .from('bill_analysis')
+            .insert([
+              {
+                session_id: sessionId,
+                invoice_ocr_id: logId,
+                file_name: file.name,
+                file_size: fileSize,
+                file_mime_type: mimeType,
+                image_sha256: imageSha256,
+                total_electricity_cost: totalCosts.electricity,
+                total_extra_fees: totalCosts.extraFees,
+                potential_savings: potentialSavings,
+                analysis_summary: gptAnswer,
+                detailed_breakdown: null, // Kan fyllas i senare med mer strukturerad data
+                model_used: 'gpt-4o',
+                system_prompt_version: '2025-01-vision-v1',
+                processing_time_ms: Date.now() - startTime,
+                consent_to_store: consent,
+                user_agent: userAgent,
+              }
+            ])
+            .select('id')
+            .single();
+
+          if (!billAnalysisError && billAnalysisData) {
+            billAnalysisId = billAnalysisData.id as number;
+          }
           // Om samtycke: ladda upp filen till privat bucket och spara referensen
           if (consent) {
             try {
@@ -644,7 +713,7 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
       console.error('Failed to log invoice OCR to Supabase:', e);
     }
 
-    return NextResponse.json({ gptAnswer, logId });
+    return NextResponse.json({ gptAnswer, logId, billAnalysisId });
   } catch (err) {
     console.error('Unexpected error in /api/gpt-ocr:', err);
     return NextResponse.json({ error: 'Unexpected error', details: String(err) }, { status: 500 });

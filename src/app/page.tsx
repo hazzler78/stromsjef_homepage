@@ -9,7 +9,7 @@ export default function Home() {
     <main>
       <Hero />
       <div className="container" style={{ textAlign: 'center', marginTop: '1rem' }}>
-        <h2 style={{ color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.1)', marginBottom: '1.5rem' }}>Hva våre kunder sier</h2>
+        <h2 style={{ color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.1)', marginBottom: '1.5rem' }}>Hva våre strømsjefer sier</h2>
       </div>
       <TrustpilotCarousel />
       {/* <PriceCalculator /> */}

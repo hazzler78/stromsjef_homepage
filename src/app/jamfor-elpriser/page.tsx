@@ -353,7 +353,7 @@ export default function JamforElpriser() {
             textAlign: 'center',
             textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
           }}>
-            Last opp et bilde av din strømregning og få en smart, tydelig analyse direkte!
+            Last opp et bilde av strømregningen din og få en tydelig, smart analyse på sekunder!
           </p>
           
           {!loading && !gptResult && (
@@ -371,7 +371,7 @@ export default function JamforElpriser() {
             }}>
               <label htmlFor="file-upload" style={{ display: 'flex', justifyContent: 'center' }}>
                   <GlassButton as="span" variant="primary" size="lg" background="linear-gradient(135deg, var(--primary), var(--secondary))" disableScrollEffect disableHoverEffect>
-                  Velg regningsbilde
+                  Bilde av strømregning
                 </GlassButton>
               </label>
               <input
@@ -401,7 +401,7 @@ export default function JamforElpriser() {
                   style={{ marginTop: 2 }}
                 />
                 <span style={{ lineHeight: 1.4 }}>
-                  Jeg godkjenner at mitt regningsbilde lagres sikkert for å forbedre AI‑analysen. Jeg kan be om sletting når som helst. Les mer i vår <a href={withDefaultCtaUtm('/integritetspolicy', 'jamfor', 'integritetspolicy')} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 600 }}>personvernpolicy</a>.
+                  Jeg godkjenner at bildet av strømregningen min lagres sikkert for å forbedre AI-analysen. Jeg kan når som helst be om å få det slettet. Les mer i vår <a href={withDefaultCtaUtm('/integritetspolicy', 'jamfor', 'integritetspolicy')} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 600 }}>personvernerklæring</a>.
                 </span>
               </label>
             </div>
