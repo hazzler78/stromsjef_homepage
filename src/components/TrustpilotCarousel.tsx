@@ -351,6 +351,7 @@ export default function TrustpilotCarousel({
 
   // Enhanced touch handlers for mobile (iPhone-like)
   const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent default touch behavior
     const touch = e.touches[0];
     dragStartX.current = touch.clientX;
     lastMoveX.current = touch.clientX;
@@ -389,6 +390,7 @@ export default function TrustpilotCarousel({
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
     
+    e.preventDefault(); // Prevent default touch behavior
     const touch = e.touches[0];
     const currentTime = Date.now();
     const currentX = touch.clientX;
@@ -418,6 +420,8 @@ export default function TrustpilotCarousel({
     // Update tracking variables
     lastMoveX.current = currentX;
     lastMoveTime.current = currentTime;
+    
+    console.log('📱 Touch move:', { deltaX, totalOffset, velocity: velocity.current });
   };
 
   const handleTouchEnd = () => {
@@ -473,7 +477,7 @@ export default function TrustpilotCarousel({
         isAnimationRunning.current = true;
         animationStartTime.current = Date.now() - delay;
       }
-      setIsPaused(false);
+    setIsPaused(false);
     }
   };
 
