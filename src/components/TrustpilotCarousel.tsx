@@ -117,6 +117,7 @@ export default function TrustpilotCarousel({
   
   // Physical momentum state - like spinning a bicycle wheel
   const dragStartX = useRef<number>(0);
+  const dragStartY = useRef<number>(0);
   const dragStartOffset = useRef<number>(0);
   const currentOffset = useRef<number>(0);
   const lastMoveTime = useRef<number>(0);
@@ -222,44 +223,53 @@ export default function TrustpilotCarousel({
     momentumAnimation.current = requestAnimationFrame(animate);
   };
 
-  // Enhanced iPhone-like drag handlers
+  // Enhanced iPhone-like drag handlers - only start dragging on actual movement
   const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
+    // Don't prevent default or start dragging immediately
+    // Just store the initial position for potential drag
     dragStartX.current = e.clientX;
+    dragStartY.current = e.clientY;
     lastMoveX.current = e.clientX;
     lastMoveTime.current = Date.now();
     velocity.current = 0;
-    
-    // Get current position when drag starts
-    const currentPos = getCurrentPosition();
-    dragStartOffset.current = currentPos;
-    currentOffset.current = currentPos;
-    
-    console.log('📱 Mouse down - current position:', currentPos);
-    
-    setIsDragging(true);
-    setIsPaused(true);
-    isSpinning.current = false;
-    isAnimationRunning.current = false;
-    
-    // Cancel any ongoing momentum animation
-    if (momentumAnimation.current) {
-      cancelAnimationFrame(momentumAnimation.current);
-      momentumAnimation.current = null;
-    }
-    
-    // Pause animation and freeze at current position with smooth transition
-    if (trackRef.current) {
-      // Disable animation completely and set position
-      trackRef.current.style.animation = 'none';
-      trackRef.current.style.animationPlayState = 'paused';
-      trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`;
-      trackRef.current.style.willChange = 'transform';
-      trackRef.current.style.transition = 'none'; // Disable transitions during drag
-    }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    // Only start dragging if mouse is actually moving (not just clicking)
+    const moveDeltaX = e.clientX - dragStartX.current;
+    const moveDeltaY = e.clientY - dragStartY.current;
+    
+    // Start dragging only if there's significant movement (threshold to avoid accidental drags)
+    if (!isDragging && (Math.abs(moveDeltaX) > 5 || Math.abs(moveDeltaY) > 5)) {
+      // Now start the actual drag
+      e.preventDefault();
+      const currentPos = getCurrentPosition();
+      dragStartOffset.current = currentPos;
+      currentOffset.current = currentPos;
+      
+      console.log('🖱️ Starting drag from position:', currentPos);
+      
+      setIsDragging(true);
+      setIsPaused(true);
+      isSpinning.current = false;
+      isAnimationRunning.current = false;
+      
+      // Cancel any ongoing momentum animation
+      if (momentumAnimation.current) {
+        cancelAnimationFrame(momentumAnimation.current);
+        momentumAnimation.current = null;
+      }
+      
+      // Pause animation and freeze at current position
+      if (trackRef.current) {
+        trackRef.current.style.animation = 'none';
+        trackRef.current.style.animationPlayState = 'paused';
+        trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`;
+        trackRef.current.style.willChange = 'transform';
+        trackRef.current.style.transition = 'none';
+      }
+    }
+    
     if (!isDragging) return;
     
     const currentTime = Date.now();
@@ -349,49 +359,57 @@ export default function TrustpilotCarousel({
     }
   };
 
-  // Enhanced touch handlers for mobile (iPhone-like)
+  // Enhanced touch handlers for mobile (iPhone-like) - only start dragging on actual movement
   const handleTouchStart = (e: React.TouchEvent) => {
-    e.preventDefault(); // Prevent default touch behavior
+    // Don't prevent default or start dragging immediately
+    // Just store the initial position for potential drag
     const touch = e.touches[0];
     dragStartX.current = touch.clientX;
+    dragStartY.current = touch.clientY;
     lastMoveX.current = touch.clientX;
     lastMoveTime.current = Date.now();
     velocity.current = 0;
-    
-    // Get current position when drag starts
-    const currentPos = getCurrentPosition();
-    dragStartOffset.current = currentPos;
-    currentOffset.current = currentPos;
-    
-    console.log('📱 Touch start - current position:', currentPos);
-    
-    setIsDragging(true);
-    setIsPaused(true);
-    isSpinning.current = false;
-    isAnimationRunning.current = false;
-    
-    // Cancel any ongoing momentum animation
-    if (momentumAnimation.current) {
-      cancelAnimationFrame(momentumAnimation.current);
-      momentumAnimation.current = null;
-    }
-    
-    // Pause animation and freeze at current position with smooth transition
-    if (trackRef.current) {
-      // Disable animation completely and set position
-      trackRef.current.style.animation = 'none';
-      trackRef.current.style.animationPlayState = 'paused';
-      trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`;
-      trackRef.current.style.willChange = 'transform';
-      trackRef.current.style.transition = 'none'; // Disable transitions during drag
-    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const touchDeltaX = touch.clientX - dragStartX.current;
+    const touchDeltaY = touch.clientY - dragStartY.current;
+    
+    // Start dragging only if there's significant movement (threshold to avoid accidental drags)
+    if (!isDragging && (Math.abs(touchDeltaX) > 5 || Math.abs(touchDeltaY) > 5)) {
+      // Now start the actual drag
+      e.preventDefault();
+      const currentPos = getCurrentPosition();
+      dragStartOffset.current = currentPos;
+      currentOffset.current = currentPos;
+      
+      console.log('📱 Starting touch drag from position:', currentPos);
+      
+      setIsDragging(true);
+      setIsPaused(true);
+      isSpinning.current = false;
+      isAnimationRunning.current = false;
+      
+      // Cancel any ongoing momentum animation
+      if (momentumAnimation.current) {
+        cancelAnimationFrame(momentumAnimation.current);
+        momentumAnimation.current = null;
+      }
+      
+      // Pause animation and freeze at current position
+      if (trackRef.current) {
+        trackRef.current.style.animation = 'none';
+        trackRef.current.style.animationPlayState = 'paused';
+        trackRef.current.style.transform = `translate3d(${currentPos}px, 0, 0)`;
+        trackRef.current.style.willChange = 'transform';
+        trackRef.current.style.transition = 'none';
+      }
+    }
+    
     if (!isDragging) return;
     
     e.preventDefault(); // Prevent default touch behavior
-    const touch = e.touches[0];
     const currentTime = Date.now();
     const currentX = touch.clientX;
     
