@@ -7,13 +7,13 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://stromsjef.no/jamfor-elpriser</loc>
+    <loc>https://stromsjef.no/sammenlign-strømpriser</loc>
     <lastmod>2024-12-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://stromsjef.no/byt-elavtal</loc>
+    <loc>https://stromsjef.no/bytt-strømavtale</loc>
     <lastmod>2024-12-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -61,7 +61,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://stromsjef.no/vanliga-fragor</loc>
+    <loc>https://stromsjef.no/vanlige-sporsmal</loc>
     <lastmod>2024-12-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

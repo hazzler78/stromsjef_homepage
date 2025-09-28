@@ -184,38 +184,38 @@ export default function WeeklyNews() {
         <Container>
           <BackButton href="/media">
             <BackIcon />
-            Tillbaka till Media
+            Tilbake til Media
           </BackButton>
           
-          <Title>Veckans nyheter från elmarknaden</Title>
+          <Title>Ukens nyheter fra strømmarkedet</Title>
           <Lead>
-            Här samlar vi de senaste nyheterna och uppdateringarna från elmarknaden som påverkar dig som konsument. Vi håller dig uppdaterad med de viktigaste händelserna som kan påverka ditt elavtal och energianvändning.
+            Her samler vi de siste nyhetene og oppdateringene fra strømmarkedet som påvirker deg som forbruker. Vi holder deg oppdatert med de viktigste hendelsene som kan påvirke ditt strømavtale og energibruk.
           </Lead>
 
           <Article>
-            <SubTitle>Senaste utvecklingar:</SubTitle>
+            <SubTitle>Siste utviklinger:</SubTitle>
             <CustomList>
               <CustomListItem>
                 <ArrowRight />
-                <div><strong>Nya elavtal lanseras</strong> – flera leverantörer har justerat sina priser för att konkurrera bättre.</div>
+                <div><strong>Nye strømavtaler lanseres</strong> – flere leverandører har justert sine priser for å konkurrere bedre.</div>
               </CustomListItem>
               <CustomListItem>
                 <ArrowRight />
-                <div><strong>Vindkraftsexpansion</strong> – nya vindkraftsparker planeras vilket kan pressa priserna ytterligare.</div>
+                <div><strong>Vindkraftsekspansjon</strong> – nye vindkraftsparker planlegges som kan presse prisene ytterligere.</div>
               </CustomListItem>
               <CustomListItem>
                 <ArrowRight />
-                <div><strong>Regleringsändringar</strong> – nya EU-direktiv påverkar hur elpriserna ska presenteras för konsumenter.</div>
+                <div><strong>Reguleringsendringer</strong> – nye EU-direktiver påvirker hvordan strømprisene skal presenteres for forbrukere.</div>
               </CustomListItem>
               <CustomListItem>
                 <WarningIcon />
-                <div><strong>Väderprognoser</strong> – kommande veckor förväntas ha blandat väder vilket kan påverka prisvolatiliteten.</div>
+                <div><strong>Værprognoser</strong> – kommende uker forventes å ha blandet vær som kan påvirke prisvolatiliteten.</div>
               </CustomListItem>
             </CustomList>
             
-            <SubTitle>🚨 Varning: Dolda avgifter och orimliga bindingstider</SubTitle>
+            <SubTitle>🚨 Advarsel: Skjulte avgifter og urimelige bindingstider</SubTitle>
             <p>
-              Vi har upptäckt några riktigt dåliga exempel på hur vissa leverantörer försöker lura kunder:
+              Vi har oppdaget noen virkelig dårlige eksempler på hvordan enkelte leverandører prøver å lure kunder:
             </p>
             <CustomList>
               <CustomListItem>
