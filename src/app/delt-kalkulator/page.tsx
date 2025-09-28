@@ -194,7 +194,7 @@ function DeltKalkulatorContent() {
           <GlassButton
             variant="primary"
             size="lg"
-            onClick={() => window.location.href = withDefaultCtaUtm('/jamfor-elpriser')}
+            onClick={() => window.location.href = withDefaultCtaUtm('/jamfor-elpriser', 'delt-kalkulator', 'cta-analyze')}
             background={'linear-gradient(135deg, var(--primary), var(--secondary))'}
           >
             Start din egen analyse

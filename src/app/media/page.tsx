@@ -35,7 +35,25 @@ const Lead = styled.p`
   margin-bottom: 2rem;
 `;
 
-// Removed unused SubTitle component
+const SubTitle = styled.h3`
+  font-size: 1.3rem;
+  margin: 2.5rem 0 1.5rem 0;
+  color: var(--primary-dark);
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 0.5rem;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 2px;
+  }
+`;
 
 const PageBackground = styled.div`
   min-height: 100vh;
@@ -637,34 +655,75 @@ export default function Media() {
   const fetchSharedCards = async () => {
     try {
       setLoading(true);
+      console.log('Fetching shared cards...');
       const response = await fetch('/api/shared-cards?limit=50');
       const data = await response.json();
+      
+      console.log('API response:', data);
       
       if (data.error) {
         setError(data.error);
         return;
       }
       
+      if (!data.items || data.items.length === 0) {
+        console.log('No items found in API response');
+        setSharedCards([]);
+        setFilteredCards([]);
+        return;
+      }
+      
       // Bearbeta kort med kategorisering, läsningstid och bilder
       const processedCards = await Promise.all(data.items.map(async (card: SharedCard) => {
-        const category = categorizeContent(card.url, card.title, card.summary);
-        const readTime = calculateReadTime(`${card.title} ${card.summary}`);
-        const imageUrl = await getOpenGraphImage(card.url);
-        
-        return {
-          ...card,
-          type: category.type || 'article', // Fallback to 'article' if type is undefined
-          tag: category.tag,
-          icon: category.icon,
-          readTime,
-          href: card.url || '#', // Använd extern URL eller fallback
-          featured: false, // Kan läggas till senare baserat på popularitet
-          date: new Date(card.created_at).getFullYear().toString(),
-          imageUrl,
-          hasImage: !!imageUrl
-        };
+        try {
+          const category = categorizeContent(card.url, card.title, card.summary);
+          const readTime = calculateReadTime(`${card.title} ${card.summary}`);
+          
+          // Försök hämta bild, men falla tillbaka snabbt om det tar för lång tid
+          let imageUrl = null;
+          try {
+            imageUrl = await Promise.race([
+              getOpenGraphImage(card.url),
+              new Promise(resolve => setTimeout(() => resolve(null), 2000)) // 2 sek timeout
+            ]);
+          } catch (imgError) {
+            console.warn('Error getting image for', card.url, imgError);
+          }
+          
+          return {
+            ...card,
+            type: category.type || 'article',
+            tag: category.tag,
+            icon: category.icon,
+            readTime,
+            href: card.url || '#',
+            featured: false,
+            date: new Date(card.created_at).getFullYear().toString(),
+            imageUrl,
+            hasImage: !!imageUrl
+          };
+        } catch (cardError) {
+          console.error('Error processing card:', card, cardError);
+          // Returnera kortet utan bild om det finns fel
+          const category = categorizeContent(card.url, card.title, card.summary);
+          const readTime = calculateReadTime(`${card.title} ${card.summary}`);
+          
+          return {
+            ...card,
+            type: category.type || 'article',
+            tag: category.tag,
+            icon: category.icon,
+            readTime,
+            href: card.url || '#',
+            featured: false,
+            date: new Date(card.created_at).getFullYear().toString(),
+            imageUrl: null,
+            hasImage: false
+          };
+        }
       }));
       
+      console.log('Processed cards:', processedCards);
       setSharedCards(processedCards);
       setFilteredCards(processedCards);
     } catch (err) {
