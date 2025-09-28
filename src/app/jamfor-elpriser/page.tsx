@@ -13,7 +13,7 @@ export const metadata = {
   openGraph: {
     title: 'Sammenlign strømpriser - Finn det beste strømavtalet',
     description: 'Sammenlign strømpriser fra alle leverandører. Finn det beste strømavtalet for deg og spar penger på strømregningen.',
-    url: 'https://stromsjef.se/jamfor-elpriser',
+    url: 'https://stromsjef.no/jamfor-elpriser',
   },
 };
 

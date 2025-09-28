@@ -11,7 +11,7 @@ export const metadata = {
   openGraph: {
     title: 'Byt strømavtale - Enkelt og raskt bytte',
     description: 'Byt strømavtale enkelt og raskt. Vi håndterer hele bytteprosessen for deg.',
-    url: 'https://stromsjef.se/byt-elavtal',
+    url: 'https://stromsjef.no/byt-elavtal',
   },
 };
 

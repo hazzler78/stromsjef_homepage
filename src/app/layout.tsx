@@ -31,13 +31,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'no_NO',
-    url: 'https://stromsjef.se',
+    url: 'https://stromsjef.no',
     siteName: 'Strømsjef',
     title: 'Strømsjef – Sammenlign og bytt strømavtale enkelt',
     description: 'Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis. Vi håndterer hele byttet for deg - raskt og enkelt.',
     images: [
       {
-        url: 'https://stromsjef.se/og-image.png',
+        url: 'https://stromsjef.no/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Strømsjef - Sammenlign strømpriser',
@@ -48,10 +48,10 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Strømsjef – Sammenlign og bytt strømavtale enkelt',
     description: 'Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis.',
-    images: ['https://stromsjef.se/og-image.png'],
+    images: ['https://stromsjef.no/og-image.png'],
   },
   alternates: {
-    canonical: 'https://stromsjef.se',
+    canonical: 'https://stromsjef.no',
   },
 };
 
@@ -70,8 +70,8 @@ export default function RootLayout({
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "Strømsjef",
-            "url": "https://stromsjef.se",
-            "logo": "https://stromsjef.se/og-image.png",
+            "url": "https://stromsjef.no",
+            "logo": "https://stromsjef.no/og-image.png",
             "description": "Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis.",
             "contactPoint": [{
               "@type": "ContactPoint",

@@ -14,4 +14,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://stromsjef.se/sitemap.xml 
+Sitemap: https://stromsjef.no/sitemap.xml 

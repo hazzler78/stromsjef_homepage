@@ -10,7 +10,7 @@ export const metadata = {
   openGraph: {
     title: 'Om oss - Strømsjef',
     description: 'Lær mer om Strømsjef og vårt team. Vi hjelper deg å finne det beste strømavtalet.',
-    url: 'https://stromsjef.se/om-oss',
+    url: 'https://stromsjef.no/om-oss',
   },
 };
 
