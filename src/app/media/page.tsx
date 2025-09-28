@@ -201,14 +201,14 @@ const FilterButton = styled.button<{ active: boolean }>`
   }
 `;
 
-const MediaImage = styled.div<{ imageUrl?: string; hasImage?: boolean }>`
+const MediaImage = styled.div<{ imageUrl?: string; hasImage?: boolean; fallbackGradient?: string }>`
   width: 100%;
   height: 200px;
   background: ${props => {
     if (props.imageUrl && props.hasImage) {
       return `url(${props.imageUrl})`;
     }
-    return 'linear-gradient(135deg, var(--primary), var(--secondary))';
+    return props.fallbackGradient || 'linear-gradient(135deg, var(--primary), var(--secondary))';
   }};
   background-size: cover;
   background-position: center;
@@ -493,13 +493,33 @@ const getOpenGraphImage = async (url: string): Promise<string | null> => {
       }
     }
     
-    // För andra länkar, försök hämta Open Graph-bild
-    // Detta skulle kräva en server-side API endpoint för att undvika CORS-problem
+    // För andra länkar, använd vår API endpoint
+    const response = await fetch(`/api/og-image?url=${encodeURIComponent(url)}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.imageUrl;
+    }
+    
     return null;
   } catch (error) {
     console.error('Error getting Open Graph image:', error);
     return null;
   }
+};
+
+// Funktion för att generera fallback-bild baserat på länktyp
+const getFallbackImage = (url: string, type: string): string => {
+  // Använd en placeholder-bild baserat på typ
+  const placeholderColors = {
+    video: 'linear-gradient(135deg, #ff6b6b, #ee5a24)',
+    article: 'linear-gradient(135deg, #4834d4, #686de0)',
+    news: 'linear-gradient(135deg, #00d2d3, #54a0ff)',
+    tech: 'linear-gradient(135deg, #5f27cd, #341f97)',
+    social: 'linear-gradient(135deg, #ff9ff3, #f368e0)',
+    link: 'linear-gradient(135deg, #00d2d3, #54a0ff)'
+  };
+  
+  return placeholderColors[type as keyof typeof placeholderColors] || placeholderColors.link;
 };
 
 // Funktion för att rendera Markdown till HTML
@@ -546,6 +566,7 @@ type SharedCard = {
   date?: string;
   imageUrl?: string | null;
   hasImage?: boolean;
+  fallbackGradient?: string;
 };
 
 // Ikoner för olika mediatyper
@@ -681,7 +702,8 @@ export default function Media() {
             featured: false,
             date: new Date(card.created_at).getFullYear().toString(),
             imageUrl,
-            hasImage: !!imageUrl
+            hasImage: !!imageUrl,
+            fallbackGradient: getFallbackImage(card.url, category.type || 'article')
           };
         } catch (cardError) {
           console.error('Error processing card:', card, cardError);
@@ -699,7 +721,8 @@ export default function Media() {
             featured: false,
             date: new Date(card.created_at).getFullYear().toString(),
             imageUrl: null,
-            hasImage: false
+            hasImage: false,
+            fallbackGradient: getFallbackImage(card.url, category.type || 'article')
           };
         }
       }));
@@ -854,7 +877,11 @@ export default function Media() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <MediaImage imageUrl={card.imageUrl || undefined} hasImage={card.hasImage}>
+                  <MediaImage 
+                    imageUrl={card.imageUrl || undefined} 
+                    hasImage={card.hasImage}
+                    fallbackGradient={card.fallbackGradient}
+                  >
                     {card.featured && <FeaturedBadge>Utvald</FeaturedBadge>}
                     <MediaTypeIcon type={card.type || 'link'}>
                       {getMediaIcon(card.type || 'link')}
