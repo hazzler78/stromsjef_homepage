@@ -501,6 +501,14 @@ const calculateReadTime = (text: string) => {
   const wordCount = words.length;
   const charCount = cleanText.length;
   
+  // Debug: logga information för att se vad som händer
+  console.log('Read time calculation:', {
+    originalText: text.substring(0, 100) + '...',
+    cleanText: cleanText.substring(0, 100) + '...',
+    wordCount,
+    charCount
+  });
+  
   // Beräkna genomsnittlig ordlängd
   const avgWordLength = wordCount > 0 ? charCount / wordCount : 0;
   
@@ -523,11 +531,21 @@ const calculateReadTime = (text: string) => {
   
   // Beräkna exakt tid
   const exactMinutes = wordCount / baseWordsPerMinute;
-  const minutes = Math.max(1, Math.round(exactMinutes * 2) / 2); // Avrunda till närmaste 0.5
+  const minutes = Math.round(exactMinutes * 2) / 2; // Avrunda till närmaste 0.5
   
-  // Formatera utdata
-  if (minutes === 1) {
-    return '1 min läsning';
+  // Debug: logga beräkningen
+  console.log('Read time calculation result:', {
+    wordCount,
+    baseWordsPerMinute,
+    exactMinutes,
+    minutes
+  });
+  
+  // Formatera utdata - tillåt mindre än 1 minut
+  if (minutes < 0.5) {
+    return '30 sek läsning';
+  } else if (minutes < 1) {
+    return '45 sek läsning';
   } else if (minutes < 1.5) {
     return '1 min läsning';
   } else if (minutes < 2.5) {
@@ -779,8 +797,8 @@ export default function Media() {
       
       if (data.error) {
         setError(data.error);
-        return;
-      }
+          return;
+        }
       
       if (!data.items || data.items.length === 0) {
         console.log('No items found in API response');
@@ -982,12 +1000,12 @@ export default function Media() {
               <p>Prova att ändra dina söktermer eller filter.</p>
             </NoResults>
           ) : (
-            <CardsGrid>
+          <CardsGrid>
               {filteredCards.map((card) => (
-                <MediaCard 
+              <MediaCard 
                   key={card.id} 
                   href={card.href || card.url}
-                  isExpanded={false}
+                isExpanded={false}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -1001,24 +1019,24 @@ export default function Media() {
                       {getMediaIcon(card.type || 'link')}
                     </MediaTypeIcon>
                   </MediaImage>
-                  <CardHeader>
+                <CardHeader>
                     <CardTitle>{card.title}</CardTitle>
                     <MarkdownContent 
                       dangerouslySetInnerHTML={{ __html: renderMarkdown(card.summary || '') }}
                     />
-                    <CardMeta>
+                  <CardMeta>
                       <CardTag>{card.tag}</CardTag>
                       <ReadTime>
                         <ClockIcon />
                         {card.readTime}
                       </ReadTime>
                       <span>{card.date}</span>
-                      <ExpandIcon>
-                        <svg viewBox="0 0 24 24" fill="none">
-                          <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </ExpandIcon>
-                    </CardMeta>
+                    <ExpandIcon>
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </ExpandIcon>
+                  </CardMeta>
                     <ShareContainer>
                       <ShareButton 
                         platform="facebook" 
@@ -1062,10 +1080,10 @@ export default function Media() {
                         <ShareIcon platform="copy" />
                       </ShareButton>
                     </ShareContainer>
-                  </CardHeader>
-                </MediaCard>
-              ))}
-            </CardsGrid>
+                </CardHeader>
+              </MediaCard>
+            ))}
+          </CardsGrid>
           )}
 
         </Container>
