@@ -70,7 +70,8 @@ export default function AdminPlans() {
         .from('electricity_plans')
         .select('*')
         .order('price_zone')
-        .order('binding_time', { ascending: true });
+        .order('binding_time', { ascending: true })
+        .order('price_per_kwh', { ascending: true });
       if (error) throw error;
       setItems(data as Plan[]);
     } catch (e) {

@@ -178,8 +178,15 @@ export default function StartaHar() {
           sortOrder: r.sort_order != null ? Number(r.sort_order) : undefined,
           priceBadge: r.price_badge || undefined,
         }));
-        // Sort by binding time (lowest to highest)
-        setPlans(mapped.sort((a, b) => a.bindingTime - b.bindingTime));
+        // Sort by binding time (lowest to highest), then by price (lowest to highest)
+        setPlans(mapped.sort((a, b) => {
+          // First sort by binding time
+          if (a.bindingTime !== b.bindingTime) {
+            return a.bindingTime - b.bindingTime;
+          }
+          // If binding time is the same, sort by price (lowest first)
+          return a.pricePerKwh - b.pricePerKwh;
+        }));
       })
       .then(() => setLoading(false), (e: unknown) => {
         setError(String(e));
