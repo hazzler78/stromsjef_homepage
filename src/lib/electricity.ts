@@ -49,8 +49,14 @@ export function inferZoneFromPostalCode(postalCode: string): PriceZone | undefin
   
   // Special handling for 3xxx range
   if (fullCode >= 3000 && fullCode <= 3999) {
+    // Vestfold og Telemark fylke (NO2) - includes Tønsberg (3114)
+    if (fullCode >= 3100 && fullCode <= 3199) return PriceZone.NO2; // Vestfold area
+    if (fullCode >= 3200 && fullCode <= 3299) return PriceZone.NO2; // Telemark area
+    if (fullCode >= 3300 && fullCode <= 3399) return PriceZone.NO2; // Telemark area
+    
     // Buskerud fylke (NO1) - specific postal codes
     if (fullCode >= 3500 && fullCode <= 3599) return PriceZone.NO1;
+    
     // Default to NO5 for other 3xxx areas
     return PriceZone.NO5;
   }
@@ -59,12 +65,25 @@ export function inferZoneFromPostalCode(postalCode: string): PriceZone | undefin
   if (fullCode >= 4000 && fullCode <= 4999) {
     // Rogaland fylke (NO2) - Stavanger, Sandnes, Haugesund areas
     if (fullCode >= 4000 && fullCode <= 4299) return PriceZone.NO2;
+    
+    // Hordaland fylke (NO5) - Bergen area (if any 4xxx postcodes exist)
+    // Note: Bergen is primarily in 5xxx range, but checking for completeness
+    
     // Default to NO5 for other 4xxx areas
     return PriceZone.NO5;
   }
   
-  // NO3: Midt-Norge (5000-6999)
-  if (fullCode >= 5000 && fullCode <= 6999) return PriceZone.NO3;
+  // Special handling for 5xxx-6xxx range
+  if (fullCode >= 5000 && fullCode <= 6999) {
+    // Hordaland fylke (NO5) - includes Bergen area (5000-5099)
+    if (fullCode >= 5000 && fullCode <= 5099) return PriceZone.NO5; // Bergen area
+    
+    // Møre og Romsdal fylke (NO5) - includes Ålesund, Molde, Kristiansund (6000-6999)
+    if (fullCode >= 6000 && fullCode <= 6999) return PriceZone.NO5; // Møre og Romsdal area
+    
+    // Trøndelag fylke (NO3) - Trondheim area (5100-5999)
+    return PriceZone.NO3;
+  }
   
   // NO4: Nord-Norge (7000-9999)
   if (fullCode >= 7000 && fullCode <= 9999) return PriceZone.NO4;
