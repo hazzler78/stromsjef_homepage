@@ -47,13 +47,19 @@ export default function AdminInvoices() {
 
   const fetchLogs = async () => {
     setLoading(true);
-    const supabase = getSupabase();
-    const { data, error } = await supabase
-      .from('invoice_ocr')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (!error && data) setLogs(data as InvoiceLog[]);
-    setLoading(false);
+    try {
+      const res = await fetch('/api/admin/invoices', { cache: 'no-store' });
+      if (!res.ok) {
+        setLogs([]);
+      } else {
+        const json = await res.json();
+        setLogs((json?.items || []) as InvoiceLog[]);
+      }
+    } catch {
+      setLogs([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

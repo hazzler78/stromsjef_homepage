@@ -581,7 +581,7 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
 
         // Först spara i invoice_ocr tabellen
         const { data: insertData, error } = await supabase
-          .from('invoice_ocr_logs')
+          .from('invoice_ocr')
           .insert([
             {
               session_id: sessionId,
