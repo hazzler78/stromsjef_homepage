@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
 
 const ADMIN_PASSWORD = "grodan2025";
 
@@ -37,13 +36,6 @@ export default function AdminInvoices() {
       if (sessionStorage.getItem('admin_authed') === 'true') setAuthed(true);
     }
   }, []);
-
-  // Create Supabase client lazily at runtime to avoid build-time URL parsing
-  const getSupabase = () =>
-    createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
-    );
 
   const fetchLogs = async () => {
     setLoading(true);
