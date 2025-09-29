@@ -74,6 +74,13 @@ const adminSections = [
     href: "/admin/plans",
     icon: "⚡",
     color: "bg-yellow-500"
+  },
+  {
+    title: "Bedriftsavtal",
+    description: "Hantera leverantörer för företagsavtal",
+    href: "/admin/business-plans",
+    icon: "🏢",
+    color: "bg-blue-600"
   }
 ];
 
