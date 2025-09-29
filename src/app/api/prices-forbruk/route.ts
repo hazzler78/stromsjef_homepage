@@ -80,7 +80,7 @@ export async function GET(request: Request) {
           client_id: tokenAuthMode === 'form' ? clientId : undefined,
           client_secret: tokenAuthMode === 'form' ? clientSecret : undefined,
           scope,
-        }).filter(([_, v]) => v)
+        }).filter((entry) => entry[1])
       )
     );
 

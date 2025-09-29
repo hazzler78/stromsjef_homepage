@@ -32,7 +32,6 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
 const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string | undefined;
 const getSupabase = () => createClient(SUPABASE_URL as string, SUPABASE_ANON as string);
 
-const ADMIN_PASSWORD = "grodan2025";
 
 const Container = styled.div`
   max-width: 1100px;
