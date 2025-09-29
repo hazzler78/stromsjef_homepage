@@ -512,21 +512,21 @@ const calculateReadTime = (text: string) => {
   // Beräkna genomsnittlig ordlängd
   const avgWordLength = wordCount > 0 ? charCount / wordCount : 0;
   
-  // Anpassa läsningshastighet baserat på innehåll
-  let baseWordsPerMinute = 200; // Grundhastighet för svenska/norska
+  // Anpassa läsningshastighet baserat på innehåll - mer realistisk hastighet
+  let baseWordsPerMinute = 150; // Sänkt grundhastighet för mer realistisk beräkning
   
   // Justera baserat på genomsnittlig ordlängd
   if (avgWordLength > 7) {
-    baseWordsPerMinute = 160; // Längre ord = långsammare läsning
+    baseWordsPerMinute = 120; // Längre ord = långsammare läsning
   } else if (avgWordLength < 4) {
-    baseWordsPerMinute = 240; // Kortare ord = snabbare läsning
+    baseWordsPerMinute = 180; // Kortare ord = snabbare läsning
   }
   
   // Justera baserat på textlängd
   if (wordCount > 1000) {
-    baseWordsPerMinute *= 0.9; // Längre texter läses lite långsammare
+    baseWordsPerMinute *= 0.85; // Längre texter läses långsammare
   } else if (wordCount < 100) {
-    baseWordsPerMinute *= 1.1; // Kortare texter läses lite snabbare
+    baseWordsPerMinute *= 1.05; // Kortare texter läses lite snabbare
   }
   
   // Beräkna exakt tid
@@ -541,17 +541,23 @@ const calculateReadTime = (text: string) => {
     minutes
   });
   
-  // Formatera utdata - tillåt mindre än 1 minut
+  // Formatera utdata - mer granulara tidsintervall
   if (minutes < 0.5) {
     return '30 sek läsning';
-  } else if (minutes < 1) {
+  } else if (minutes < 0.75) {
     return '45 sek läsning';
-  } else if (minutes < 1.5) {
+  } else if (minutes < 1.25) {
     return '1 min läsning';
-  } else if (minutes < 2.5) {
+  } else if (minutes < 1.75) {
+    return '1.5 min läsning';
+  } else if (minutes < 2.25) {
     return '2 min läsning';
+  } else if (minutes < 2.75) {
+    return '2.5 min läsning';
+  } else if (minutes < 3.25) {
+    return '3 min läsning';
   } else {
-    return `${Math.round(minutes)} min läsning`;
+    return `${Math.round(minutes * 2) / 2} min läsning`;
   }
 };
 
