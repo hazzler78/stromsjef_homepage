@@ -105,7 +105,7 @@ function formatPrice(value: number) {
   return `${value.toLocaleString('no-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} øre/kWh`;
 }
 
-type ElectricityPlanWithBadge = ElectricityPlan & { priceBadge?: string };
+type ElectricityPlanWithBadge = ElectricityPlan & { priceBadge?: string; recommended?: boolean };
 
 interface DbPlanRow {
   id: string;
@@ -187,6 +187,7 @@ export default function StartaHar() {
           logoUrl: r.logo_url || undefined,
           affiliateLink: r.affiliate_link || undefined,
           featured: !!r.featured,
+          recommended: !!r.recommended,
           // sortOrder intentionally ignored in sorting to prefer price within binding time
           priceBadge: r.price_badge || undefined,
         }));
@@ -329,8 +330,23 @@ export default function StartaHar() {
                   </div>
                 </div>
                 <div className="cta" style={{ display: 'grid', gap: 6, justifyItems: 'end' }}>
-                  {plan.priceBadge && (
-                    <div style={{ fontWeight: 800, color: '#111827' }}>{plan.priceBadge}</div>
+                  {(plan.recommended || plan.priceBadge) && (
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      {plan.recommended && (
+                        <span style={{
+                          fontWeight: 800,
+                          color: '#0b3b2e',
+                          background: 'linear-gradient(135deg, #a7f3d0, #6ee7b7)',
+                          border: '1px solid rgba(16,185,129,0.4)',
+                          padding: '2px 8px',
+                          borderRadius: 9999,
+                          fontSize: '0.8rem'
+                        }}>Mest populær</span>
+                      )}
+                      {plan.priceBadge && (
+                        <span style={{ fontWeight: 800, color: '#111827' }}>{plan.priceBadge}</span>
+                      )}
+                    </div>
                   )}
                   <div style={{ fontWeight: 800 }}>{formatPrice(plan.pricePerKwh)}</div>
                   <div style={{ fontSize: '0.9rem', color: 'var(--gray-600)' }}>{plan.monthlyFee === 0 ? '0 kr månedsavgift' : `${plan.monthlyFee} kr/mnd`}</div>
