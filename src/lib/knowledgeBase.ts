@@ -36,6 +36,31 @@ export const faqKnowledge: KnowledgeItem[] = [
     lastUpdated: "2025-09-29"
   },
   {
+    category: "stromomrader",
+    question: "Prisområder for strøm i Norge (2025) – oversikt og kilder",
+    answer: `### Prisområden för el i Norge (2025)
+
+Norge är indelat i fem huvudsakliga prisområden (NO1–NO5). Gränserna styrs av NVE/Statnett och ändras sällan. En komplett officiell CSV med alla postnummer och zon publiceras inte som öppen lista, men kan härledas via Bring.no postnummer och NVE/Elhub‑källor.
+
+#### Översikt
+| Prisområde | Region/Område | Exempelkommuner | Exempelpostnr |
+|---|---|---|---|
+| NO1 – Øst‑Norge | Oslo/Østlandet | Oslo, Akershus, Østfold, Vestfold og Telemark (delar), Innlandet (delar), Viken (delar) | 0010, 2000, 1600 |
+| NO2 – Sør‑Norge | Sørlandet | Agder (Aust/Vest), delar av Vestfold og Telemark | 4600, 4800, 4880 |
+| NO3 – Midt‑Norge | Midt‑Norge | Trøndelag, Møre og Romsdal | 7000, 6000, 7600 |
+| NO4 – Nord‑Norge | Nord‑Norge | Nordland, Troms og Finnmark | 8000, 9000, 9700 |
+| NO5 – Vest‑Norge | Vestlandet | Rogaland, Vestland (Hordaland + Sogn og Fjordane), delar av Viken/Innlandet | 4000, 5000, 6800 |
+
+#### Hur du får en fullständig lista
+1. Ladda ner postnummerregister från Bring.no
+2. Korsreferera mot NVE kart (Elspot‑lager) eller Elhub
+3. Uppdatera löpande (kolla Statnett tariffbok 2025)
+
+Källor: NVE, Statnett, Elhub, Nord Pool.`,
+    keywords: ["NO1", "NO2", "NO3", "NO4", "NO5", "prisområden", "stromomrader", "NVE", "Statnett", "Elhub", "postnummer"],
+    lastUpdated: "2025-09-29"
+  },
+  {
     category: "stromavtale",
     question: "Hva skal jeg velge – Fastpris eller Spotpris?",
     answer: "**Fastpris**: Forutsigbart gjennom hele perioden, bra om du vil unngå prissjokk. **Spotpris**: Følger markedet, historisk billigere over tid men kan variere. Tenk: Tror du strømprisene blir billigere eller dyrere fremover?",
