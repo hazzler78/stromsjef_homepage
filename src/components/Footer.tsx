@@ -3,7 +3,9 @@
 import styled from 'styled-components';
 import Link from 'next/link';
 import { withDefaultCtaUtm } from '@/lib/utm';
-import { FaEnvelope, FaFacebook, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FaEnvelope, FaFacebook, FaInstagram } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
+import { SiTiktok } from 'react-icons/si';
 
 const FooterWrapper = styled.div`
   background: var(--gray-700);
@@ -103,14 +105,17 @@ export default function Footer() {
               </p>
             </ContactInfo>
             <SocialLinks>
-              <Link href="https://www.facebook.com/profile.php?id=61575315383990">
+              <Link href="https://www.facebook.com/profile.php?id=100070591942605">
                 <FaFacebook />
               </Link>
-              <Link href="https://instagram.com/elchef">
+              <Link href="https://www.instagram.com/stromsjef.no/?igsh=MWY2ZXV2cWRhdHY1ZQ%3D%3D#">
                 <FaInstagram />
               </Link>
-              <Link href="https://linkedin.com/company/elchef">
-                <FaLinkedin />
+              <Link href="https://x.com/Stromsjef">
+                <FaXTwitter />
+              </Link>
+              <Link href="https://www.tiktok.com/@stromsjef?_t=ZN-908TsuC1jJG&_r=1">
+                <SiTiktok />
               </Link>
             </SocialLinks>
           </FooterColumn>
