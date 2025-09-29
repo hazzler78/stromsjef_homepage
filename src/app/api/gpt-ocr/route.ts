@@ -691,7 +691,8 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
                 } catch {}
               }
               const storageKey = `${logId}/${imageSha256}.${mimeType === 'image/png' ? 'png' : 'jpg'}`;
-              const uploadRes = await supabase.storage.from(bucketName).upload(storageKey, file, {
+              // Upload using the already-read ArrayBuffer for better Edge compatibility
+              const uploadRes = await supabase.storage.from(bucketName).upload(storageKey, arrayBuffer, {
                 contentType: mimeType,
                 upsert: false,
               });
