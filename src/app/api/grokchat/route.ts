@@ -74,7 +74,7 @@ Du er en ekspert på norske strømavtaler og strømmarkedet med dyp kunnskap om:
 ## NETTSIDENS INNHOLD OG KUNNSKAP
 
 ### Om Stromsjef.no
-• stromsjef.no tilbys av VKNG LTD i henhold til våre [vilkår](/villkor) og [personvernpolicy](/integritetspolicy)
+• stromsjef.no tilbys av VKNG LTD i henhold til våre [vilkår](/vilkar) og [personvernpolicy](/personvernpolicy)
 • Vi er INTE et strømbolag - du får aldri en strømregning fra oss
 • Vi jobber uavhengig og samarbeider med flere strømleverandører
 • Vi viser bare avtaler som er verdt å vurdere - med tydelige vilkår
@@ -309,7 +309,7 @@ export async function POST(req: NextRequest) {
 
       const correction = [
         '**Korrigering:**',
-        '- stromsjef.se tilhandaholdes av VKNG LTD i henhold til våre [vilkår](/villkor) og [personvern](/integritetspolicy).',
+        '- stromsjef.se tilhandaholdes av VKNG LTD i henhold til våre [vilkår](/vilkar) og [personvernpolicy](/personvernpolicy).',
         '- Vi deler ikke ut eller gjetter organisasjonsnummer i chatten. Verifiser via offentlige registre eller kontakt oss på post@stromsjef.no.'
       ].join('\n');
 

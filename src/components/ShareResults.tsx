@@ -38,10 +38,10 @@ export default function ShareResults({ analysisResult, savingsAmount, logId, onS
     const baseText = `💡 AI-analyse av min strømregning viser at jeg betaler ${detectedSavings > 0 ? `${detectedSavings.toLocaleString('nb-NO')} kr/år` : 'flere hundre kroner/år'} i unødvendige avgifter!`;
     
     const platformTexts = {
-      facebook: `${baseText}\n\n🔍 Test selv på stromsjef.se/jamfor-elpriser\n\n#Strømbesparing #AI #Strømsjef`,
-      instagram: `${baseText}\n\n🔍 Test selv på stromsjef.se/jamfor-elpriser\n\n#Strømbesparing #AI #Strømsjef #Energi`,
-      linkedin: `${baseText}\n\nSom energirådgiver ser jeg mange kunder som betaler unødige avgifter på strømregningen. Dette AI‑verktøyet fra Strømsjef hjelper deg å identifisere skjulte kostnader.\n\n🔍 Test selv: stromsjef.se/jamfor-elpriser\n\n#Energisparing #AI #Strømsjef #Bærekraft`,
-      twitter: `${baseText}\n\n🔍 Test selv: stromsjef.se/jamfor-elpriser\n\n#Strømbesparing #AI #Strømsjef`
+      facebook: `${baseText}\n\n🔍 Test selv på stromsjef.no/jamfor-elpriser\n\n#Strømbesparing #AI #Strømsjef`,
+      instagram: `${baseText}\n\n🔍 Test selv på stromsjef.no/jamfor-elpriser\n\n#Strømbesparing #AI #Strømsjef #Energi`,
+      linkedin: `${baseText}\n\nSom energirådgiver ser jeg mange kunder som betaler unødige avgifter på strømregningen. Dette AI‑verktøyet fra Strømsjef hjelper deg å identifisere skjulte kostnader.\n\n🔍 Test selv: stromsjef.no/jamfor-elpriser\n\n#Energisparing #AI #Strømsjef #Bærekraft`,
+      twitter: `${baseText}\n\n🔍 Test selv: stromsjef.no/jamfor-elpriser\n\n#Strømbesparing #AI #Strømsjef`
     };
 
     return platformTexts[platform];
@@ -52,8 +52,8 @@ export default function ShareResults({ analysisResult, savingsAmount, logId, onS
     const encodedText = encodeURIComponent(text);
     // Generer unik delingslenke basert på logId
     const shareUrl = logId 
-      ? `https://stromsjef.se/delad-kalkyl?id=${logId}`
-      : 'https://stromsjef.se/jamfor-elpriser';
+      ? `https://stromsjef.no/delt-kalkulator?id=${logId}`
+      : 'https://stromsjef.no/jamfor-elpriser';
     const url = encodeURIComponent(shareUrl);
     
     const urls = {
@@ -99,8 +99,8 @@ export default function ShareResults({ analysisResult, savingsAmount, logId, onS
     } else if (platform === 'facebook') {
       // Facebook - kopiera text och öppna
       const shareUrl = logId 
-        ? `https://elchef.se/delad-kalkyl?id=${logId}`
-        : 'https://elchef.se/jamfor-elpriser';
+        ? `https://stromsjef.no/delt-kalkulator?id=${logId}`
+        : 'https://stromsjef.no/jamfor-elpriser';
       
       navigator.clipboard.writeText(text);
       // Använd den enkla sharer.php metoden (fungerar utan App Domains)
@@ -192,8 +192,8 @@ export default function ShareResults({ analysisResult, savingsAmount, logId, onS
               onClick={() => {
                 const text = generateShareText('facebook');
                 const shareUrl = logId 
-                  ? `https://elchef.se/delad-kalkyl?id=${logId}`
-                  : 'https://elchef.se/jamfor-elpriser';
+                  ? `https://stromsjef.no/delt-kalkulator?id=${logId}`
+                  : 'https://stromsjef.no/jamfor-elpriser';
                 
                 // Kopiera texten automatiskt
                 navigator.clipboard.writeText(text);

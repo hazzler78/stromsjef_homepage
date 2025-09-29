@@ -128,7 +128,7 @@ export default function Footer() {
             <h3>Informasjon</h3>
             <ul>
               <li><Link href={withDefaultCtaUtm('/om-oss', 'footer', 'info-om-oss')}>Om oss</Link></li>
-              <li><Link href={withDefaultCtaUtm('/vanliga-fragor', 'footer', 'info-faq')}>Vanlige spørsmål</Link></li>
+              <li><Link href={withDefaultCtaUtm('/vanlige-sporsmal', 'footer', 'info-faq')}>Vanlige spørsmål</Link></li>
               <li><Link href={withDefaultCtaUtm('/kontakt', 'footer', 'info-kontakt')}>Kontakt</Link></li>
               <li><Link href={withDefaultCtaUtm('/media', 'footer', 'info-media')}>Media</Link></li>
               <li><Link href={withDefaultCtaUtm('/partner', 'footer', 'info-partner')}>Partner</Link></li>
@@ -138,8 +138,8 @@ export default function Footer() {
           <FooterColumn>
             <h3>Juridisk</h3>
             <ul>
-              <li><Link href={withDefaultCtaUtm('/villkor', 'footer', 'legal-villkor')}>Bruksvilkår</Link></li>
-              <li><Link href={withDefaultCtaUtm('/integritetspolicy', 'footer', 'legal-integritet')}>Personvernpolicy</Link></li>
+              <li><Link href={withDefaultCtaUtm('/vilkar', 'footer', 'legal-villkor')}>Bruksvilkår</Link></li>
+              <li><Link href={withDefaultCtaUtm('/personvernpolicy', 'footer', 'legal-integritet')}>Personvernpolicy</Link></li>
               <li><Link href={withDefaultCtaUtm('/cookies', 'footer', 'legal-cookies')}>Cookies</Link></li>
               <li><Link href={withDefaultCtaUtm('/gdpr', 'footer', 'legal-gdpr')}>GDPR</Link></li>
             </ul>
@@ -147,7 +147,7 @@ export default function Footer() {
         </FooterGrid>
 
         <BottomBar>
-          <p>© 2025 Strømsjef.se. Alle rettigheter forbeholdt.</p>
+          <p>© 2025 Strømsjef.no. Alle rettigheter forbeholdt.</p>
         </BottomBar>
       </div>
     </FooterWrapper>

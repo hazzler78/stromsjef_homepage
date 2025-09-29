@@ -29,71 +29,71 @@ export interface ProviderInfo {
 // Vanliga frågor och svar
 export const faqKnowledge: KnowledgeItem[] = [
   {
-    category: "elavtal",
-    question: "Hur hittar jag bra elavtal?",
-    answer: "Registrera din e-post i formuläret i foten av sidan för att få tidiga erbjudanden innan de blir fullbokade.",
-    keywords: ["hitta", "bra", "erbjudanden", "registrera", "e-post"],
-    lastUpdated: "2025-01-20"
+    category: "stromavtale",
+    question: "Hvordan finner jeg gode strømavtaler?",
+    answer: "Registrer e‑posten din i skjemaet i foten, så får du tidlige tilbud før de blir fullbooket.",
+    keywords: ["finn", "gode", "tilbud", "registrer", "e-post"],
+    lastUpdated: "2025-09-29"
   },
   {
-    category: "elavtal",
-    question: "Vad ska jag välja - Fastpris eller Rörligt?",
-    answer: "**Fastpris**: Förutsägbart under hela avtalsperioden, bra om du vill undvika prisschocker. **Rörligt**: Följer marknaden, historiskt billigare över tid men kan variera. Fundera: Tror du elpriserna blir billigare eller dyrare framöver?",
-    keywords: ["fastpris", "rorligt", "val", "prisschocker", "marknad"],
-    lastUpdated: "2025-01-20"
+    category: "stromavtale",
+    question: "Hva skal jeg velge – Fastpris eller Spotpris?",
+    answer: "**Fastpris**: Forutsigbart gjennom hele perioden, bra om du vil unngå prissjokk. **Spotpris**: Følger markedet, historisk billigere over tid men kan variere. Tenk: Tror du strømprisene blir billigere eller dyrere fremover?",
+    keywords: ["fastpris", "spotpris", "valg", "prissjokk", "marked"],
+    lastUpdated: "2025-09-29"
   },
   {
-    category: "byte",
-    question: "Måste jag säga upp mitt gamla elavtal om jag byter leverantör?",
-    answer: "Nej, du behöver oftast inte säga upp ditt gamla elavtal själv. När du byter elleverantör hanterar den nya leverantören vanligtvis bytet åt dig, inklusive uppsägningen av ditt tidigare avtal.",
-    keywords: ["uppsaga", "gamla", "avtal", "byte", "leverantör"],
-    lastUpdated: "2025-01-20"
+    category: "bytte",
+    question: "Må jeg si opp min gamle strømavtale når jeg bytter?",
+    answer: "Nei, som regel trenger du ikke si opp selv. Når du bytter strømleverandør, håndterer den nye leverandøren byttet for deg, inkludert oppsigelsen.",
+    keywords: ["oppsigelse", "gammelt", "avtale", "bytte", "leverandør"],
+    lastUpdated: "2025-09-29"
   },
   {
     category: "avgifter",
-    question: "Är det någon avgift för att säga upp ett elavtal?",
-    answer: "Rörliga elavtal kan oftast sägas upp utan avgift och har normalt en uppsägningstid på en månad. Fastprisavtal däremot har en bindingstid, och om du vill avsluta avtalet i förtid kan det tillkomma en brytavgift (även kallad lösenavgift).",
-    keywords: ["avgift", "uppsaga", "brytavgift", "lösenavgift", "bindingstid"],
-    lastUpdated: "2025-01-20"
+    question: "Er det noen avgift ved oppsigelse av strømavtale?",
+    answer: "Spotpris‑avtaler kan som oftest sies opp uten avgift og har normalt 1 måneds oppsigelsestid. Fastprisavtaler har gjerne bindingstid, og ved oppsigelse før tiden kan det komme et bruddgebyr (løsningsavgift).",
+    keywords: ["avgift", "oppsigelse", "bruddgebyr", "løsningsavgift", "bindingstid"],
+    lastUpdated: "2025-09-29"
   },
   {
-    category: "elomraden",
-    question: "Vilket Elområde/Elzon tillhör jag?",
-    answer: "Sverige är indelat i fyra elområden: **SE1** - Norra Sverige, **SE2** - Norra Mellansverige, **SE3** - Södra Mellansverige, **SE4** - Södra Sverige. Vilket elområde du tillhör beror på var du bor och påverkar elpriset i din region.",
-    keywords: ["elområde", "elzon", "SE1", "SE2", "SE3", "SE4", "region"],
-    lastUpdated: "2025-01-20"
+    category: "stromomrader",
+    question: "Hvilket strømområde tilhører jeg?",
+    answer: "Norge er inndelt i fem strømområder: **NO1** Øst‑Norge, **NO2** Sør‑Norge, **NO3** Midt‑Norge, **NO4** Nord‑Norge, **NO5** Vest‑Norge. Området du tilhører påvirker strømprisen i din region.",
+    keywords: ["strømområde", "NO1", "NO2", "NO3", "NO4", "NO5", "region"],
+    lastUpdated: "2025-09-29"
   },
   {
-    category: "angerratt",
-    question: "Kan jag ångra mitt elavtal?",
-    answer: "Ja, enligt distansavtalslagen har du ångerrätt i 14 dagar när du tecknar ett avtal på distans. Det innebär att du kan ångra avtalet utan kostnad inom denna period. Undantag: betald förbrukad el under ångerperioden.",
-    keywords: ["ångra", "avtal", "14 dagar", "distansavtalslagen", "kostnad"],
-    lastUpdated: "2025-01-20"
+    category: "angrerett",
+    question: "Kan jeg angre strømavtalen?",
+    answer: "Ja, du har 14 dagers angrerett ved avtale inngått på nett. Det betyr at du kan angre uten kostnad i denne perioden. Unntak: betalt forbrukt strøm under angreperioden.",
+    keywords: ["angrerett", "avtale", "14 dager", "netthandel", "kostnad"],
+    lastUpdated: "2025-09-29"
   }
 ];
 
 // Aktuella kampanjer
 export const activeCampaigns: CampaignInfo[] = [
   {
-    id: "rorligt-2025",
-    title: "Rörligt avtal - 0 kr i avgifter",
-    description: "0 kr i avgifter första året – utan bindingstid",
+    id: "spot-2025",
+    title: "Spotpris – 0 kr i avgifter",
+    description: "0 kr i avgifter første året – uten bindingstid",
     validFrom: "2025-01-01",
     validTo: "2025-12-31",
     active: true
   },
   {
     id: "fastpris-2025",
-    title: "Fastprisavtal med prisgaranti",
-    description: "Prisgaranti med valfri bindingstid (1-3 år)",
+    title: "Fastpris med prisgaranti",
+    description: "Prisgaranti med valgfri bindingstid (1–3 år)",
     validFrom: "2025-01-01",
     validTo: "2025-12-31",
     active: true
   },
   {
-    id: "foretag-2025",
-    title: "Företagsavtal via Energi2.se",
-    description: "Särskilda företagsavtal för företag",
+    id: "bedrift-2025",
+    title: "Bedriftsavtaler via Energi2",
+    description: "Spesielle bedriftsavtaler for bedrifter",
     validFrom: "2025-01-01",
     validTo: "2025-12-31",
     active: true
@@ -103,24 +103,45 @@ export const activeCampaigns: CampaignInfo[] = [
 // Leverantörsinformation
 export const providers: ProviderInfo[] = [
   {
-    name: "Cheap Energy",
-    type: "rorligt",
-    features: ["0 kr månadsavgift", "0 öre påslag", "Ingen bindingstid"],
-    url: "https://www.cheapenergy.se/elchef-rorligt/",
-    active: true
-  },
-  {
-    name: "Svealands Elbolag",
+    name: "Kilden Kraft – Fastpris 1 år",
     type: "fastpris",
-    features: ["Prisgaranti", "Valfri bindingstid", "Inga dolda avgifter"],
-    url: "https://www.svealandselbolag.se/elchef-fastpris/",
+    features: ["Fastpris 1 år", "Forutsigbarhet", "Ingen skjulte avgifter"],
+    url: "https://kildenkraft.no/bedrift/fastpris-1-ar/?utm_source=stromsjef.no",
     active: true
   },
   {
-    name: "Energi2.se",
-    type: "foretag",
-    features: ["Företagsavtal", "Skräddarsydda lösningar", "Volymrabatter"],
-    url: "https://energi2.se/elchef/",
+    name: "Kilden Kraft – Fastpris 3 år",
+    type: "fastpris",
+    features: ["Fastpris 3 år", "Prisgaranti", "Stabilitet"],
+    url: "https://kildenkraft.no/bedrift/fastpris-3-ar/?utm_source=stromsjef.no",
+    active: true
+  },
+  {
+    name: "Kilden Kraft – Fastpris 5 år",
+    type: "fastpris",
+    features: ["Fastpris 5 år", "Langsiktig", "Forutsigbart"],
+    url: "https://kildenkraft.no/bedrift/fastpris-5-ar/?utm_source=stromsjef.no",
+    active: true
+  },
+  {
+    name: "Bærum Energi",
+    type: "rorligt",
+    features: ["Spotpris", "Enkel oppstart", "Konkurransedyktige vilkår"],
+    url: "https://baerumenergi.no/?utm_source=stromsjef.no",
+    active: true
+  },
+  {
+    name: "Cheap Energy Norge",
+    type: "rorligt",
+    features: ["Spotpris", "0 kr månedsavgift (kampanjer)", "Enkel bytteprosess"],
+    url: "https://cheapenergy.no/?utm_source=stromsjef.no",
+    active: true
+  },
+  {
+    name: "VStrøm – RenSpot",
+    type: "rorligt",
+    features: ["Spotpris RenSpot", "Ingen bindingstid", "Lave påslag"],
+    url: "https://www.vstrom.no/renspot?utm_source=stromsjef&utm_medium=cpc&utm_campaign=renspot",
     active: true
   }
 ];
@@ -128,50 +149,50 @@ export const providers: ProviderInfo[] = [
 // Bytprocessinformation
 export const bytProcess = {
   steps: [
-    "Fyll i formuläret med dina uppgifter",
-    "Välj avtalstyp (rörligt eller fastpris)",
-    "Vi fixar uppsägningen hos ditt gamla elbolag",
-    "Klart på 14 dagar",
-    "Inga avgifter - helt gratis"
+    "Fyll inn skjemaet med dine opplysninger",
+    "Velg avtaletype (spotpris eller fastpris)",
+    "Vi fikser oppsigelsen hos din gamle leverandør",
+    "Klart på 14 dager",
+    "Ingen avgifter – helt gratis"
   ],
   features: [
-    "Helt digitalt - inga papper eller samtal",
-    "Vi hanterar allt åt dig",
-    "Ångerrätt i 14 dagar",
-    "Inga dolda kostnader"
+    "Helt digitalt – ingen papirer eller samtaler",
+    "Vi håndterer alt for deg",
+    "Angrerett i 14 dager",
+    "Ingen skjulte kostnader"
   ],
-  timeFrame: "14 dagar"
+  timeFrame: "14 dager"
 };
 
 // Vädrets påverkan på elpriset
 export const weatherImpact = {
   lowerPrices: [
-    { factor: "Regn", reason: "Fyller vattenmagasin i norr – billig vattenkraft" },
-    { factor: "Vind", reason: "Mycket vindkraftproduktion pressar priset" },
-    { factor: "Värme", reason: "Mindre efterfrågan på uppvärmning" }
+    { factor: "Regn", reason: "Fyller vannmagasin – billig vannkraft" },
+    { factor: "Vind", reason: "Mye vindkraftproduksjon presser prisen" },
+    { factor: "Varme", reason: "Mindre etterspørsel etter oppvarming" }
   ],
   higherPrices: [
-    { factor: "Torka eller vindstilla", reason: "Mindre billig el – vi importerar dyrare el" }
+    { factor: "Tørke eller vindstille", reason: "Mindre billig kraft – mer import" }
   ]
 };
 
 // Sommartips
 export const summerTips = {
-  title: "Sommaren är perfekt för att säkra ett bra elavtal",
+  title: "Sommeren er perfekt for å sikre en god strømavtale",
   reasons: [
-    "Många vill låsa in låga sommarpriser inför hösten",
-    "Hos oss elchef.se får du rörligt pris utan påslag – bara marknadspriset",
-    "Vi visar även fasta elavtal för dig som vill slippa prisschocker"
+    "Mange vil låse inn lave sommerpriser før høsten",
+    "Hos oss får du spotpris uten påslag – kun markedsprisen",
+    "Vi viser også faste avtaler for deg som vil unngå prissjokk"
   ]
 };
 
 // Hemsidans grundinformation
 export const companyInfo = {
-  name: "Elchef.se",
+  name: "Strømsjef.no",
   company: "VKNG LTD",
-  experience: "30+ års erfarenhet från branschen",
-  description: "Vi är INTE ett elbolag - du får aldrig en elräkning från oss. Vi jobbar oberoende och samarbetar med flera elleverantörer för att lyfta fram kampanjer och rabatter som faktiskt gör skillnad.",
-  mission: "Ge dig kontrollen tillbaka. Du ska slippa lägga timmar på att leta själv. Vi visar bara fram avtal som är värda att överväga – med tydliga villkor och priser du faktiskt förstår."
+  experience: "30+ års erfaring fra bransjen",
+  description: "Vi er IKKE et strømselskap – du får aldri en strømregning fra oss. Vi jobber uavhengig og samarbeider med flere leverandører for å løfte frem kampanjer og rabatter som faktisk gjør en forskjell.",
+  mission: "Gi deg kontrollen tilbake. Du skal slippe å bruke timer på å lete selv. Vi viser kun avtaler som er verdt å vurdere – med tydelige vilkår og priser du faktisk forstår."
 };
 
 // Funktion för att hämta relevant kunskap baserat på fråga
@@ -207,10 +228,10 @@ export function generateKnowledgeSummary(): string {
   const rorligtProviders = getProvidersByType('rorligt');
   const fastprisProviders = getProvidersByType('fastpris');
   
-  let summary = `## Aktuella erbjudanden (${new Date().toLocaleDateString('sv-SE')})\n\n`;
+  let summary = `## Aktuelle tilbud (${new Date().toLocaleDateString('nb-NO')})\n\n`;
   
   if (activeCampaigns.length > 0) {
-    summary += "**Aktiva kampanjer:**\n";
+    summary += "**Aktive kampanjer:**\n";
     activeCampaigns.forEach(campaign => {
       summary += `• ${campaign.title}: ${campaign.description}\n`;
     });
@@ -218,7 +239,7 @@ export function generateKnowledgeSummary(): string {
   }
   
   if (rorligtProviders.length > 0) {
-    summary += "**Rörliga avtal:**\n";
+    summary += "**Spotpris‑avtaler:**\n";
     rorligtProviders.forEach(provider => {
       summary += `• ${provider.name}: ${provider.features.join(', ')}\n`;
     });
@@ -226,15 +247,15 @@ export function generateKnowledgeSummary(): string {
   }
   
   if (fastprisProviders.length > 0) {
-    summary += "**Fastprisavtal:**\n";
+    summary += "**Fastprisavtaler:**\n";
     fastprisProviders.forEach(provider => {
       summary += `• ${provider.name}: ${provider.features.join(', ')}\n`;
     });
     summary += "\n";
   }
   
-  summary += `**Bytprocess:** ${bytProcess.timeFrame}, ${bytProcess.features.join(', ')}\n`;
-  summary += `**Företag:** ${companyInfo.description}`;
+  summary += `**Bytteprosess:** ${bytProcess.timeFrame}, ${bytProcess.features.join(', ')}\n`;
+  summary += `**Selskap:** ${companyInfo.description}`;
   
   return summary;
 }
