@@ -53,6 +53,8 @@ const Scroller = styled.div`
   scroll-behavior: smooth; /* for programmatic scrolls */
   -webkit-overflow-scrolling: touch; /* iOS inertial scrolling */
   will-change: scroll-position;
+  overscroll-behavior-x: contain; /* avoid parent scroll chaining */
+  contain: content; /* isolate layout/paint for smoother scrolling */
   touch-action: pan-x;
   backface-visibility: hidden;
   perspective: 1000px;
@@ -61,9 +63,12 @@ const Scroller = styled.div`
   scrollbar-width: none; /* Firefox */
   &::-webkit-scrollbar { display: none; }
 
-  /* Tighter spacing on small screens */
+  /* Tighter spacing on medium and small screens */
+  @media (max-width: 1024px) {
+    gap: 1rem;
+  }
   @media (max-width: 640px) {
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 `;
 
@@ -71,17 +76,24 @@ const Slide = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 25%;
+  /* Larger cards on desktop: 3 per view */
+  flex: 0 0 33.3333%;
   height: 100%;
-  padding: 0.25rem 0.5rem;
+  padding: 0 0.25rem;
 
-  /* 3 cards on small tablets */
+  /* 2 cards on small tablets */
   @media (max-width: 1024px) {
-    flex-basis: 33.3333%;
-    min-width: 33.3333%;
+    flex-basis: 50%;
+    min-width: 50%;
   }
 
-  /* 2 cards on phones for larger visuals */
+  /* 1 card on small phones for maximum size */
+  @media (max-width: 480px) {
+    flex-basis: 100%;
+    min-width: 100%;
+  }
+
+  /* 2 cards on typical phones */
   @media (max-width: 640px) {
     flex-basis: 50%;
     min-width: 50%;
@@ -93,7 +105,8 @@ const Slide = styled.div`
     max-height: 100%;
     object-fit: contain;
     display: block;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+    /* Removing heavy filters during scroll to reduce paint cost */
+    /* filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15)); */
   }
 `;
 
@@ -111,6 +124,8 @@ export default function TrustpilotCarousel({
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const dragStartX = useRef<number>(0);
   const startScrollLeft = useRef<number>(0);
+  const wheelAccum = useRef<number>(0);
+  const wheelRaf = useRef<number | null>(null);
 
   // Mouse drag-to-scroll
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -139,9 +154,18 @@ export default function TrustpilotCarousel({
     const el = scrollerRef.current;
     if (!el) return;
     const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-    if (delta === 0) return;
+    if (Math.abs(delta) < 0.5) return;
     e.preventDefault();
-    el.scrollLeft += delta;
+    wheelAccum.current += delta;
+    if (!wheelRaf.current) {
+      wheelRaf.current = requestAnimationFrame(() => {
+        if (scrollerRef.current) {
+          scrollerRef.current.scrollLeft += wheelAccum.current;
+        }
+        wheelAccum.current = 0;
+        wheelRaf.current = null;
+      });
+    }
   };
 
   return (
