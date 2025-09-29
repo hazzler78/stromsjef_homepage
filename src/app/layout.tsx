@@ -37,10 +37,10 @@ export const metadata: Metadata = {
     description: 'Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis. Vi håndterer hele byttet for deg - raskt og enkelt.',
     images: [
       {
-        url: 'https://stromsjef.no/og-image.png',
+        url: 'https://stromsjef.no/cheap-logo.png',
         width: 1200,
         height: 630,
-        alt: 'Strømsjef - Sammenlign strømpriser',
+        alt: 'Strømsjef - logo',
       },
     ],
   },
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Strømsjef – Sammenlign og bytt strømavtale enkelt',
     description: 'Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis.',
-    images: ['https://stromsjef.no/og-image.png'],
+    images: ['https://stromsjef.no/cheap-logo.png'],
   },
   alternates: {
     canonical: 'https://stromsjef.no',
@@ -64,14 +64,18 @@ export default function RootLayout({
     <html lang="no">
       <head>
         <Script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="adbd0838-8684-44d4-951e-f4eddcb600cc" data-blockingmode="auto" strategy="beforeInteractive" />
+        {/* Primary favicon (SVG) */}
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        {/* Fallbacks for wider browser support */}
+        <link rel="icon" sizes="any" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/cheap-logo.png" />
         <script type="application/ld+json" suppressHydrationWarning>{`
           {
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "Strømsjef",
             "url": "https://stromsjef.no",
-            "logo": "https://stromsjef.no/og-image.png",
+            "logo": "https://stromsjef.no/cheap-logo.png",
             "description": "Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis.",
             "contactPoint": [{
               "@type": "ContactPoint",
@@ -81,8 +85,10 @@ export default function RootLayout({
               "availableLanguage": ["Norwegian", "English"]
             }],
             "sameAs": [
-              "https://www.facebook.com/stromsjef.se",
-              "https://www.instagram.com/stromsjef.se/"
+              "https://www.facebook.com/profile.php?id=100070591942605",
+              "https://www.instagram.com/stromsjef.no/",
+              "https://x.com/Stromsjef",
+              "https://www.tiktok.com/@stromsjef"
             ],
             "service": {
               "@type": "Service",
