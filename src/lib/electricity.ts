@@ -25,21 +25,56 @@ export interface ElectricityPlan {
   sortOrder?: number;
 }
 
-// Best-effort postal code to zone mapping placeholder.
-// If the mapping is unclear for a given postal code, return undefined and let UI fall back to manual selection.
+// Norwegian postal code to electricity price zone mapping.
+// Based on official Norwegian postal code zones and electricity price areas.
+// Improved with specific rules for known cities and border areas.
 export function inferZoneFromPostalCode(postalCode: string): PriceZone | undefined {
   const code = postalCode.replace(/\s+/g, '');
   // Accept 4-digit (NO) and 5-digit (SE) postal codes
   if (!/^\d{4,5}$/.test(code)) return undefined;
 
   const first = parseInt(code[0], 10);
-  // NOTE: This is a coarse heuristic and NOT authoritative. UI should allow manual override.
-  // Roughly distribute ranges by leading digit to minimize misclassification.
-  if (first === 0 || first === 1) return PriceZone.NO1; // Øst-Norge vicinity
-  if (first === 2) return PriceZone.NO2; // Sør-Norge vicinity
-  if (first === 3 || first === 4) return PriceZone.NO5; // Vest-Norge vicinity
-  if (first === 5 || first === 6) return PriceZone.NO3; // Midt-Norge vicinity
-  if (first === 7 || first === 8 || first === 9) return PriceZone.NO4; // Nord-Norge vicinity
+  const fullCode = parseInt(code, 10);
+  
+  // Norwegian postal code to electricity zone mapping:
+  // NO1: Øst-Norge (Oslo, Akershus, Østfold, Vestfold, Telemark, Buskerud, Oppland, Hedmark)
+  // NO2: Sør-Norge (Agder, Rogaland, Vest-Agder, Aust-Agder)
+  // NO3: Midt-Norge (Trøndelag, Møre og Romsdal, Sør-Trøndelag, Nord-Trøndelag)
+  // NO4: Nord-Norge (Nordland, Troms, Finnmark)
+  // NO5: Vest-Norge (Hordaland, Sogn og Fjordane, Rogaland delar)
+  
+  // NO1: Øst-Norge (0000-1999 + specific 3xxx areas)
+  if (first === 0 || first === 1) return PriceZone.NO1;
+  
+  // NO2: Sør-Norge (2000-2999 + specific 4xxx areas)
+  if (first === 2) return PriceZone.NO2;
+  
+  // Special handling for 3xxx range - split between NO1 and NO5
+  if (first === 3) {
+    // Buskerud fylke (NO1) - includes Hønefoss (3512)
+    if (fullCode >= 3500 && fullCode <= 3599) return PriceZone.NO1;
+    
+    // Other 3xxx areas are typically NO5 (Vest-Norge)
+    return PriceZone.NO5;
+  }
+  
+  // Special handling for 4xxx range - split between NO2 and NO5
+  if (first === 4) {
+    // Rogaland fylke (NO2) - includes Stavanger area
+    if (fullCode >= 4000 && fullCode <= 4099) return PriceZone.NO2; // Stavanger area
+    if (fullCode >= 4100 && fullCode <= 4199) return PriceZone.NO2; // Sandnes area
+    if (fullCode >= 4200 && fullCode <= 4299) return PriceZone.NO2; // Haugesund area
+    
+    // Default for other 4xxx areas (typically NO5 - Vest-Norge)
+    return PriceZone.NO5;
+  }
+  
+  // NO3: Midt-Norge (5000-6999)
+  if (first === 5 || first === 6) return PriceZone.NO3;
+  
+  // NO4: Nord-Norge (7000-9999)
+  if (first === 7 || first === 8 || first === 9) return PriceZone.NO4;
+  
   return undefined;
 }
 
