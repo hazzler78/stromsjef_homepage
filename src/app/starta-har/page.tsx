@@ -152,7 +152,6 @@ export default function StartaHar() {
       .from('electricity_plans')
       .select('*')
       .in('price_zone', [z, PriceZone.ALL])
-      .order('binding_time', { ascending: true })
       .then(({ data, error }: { data: DbPlanRow[] | null; error: unknown }) => {
         if (error) {
           const msg = (error as { message?: string })?.message || 'Unknown error';
@@ -181,11 +180,17 @@ export default function StartaHar() {
         // Sort by binding time (lowest to highest), then by price (lowest to highest)
         setPlans(mapped.sort((a, b) => {
           // First sort by binding time
-          if (a.bindingTime !== b.bindingTime) {
-            return a.bindingTime - b.bindingTime;
+          const bindingTimeDiff = a.bindingTime - b.bindingTime;
+          if (bindingTimeDiff !== 0) {
+            return bindingTimeDiff;
           }
           // If binding time is the same, sort by price (lowest first)
-          return a.pricePerKwh - b.pricePerKwh;
+          const priceDiff = a.pricePerKwh - b.pricePerKwh;
+          if (priceDiff !== 0) {
+            return priceDiff;
+          }
+          // If price is also the same, sort by supplier name for consistency
+          return a.supplierName.localeCompare(b.supplierName);
         }));
       })
       .then(() => setLoading(false), (e: unknown) => {
