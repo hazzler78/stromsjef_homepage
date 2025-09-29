@@ -75,7 +75,7 @@ interface MobileChatProps {
   className?: string;
 }
 
-export default function MobileChat({ className = '' }: MobileChatProps) {
+export default function MobileChat({ className }: MobileChatProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -250,7 +250,7 @@ export default function MobileChat({ className = '' }: MobileChatProps) {
 
       {/* Chat Window Overlay */}
       {isOpen && (
-        <div className="mobile-chat-overlay" onClick={toggleChat}>
+        <div className={`mobile-chat-overlay ${className || ''}`} onClick={toggleChat}>
           <div 
             className="mobile-chat-window"
             style={chatWindowStyle}
