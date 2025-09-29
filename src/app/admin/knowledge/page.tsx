@@ -41,6 +41,19 @@ interface CampaignInfo {
   active: boolean;
 }
 
+// Database row type for campaigns (snake_case dates)
+type DbCampaignRow = {
+  id?: number;
+  title: string;
+  description: string;
+  valid_from?: string;
+  valid_to?: string;
+  // Some environments might have camelCase already from legacy data
+  validFrom?: string;
+  validTo?: string;
+  active: boolean;
+};
+
 interface ProviderInfo {
   id?: number;
   name: string;
@@ -132,7 +145,7 @@ export default function AdminKnowledge() {
       
       if (campaignData) {
         // Map DB snake_case to UI camelCase
-        const mappedCampaigns: CampaignInfo[] = (campaignData as any[]).map((c) => ({
+        const mappedCampaigns: CampaignInfo[] = (campaignData as DbCampaignRow[]).map((c) => ({
           id: c.id,
           title: c.title,
           description: c.description,
