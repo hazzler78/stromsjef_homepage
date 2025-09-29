@@ -50,7 +50,8 @@ const Scroller = styled.div`
   height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-behavior: smooth; /* for programmatic scrolls */
+  /* Avoid smooth here to not fight rAF auto-scroll */
+  scroll-behavior: auto;
   -webkit-overflow-scrolling: touch; /* iOS inertial scrolling */
   will-change: scroll-position;
   overscroll-behavior-x: contain; /* avoid parent scroll chaining */
@@ -129,14 +130,17 @@ export default function TrustpilotCarousel({
     let last = performance.now();
     const step = (now: number) => {
       const el = scrollerRef.current;
-      const dt = Math.min(32, now - last);
+      // Cap dt to keep movement consistent and avoid large jumps
+      const dt = Math.min(24, now - last);
       last = now;
       if (el && !isPaused && !isDragging) {
-        const speedPxPerSec = 40; // adjust to taste
-        el.scrollLeft += (speedPxPerSec * dt) / 1000;
+        const speedPxPerSec = 120; // tuned speed
+        const dx = (speedPxPerSec * dt) / 1000;
+        el.scrollLeft += dx;
         const half = el.scrollWidth / 2;
+        // Use modulo-like wrap to prevent visible jump
         if (half > 0 && el.scrollLeft >= half) {
-          el.scrollLeft -= half;
+          el.scrollLeft = el.scrollLeft - half;
         }
       }
       raf = requestAnimationFrame(step);
@@ -157,6 +161,8 @@ export default function TrustpilotCarousel({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || !scrollerRef.current) return;
+    // Stop auto scroll while user interacts to avoid fighting input
+    if (!isPaused) setIsPaused(true);
     const dx = e.clientX - dragStartX.current;
     scrollerRef.current.scrollLeft = startScrollLeft.current - dx;
   };
