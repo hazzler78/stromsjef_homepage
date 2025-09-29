@@ -72,17 +72,14 @@ export async function GET(request: Request) {
       );
     }
 
-    // 1) Get access token via client-credentials
-    const formBody = new URLSearchParams(
-      Object.fromEntries(
-        Object.entries({
-          grant_type: 'client_credentials',
-          client_id: tokenAuthMode === 'form' ? clientId : undefined,
-          client_secret: tokenAuthMode === 'form' ? clientSecret : undefined,
-          scope,
-        }).filter((entry) => entry[1])
-      )
-    );
+    // 1) Get access token via client-credentials (avoid undefined values)
+    const formBody = new URLSearchParams();
+    formBody.set('grant_type', 'client_credentials');
+    if (tokenAuthMode === 'form') {
+      if (clientId) formBody.set('client_id', clientId);
+      if (clientSecret) formBody.set('client_secret', clientSecret);
+    }
+    if (scope) formBody.set('scope', scope);
 
     const basicAuthHeader = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
 
