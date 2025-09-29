@@ -105,7 +105,6 @@ export default function TrustpilotCarousel({
     '/trustpilot/trustpilot-01.png',
   ],
   height = 'clamp(160px, 20vw, 240px)',
-  durationSeconds = 24,
   className,
 }: TrustpilotCarouselProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -133,10 +132,7 @@ export default function TrustpilotCarousel({
     setIsDragging(false);
   };
 
-  // Touch uses native inertial scrolling; no JS needed
-  const handleTouchStart = (_e: React.TouchEvent) => {};
-  const handleTouchMove = (_e: React.TouchEvent) => {};
-  const handleTouchEnd = (_e?: React.TouchEvent) => {};
+  // Touch uses native inertial scrolling; no JS handlers needed
 
   // Map vertical wheel to horizontal scroll on the scroller element
   const handleWheel = (e: React.WheelEvent) => {
@@ -162,9 +158,6 @@ export default function TrustpilotCarousel({
           <Scroller
             ref={scrollerRef}
             onWheel={handleWheel}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
           >
             {images.concat(images).map((src, idx) => (
               <Slide key={`${src}-${idx}`}>
