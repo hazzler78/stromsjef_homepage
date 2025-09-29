@@ -152,6 +152,7 @@ export default function StartaHar() {
       .from('electricity_plans')
       .select('*')
       .in('price_zone', [z, PriceZone.ALL])
+      .order('binding_time', { ascending: true })
       .then(({ data, error }: { data: DbPlanRow[] | null; error: unknown }) => {
         if (error) {
           const msg = (error as { message?: string })?.message || 'Unknown error';
@@ -159,13 +160,25 @@ export default function StartaHar() {
           setPlans([]);
           return;
         }
+        // Helpers to safely parse numeric values from DB (handles strings like "4,40")
+        const parseNumber = (value: unknown, fallback: number): number => {
+          if (typeof value === 'number' && Number.isFinite(value)) return value;
+          if (typeof value === 'string') {
+            const normalized = value.replace(',', '.');
+            const n = Number(normalized);
+            return Number.isFinite(n) ? n : fallback;
+          }
+          return fallback;
+        };
+
         const mapped: ElectricityPlanWithBadge[] = (data || []).map((r: DbPlanRow) => ({
           id: r.id,
           supplierName: r.supplier_name,
           planName: r.plan_name,
-          pricePerKwh: Number(r.price_per_kwh),
-          monthlyFee: Number(r.monthly_fee),
-          bindingTime: Number(r.binding_time),
+          pricePerKwh: parseNumber(r.price_per_kwh, Number.POSITIVE_INFINITY),
+          monthlyFee: parseNumber(r.monthly_fee, 0),
+          // Treat missing binding time as 0 (ingen bindingstid)
+          bindingTime: parseNumber(r.binding_time, 0),
           bindingTimeText: r.binding_time_text || undefined,
           termsGuarantee: r.terms_guarantee || undefined,
           guaranteeDisclaimer: r.guarantee_disclaimer || undefined,
@@ -174,24 +187,44 @@ export default function StartaHar() {
           logoUrl: r.logo_url || undefined,
           affiliateLink: r.affiliate_link || undefined,
           featured: !!r.featured,
-          sortOrder: r.sort_order != null ? Number(r.sort_order) : undefined,
+          // sortOrder intentionally ignored in sorting to prefer price within binding time
           priceBadge: r.price_badge || undefined,
         }));
+        // Debug: Log the data before sorting
+        console.log('Plans before sorting:', mapped.map(p => ({
+          supplier: p.supplierName,
+          plan: p.planName,
+          bindingTime: p.bindingTime,
+          price: p.pricePerKwh,
+          sortOrder: p.sortOrder
+        })));
+        
         // Sort by binding time (lowest to highest), then by price (lowest to highest)
-        setPlans(mapped.sort((a, b) => {
-          // First sort by binding time
-          const bindingTimeDiff = a.bindingTime - b.bindingTime;
-          if (bindingTimeDiff !== 0) {
-            return bindingTimeDiff;
-          }
-          // If binding time is the same, sort by price (lowest first)
-          const priceDiff = a.pricePerKwh - b.pricePerKwh;
-          if (priceDiff !== 0) {
-            return priceDiff;
-          }
-          // If price is also the same, sort by supplier name for consistency
+        const sorted = mapped.sort((a, b) => {
+          // 1) Binding time ASC
+          const aBinding = Number.isFinite(a.bindingTime) ? a.bindingTime : 0;
+          const bBinding = Number.isFinite(b.bindingTime) ? b.bindingTime : 0;
+          if (aBinding !== bBinding) return aBinding - bBinding;
+
+          // 2) Price ASC
+          const aPrice = Number.isFinite(a.pricePerKwh) ? a.pricePerKwh : Number.POSITIVE_INFINITY;
+          const bPrice = Number.isFinite(b.pricePerKwh) ? b.pricePerKwh : Number.POSITIVE_INFINITY;
+          if (aPrice !== bPrice) return aPrice - bPrice;
+
+          // 3) Stable fallback: supplier name
           return a.supplierName.localeCompare(b.supplierName);
-        }));
+        });
+        
+        // Debug: Log the data after sorting
+        console.log('Plans after sorting:', sorted.map(p => ({
+          supplier: p.supplierName,
+          plan: p.planName,
+          bindingTime: p.bindingTime,
+          price: p.pricePerKwh,
+          sortOrder: p.sortOrder
+        })));
+        
+        setPlans(sorted);
       })
       .then(() => setLoading(false), (e: unknown) => {
         setError(String(e));
@@ -262,6 +295,15 @@ export default function StartaHar() {
           {effectiveZone && (
             <div style={{ marginTop: '1rem', color: 'var(--gray-700)' }}>
               Viser avtaler for <strong>{effectiveZone}</strong>{inferred && !zone ? ' (fra postnummer)' : ''} (inkl. Alle soner).
+            </div>
+          )}
+
+          {effectiveZone && (
+            <div style={{ marginTop: '8px', padding: '8px', background: '#f9fafb', border: '1px dashed #e5e7eb', borderRadius: 8, color: '#374151' }}>
+              <div style={{ fontWeight: 700, marginBottom: 4 }}>Debug – topp 6 etter sortering</div>
+              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '12px' }}>
+                {JSON.stringify(plans.slice(0, 6).map(p => ({ bindingTime: p.bindingTime, price: p.pricePerKwh, supplier: p.supplierName, plan: p.planName })), null, 2)}
+              </pre>
             </div>
           )}
 

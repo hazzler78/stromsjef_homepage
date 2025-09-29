@@ -178,6 +178,7 @@ export default function StartHer() {
       .select('*')
       .in('price_zone', [z, PriceZone.ALL])
       .order('binding_time', { ascending: true })
+      .order('price_per_kwh', { ascending: true })
       .then(({ data, error }: { data: DbPlanRow[] | null; error: unknown }) => {
         if (error) {
           const msg = (error as { message?: string })?.message || 'Unknown error';
@@ -185,13 +186,22 @@ export default function StartHer() {
           setPlans([]);
           return;
         }
+        const parseNumber = (value: unknown, fallback: number): number => {
+          if (typeof value === 'number' && Number.isFinite(value)) return value;
+          if (typeof value === 'string') {
+            const n = Number(value.replace(',', '.'));
+            return Number.isFinite(n) ? n : fallback;
+          }
+          return fallback;
+        };
+
         const mapped: ElectricityPlanWithBadge[] = (data || []).map((r: DbPlanRow) => ({
           id: r.id,
           supplierName: r.supplier_name,
           planName: r.plan_name,
-          pricePerKwh: Number(r.price_per_kwh),
-          monthlyFee: Number(r.monthly_fee),
-          bindingTime: Number(r.binding_time),
+          pricePerKwh: parseNumber(r.price_per_kwh, Number.POSITIVE_INFINITY),
+          monthlyFee: parseNumber(r.monthly_fee, 0),
+          bindingTime: parseNumber(r.binding_time, 0),
           bindingTimeText: r.binding_time_text || undefined,
           termsGuarantee: r.terms_guarantee || undefined,
           guaranteeDisclaimer: r.guarantee_disclaimer || undefined,
@@ -203,8 +213,15 @@ export default function StartHer() {
           sortOrder: r.sort_order != null ? Number(r.sort_order) : undefined,
           priceBadge: r.price_badge || undefined,
         }));
-        // Sort by binding time (lowest to highest)
-        setPlans(mapped.sort((a, b) => a.bindingTime - b.bindingTime));
+        // Sort by binding time (ASC), then price (ASC), then supplier name
+        setPlans(mapped.sort((a, b) => {
+          const bindDiff = (Number.isFinite(a.bindingTime) ? a.bindingTime : 0) - (Number.isFinite(b.bindingTime) ? b.bindingTime : 0);
+          if (bindDiff !== 0) return bindDiff;
+          const priceA = Number.isFinite(a.pricePerKwh) ? a.pricePerKwh : Number.POSITIVE_INFINITY;
+          const priceB = Number.isFinite(b.pricePerKwh) ? b.pricePerKwh : Number.POSITIVE_INFINITY;
+          if (priceA !== priceB) return priceA - priceB;
+          return a.supplierName.localeCompare(b.supplierName);
+        }));
       })
       .then(() => setLoading(false), (e: unknown) => {
         setError(String(e));
