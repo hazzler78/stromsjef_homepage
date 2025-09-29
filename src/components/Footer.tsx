@@ -40,7 +40,7 @@ const FooterColumn = styled.div`
   }
 
   a {
-    color: var(--gray-300);
+    color: rgba(255, 255, 255, 0.9);
     transition: color 0.2s;
 
     &:hover {
@@ -58,7 +58,7 @@ const ContactInfo = styled.div`
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--gray-300);
+    color: rgba(255, 255, 255, 0.9);
   }
 `;
 
@@ -68,7 +68,7 @@ const SocialLinks = styled.div`
   margin-top: 1rem;
 
   a {
-    color: var(--gray-300);
+    color: rgba(255, 255, 255, 0.9);
     font-size: 1.5rem;
     transition: color 0.2s;
 
@@ -82,7 +82,7 @@ const BottomBar = styled.div`
   border-top: 1px solid var(--gray-600);
   padding-top: 2rem;
   text-align: center;
-  color: var(--gray-300);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.875rem;
 `;
 
@@ -93,7 +93,7 @@ export default function Footer() {
         <FooterGrid>
           <FooterColumn>
             <h3>Om Strømsjef</h3>
-            <p style={{ color: 'var(--gray-300)', marginBottom: '1rem' }}>
+            <p style={{ color: 'rgba(255, 255, 255, 0.9)', marginBottom: '1rem' }}>
               Vi hjelper deg å finne og bytte til markedets beste strømavtaler. 
               Enkelt, trygt og helt kostnadsfritt.
             </p>

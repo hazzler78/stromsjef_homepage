@@ -346,7 +346,7 @@ export default function ContactForm() {
             />
             <CheckboxLabel htmlFor="newsletter">
               Jeg godkjenner å motta nyhetsbrev fra Strømsjef med tilbud og oppdateringer om strømpriser. 
-              Du kan når som helst melde deg av via lenken i e‑posten. Jeg godkjenner også <a href="/villkor" target="_blank" style={{color: 'var(--primary)', textDecoration: 'underline'}}>brukervilkårene</a> og <a href="/integritetspolicy" target="_blank" style={{color: 'var(--primary)', textDecoration: 'underline'}}>personvernpolicyen</a>.
+              Du kan når som helst melde deg av via lenken i e‑posten. Jeg godkjenner også <a href="/villkor" target="_blank" style={{color: '#60a5fa', textDecoration: 'underline'}}>brukervilkårene</a> och <a href="/integritetspolicy" target="_blank" style={{color: '#60a5fa', textDecoration: 'underline'}}>personvernpolicyen</a>.
             </CheckboxLabel>
           </CheckboxGroup>
 
