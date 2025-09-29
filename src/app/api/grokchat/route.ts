@@ -19,39 +19,54 @@ async function getDynamicKnowledge(userQuestion: string) {
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    // Hämta relevant kunskap baserat på användarens fråga
+    // Hämta kunskap (sort/filter i kod för att stödja både last_updated och lastUpdated)
     const { data: knowledgeData } = await supabase
       .from('ai_knowledge')
-      .select('*')
-      .eq('active', true)
-      .order('lastUpdated', { ascending: false });
+      .select('*');
 
-    // Hämta aktiva kampanjer
+    // Hämta kampanjer (filter i kod för att stödja valid_from/validFrom och valid_to/validTo)
     const { data: campaignData } = await supabase
       .from('ai_campaigns')
-      .select('*')
-      .eq('active', true)
-      .gte('validTo', new Date().toISOString().split('T')[0])
-      .order('validTo', { ascending: true });
+      .select('*');
 
-    // Hämta aktiva leverantörer
+    // Hämta leverantörer
     const { data: providerData } = await supabase
       .from('ai_providers')
-      .select('*')
-      .eq('active', true)
-      .order('name', { ascending: true });
+      .select('*');
 
-    // Hitta relevant kunskap baserat på användarens fråga
-    const relevantKnowledge = knowledgeData?.filter(item => 
-      item.keywords.some((keyword: string) => 
-        userQuestion.toLowerCase().includes(keyword.toLowerCase())
+    // Filtrera/sortera kunskap och kampanjer i kod
+    const nowIsoDate = new Date().toISOString().split('T')[0];
+
+    const activeKnowledge = (knowledgeData || [])
+      .filter((k: any) => k.active === true)
+      .sort((a: any, b: any) => {
+        const ad = new Date(a.lastUpdated || a.last_updated || 0).getTime();
+        const bd = new Date(b.lastUpdated || b.last_updated || 0).getTime();
+        return bd - ad;
+      });
+
+    const relevantKnowledge = activeKnowledge.filter((item: any) =>
+      Array.isArray(item.keywords) && item.keywords.some((keyword: string) =>
+        typeof keyword === 'string' && userQuestion.toLowerCase().includes(keyword.toLowerCase())
       )
-    ) || [];
+    );
+
+    const filteredCampaigns = (campaignData || [])
+      .filter((c: any) => c.active === true)
+      .filter((c: any) => {
+        const to = c.validTo || c.valid_to;
+        return typeof to === 'string' ? to >= nowIsoDate : true;
+      })
+      .sort((a: any, b: any) => {
+        const av = a.validTo || a.valid_to || '';
+        const bv = b.validTo || b.valid_to || '';
+        return av.localeCompare(bv);
+      });
 
     return {
       knowledge: relevantKnowledge,
-      campaigns: campaignData || [],
-      providers: providerData || []
+      campaigns: filteredCampaigns,
+      providers: (providerData || []).filter((p: any) => p.active === true).sort((a: any, b: any) => String(a.name).localeCompare(String(b.name)))
     };
   } catch (error) {
     console.error('Error fetching dynamic knowledge:', error);
