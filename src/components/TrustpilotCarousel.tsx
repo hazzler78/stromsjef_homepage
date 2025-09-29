@@ -66,6 +66,11 @@ const Track = styled.div<{
   backface-visibility: hidden;
   perspective: 1000px;
   
+  /* Tighter spacing on small screens */
+  @media (max-width: 640px) {
+    gap: 0.75rem;
+  }
+  
   /* Override animation when dragging */
   ${(p) => p.$isDragging && `
     animation: none !important;
@@ -81,10 +86,16 @@ const Slide = styled.div`
   height: 100%;
   padding: 0.25rem 0.5rem;
 
-  /* Show 4 cards on all screen sizes, but allow swiping */
+  /* 3 cards on small tablets */
+  @media (max-width: 1024px) {
+    flex-basis: 33.3333%;
+    min-width: 33.3333%;
+  }
+
+  /* 2 cards on phones for larger visuals */
   @media (max-width: 640px) {
-    flex-basis: 25%;
-    min-width: 25%;
+    flex-basis: 50%;
+    min-width: 50%;
   }
 
   img {

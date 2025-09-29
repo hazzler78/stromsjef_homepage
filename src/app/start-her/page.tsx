@@ -142,6 +142,7 @@ interface DbPlanRow {
   logo_url?: string | null;
   affiliate_link?: string | null;
   featured?: boolean;
+  recommended?: boolean | null;
   sort_order?: number | null;
   price_badge?: string | null;
 }
