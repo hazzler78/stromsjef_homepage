@@ -5,7 +5,7 @@ import "./globals.css";
 import StyledComponentsRegistry from '../lib/registry';
 import BottomNav from '@/components/BottomNav';
 import CampaignBanner from '@/components/CampaignBanner';
-import MobileChat from '@/components/MobileChat';
+import GrokChat from '@/components/GrokChat';
 import Footer from '@/components/Footer';
 
 const inter = Inter({ subsets: ["latin"] });
@@ -168,7 +168,7 @@ export default function RootLayout({
             <Footer />
           </div>
         </StyledComponentsRegistry>
-        <MobileChat />
+        <GrokChat />
       </body>
     </html>
   );
