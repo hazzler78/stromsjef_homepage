@@ -131,7 +131,16 @@ export default function AdminKnowledge() {
       }
       
       if (campaignData) {
-        setCampaigns(campaignData);
+        // Map DB snake_case to UI camelCase
+        const mappedCampaigns: CampaignInfo[] = (campaignData as any[]).map((c) => ({
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          validFrom: c.validFrom || c.valid_from || '',
+          validTo: c.validTo || c.valid_to || '',
+          active: c.active,
+        }));
+        setCampaigns(mappedCampaigns);
       }
 
       // Fetch providers
@@ -220,7 +229,13 @@ export default function AdminKnowledge() {
         const supabase = getSupabase();
         const { error } = await supabase
           .from('ai_campaigns')
-          .update(campaign)
+          .update({
+            title: campaign.title,
+            description: campaign.description,
+            valid_from: campaign.validFrom,
+            valid_to: campaign.validTo,
+            active: campaign.active,
+          })
           .eq('id', campaign.id);
         
         if (error) throw error;
@@ -229,7 +244,13 @@ export default function AdminKnowledge() {
         const supabase = getSupabase();
         const { error } = await supabase
           .from('ai_campaigns')
-          .insert([campaign]);
+          .insert([{
+            title: campaign.title,
+            description: campaign.description,
+            valid_from: campaign.validFrom,
+            valid_to: campaign.validTo,
+            active: campaign.active,
+          }]);
         
         if (error) throw error;
       }
