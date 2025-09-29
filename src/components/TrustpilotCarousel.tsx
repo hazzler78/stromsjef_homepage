@@ -45,7 +45,7 @@ const Frame = styled.div<{ $height: string; $isDragging?: boolean }>`
 const Scroller = styled.div`
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1rem;
   width: 100%;
   height: 100%;
   overflow-x: auto;
@@ -65,7 +65,7 @@ const Scroller = styled.div`
 
   /* Tighter spacing on medium and small screens */
   @media (max-width: 1024px) {
-    gap: 1rem;
+    gap: 0.75rem;
   }
   @media (max-width: 640px) {
     gap: 0.5rem;
@@ -76,27 +76,22 @@ const Slide = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Larger cards on desktop: 3 per view */
-  flex: 0 0 33.3333%;
+  /* Larger cards on desktop: 2 per view */
+  flex: 0 0 50%;
   height: 100%;
   padding: 0 0.25rem;
 
-  /* 2 cards on small tablets */
+  /* Keep 2 cards on small tablets */
   @media (max-width: 1024px) {
     flex-basis: 50%;
     min-width: 50%;
   }
 
-  /* 1 card on small phones for maximum size */
-  @media (max-width: 480px) {
-    flex-basis: 100%;
-    min-width: 100%;
-  }
-
-  /* 2 cards on typical phones */
+  /* 1 card on typical phones */
   @media (max-width: 640px) {
     flex-basis: 50%;
-    min-width: 50%;
+    min-width: 100%;
+    flex-basis: 100%;
   }
 
   img {
@@ -122,16 +117,40 @@ export default function TrustpilotCarousel({
 }: TrustpilotCarouselProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const dragStartX = useRef<number>(0);
   const startScrollLeft = useRef<number>(0);
   const wheelAccum = useRef<number>(0);
   const wheelRaf = useRef<number | null>(null);
+
+  // Auto-scroll with seamless looping
+  React.useEffect(() => {
+    let raf: number;
+    let last = performance.now();
+    const step = (now: number) => {
+      const el = scrollerRef.current;
+      const dt = Math.min(32, now - last);
+      last = now;
+      if (el && !isPaused && !isDragging) {
+        const speedPxPerSec = 40; // adjust to taste
+        el.scrollLeft += (speedPxPerSec * dt) / 1000;
+        const half = el.scrollWidth / 2;
+        if (half > 0 && el.scrollLeft >= half) {
+          el.scrollLeft -= half;
+        }
+      }
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [isPaused, isDragging]);
 
   // Mouse drag-to-scroll
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollerRef.current) return;
     e.preventDefault();
     setIsDragging(true);
+    setIsPaused(true);
     dragStartX.current = e.clientX;
     startScrollLeft.current = scrollerRef.current.scrollLeft;
   };
@@ -145,6 +164,7 @@ export default function TrustpilotCarousel({
   const handleMouseUp = () => {
     if (!isDragging) return;
     setIsDragging(false);
+    setIsPaused(false);
   };
 
   // Touch uses native inertial scrolling; no JS handlers needed
