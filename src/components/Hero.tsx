@@ -224,21 +224,6 @@ export default function Hero() {
                     Start her
                   </GlassButton>
                 </div>
-                <div style={{ 
-                  fontSize: '0.9rem', 
-                  color: 'var(--foreground)', 
-                  background: 'rgba(255, 255, 255, 0.95)', 
-                  border: '1px solid rgba(0,0,0,0.06)', 
-                  padding: '0.35rem 0.6rem', 
-                  borderRadius: 9999, 
-                  textAlign: 'center',
-                  backdropFilter: 'blur(8px)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-                  position: 'relative',
-                  zIndex: 10
-                }}>
-                  Fyll inn postnummer – se avtaler i din strømsone
-                </div>
               </div>
             </ButtonRow>
             <USPList>
