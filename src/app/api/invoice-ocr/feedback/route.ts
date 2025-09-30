@@ -18,13 +18,14 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    // Uppdatera bill_analysis istället för invoice_ocr
     const { error } = await supabase
-      .from('invoice_ocr')
+      .from('bill_analysis')
       .update({
-        is_correct: typeof isCorrect === 'boolean' ? isCorrect : null,
-        correction_notes: typeof correctionNotes === 'string' ? correctionNotes : null,
-        corrected_total_extra: typeof correctedTotalExtra === 'number' ? correctedTotalExtra : null,
-        corrected_savings: typeof correctedSavings === 'number' ? correctedSavings : null,
+        is_correct: typeof isCorrect === 'boolean' ? isCorrect : undefined,
+        correction_notes: typeof correctionNotes === 'string' ? correctionNotes : undefined,
+        corrected_total_extra: typeof correctedTotalExtra === 'number' ? correctedTotalExtra : undefined,
+        corrected_savings: typeof correctedSavings === 'number' ? correctedSavings : undefined,
       })
       .eq('id', logId);
 

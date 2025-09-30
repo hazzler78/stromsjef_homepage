@@ -19,10 +19,23 @@ export async function GET(req: NextRequest) {
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    
+    // Hämta invoice_ocr_id från bill_analysis först (admin skickar bill_analysis.id)
+    const { data: billAnalysis, error: billError } = await supabase
+      .from('bill_analysis')
+      .select('invoice_ocr_id')
+      .eq('id', invoiceId)
+      .single();
+
+    if (billError || !billAnalysis?.invoice_ocr_id) {
+      return NextResponse.json({ error: 'No invoice_ocr reference found for this bill analysis' }, { status: 404 });
+    }
+
+    // Använd invoice_ocr_id för att hitta filen
     const { data: fileRow, error } = await supabase
       .from('invoice_ocr_files')
       .select('storage_key')
-      .eq('invoice_ocr_id', invoiceId)
+      .eq('invoice_ocr_id', billAnalysis.invoice_ocr_id)
       .single();
 
     if (error || !fileRow) {
