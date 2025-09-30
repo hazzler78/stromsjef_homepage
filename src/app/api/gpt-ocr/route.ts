@@ -671,42 +671,62 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
           if (consent) {
             try {
               const bucketName = 'invoice-ocr';
-              // Ensure the storage bucket exists (create if missing)
-              try {
-                const { data: existingBucket, error: getBucketError } = await supabase.storage.getBucket(bucketName);
-                if (getBucketError || !existingBucket) {
-                  await supabase.storage.createBucket(bucketName, {
-                    public: false,
-                    fileSizeLimit: 20 * 1024 * 1024, // 20 MB
-                    allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg'],
-                  });
+              console.log('Attempting to upload file to storage bucket:', bucketName);
+              
+              // Check if bucket exists
+              const { data: existingBucket, error: getBucketError } = await supabase.storage.getBucket(bucketName);
+              console.log('Bucket check:', { exists: !!existingBucket, error: getBucketError?.message });
+              
+              if (getBucketError || !existingBucket) {
+                console.log('Bucket does not exist, attempting to create...');
+                const { data: createData, error: createError } = await supabase.storage.createBucket(bucketName, {
+                  public: false,
+                  fileSizeLimit: 20 * 1024 * 1024, // 20 MB
+                  allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg'],
+                });
+                console.log('Bucket creation result:', { success: !!createData, error: createError?.message });
+                
+                if (createError) {
+                  console.error('Failed to create bucket:', createError);
                 }
-              } catch {
-                try {
-                  await supabase.storage.createBucket(bucketName, {
-                    public: false,
-                    fileSizeLimit: 20 * 1024 * 1024,
-                    allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg'],
-                  });
-                } catch {}
               }
+              
               const storageKey = `${logId}/${imageSha256}.${mimeType === 'image/png' ? 'png' : 'jpg'}`;
+              console.log('Uploading file with key:', storageKey);
+              
               // Upload using the already-read ArrayBuffer for better Edge compatibility
               const uploadRes = await supabase.storage.from(bucketName).upload(storageKey, arrayBuffer, {
                 contentType: mimeType,
                 upsert: false,
               });
-              if (!uploadRes.error) {
-                await supabase.from('invoice_ocr_files').insert([
+              
+              console.log('Upload result:', { 
+                success: !uploadRes.error, 
+                error: uploadRes.error?.message,
+                path: uploadRes.data?.path 
+              });
+              
+              if (uploadRes.error) {
+                console.error('Storage upload failed:', uploadRes.error);
+              } else {
+                console.log('File uploaded successfully, saving reference to invoice_ocr_files');
+                const { error: insertError } = await supabase.from('invoice_ocr_files').insert([
                   {
                     invoice_ocr_id: logId,
                     storage_key: storageKey,
                     image_sha256: imageSha256,
                   }
                 ]);
+                
+                if (insertError) {
+                  console.error('Failed to insert invoice_ocr_files record:', insertError);
+                } else {
+                  console.log('Successfully saved file reference to database');
+                }
               }
             } catch (e) {
               console.error('Failed to upload invoice image to storage:', e);
+              console.error('Error details:', e instanceof Error ? e.message : String(e));
             }
           }
         }
