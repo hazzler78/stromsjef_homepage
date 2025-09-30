@@ -40,12 +40,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'User did not consent to store image' }, { status: 403 });
     }
 
-    // Använd invoice_ocr_id för att hitta filen
+    // Använd invoice_ocr_id för att hitta filen (ta senaste om det finns flera)
     const { data: fileRow, error } = await supabase
       .from('invoice_ocr_files')
       .select('storage_key')
       .eq('invoice_ocr_id', billAnalysis.invoice_ocr_id)
-      .single();
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     if (error) {
       console.error('Error fetching invoice_ocr_files:', error);
