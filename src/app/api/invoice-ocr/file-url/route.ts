@@ -23,12 +23,21 @@ export async function GET(req: NextRequest) {
     // Hämta invoice_ocr_id från bill_analysis först (admin skickar bill_analysis.id)
     const { data: billAnalysis, error: billError } = await supabase
       .from('bill_analysis')
-      .select('invoice_ocr_id')
+      .select('invoice_ocr_id, consent_to_store')
       .eq('id', invoiceId)
       .single();
 
-    if (billError || !billAnalysis?.invoice_ocr_id) {
-      return NextResponse.json({ error: 'No invoice_ocr reference found for this bill analysis' }, { status: 404 });
+    if (billError) {
+      console.error('Error fetching bill_analysis:', billError);
+      return NextResponse.json({ error: 'Bill analysis not found', details: billError.message }, { status: 404 });
+    }
+
+    if (!billAnalysis?.invoice_ocr_id) {
+      return NextResponse.json({ error: 'No invoice_ocr reference found (possibly old data format)' }, { status: 404 });
+    }
+
+    if (!billAnalysis.consent_to_store) {
+      return NextResponse.json({ error: 'User did not consent to store image' }, { status: 403 });
     }
 
     // Använd invoice_ocr_id för att hitta filen
@@ -38,8 +47,13 @@ export async function GET(req: NextRequest) {
       .eq('invoice_ocr_id', billAnalysis.invoice_ocr_id)
       .single();
 
-    if (error || !fileRow) {
-      return NextResponse.json({ error: 'No image found for this invoice' }, { status: 404 });
+    if (error) {
+      console.error('Error fetching invoice_ocr_files:', error);
+      return NextResponse.json({ error: 'File reference not found', details: error.message }, { status: 404 });
+    }
+
+    if (!fileRow) {
+      return NextResponse.json({ error: 'No file stored (upload may have failed)' }, { status: 404 });
     }
 
     const { data: signed, error: signErr } = await supabase

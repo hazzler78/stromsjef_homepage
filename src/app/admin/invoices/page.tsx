@@ -203,10 +203,13 @@ export default function AdminInvoices() {
                             if (data?.url) {
                               window.open(data.url, '_blank');
                             } else {
-                              alert('Ingen bild hittades eller kunde inte skapa länk.');
+                              // Visa detaljerat felmeddelande från API
+                              const errorMsg = data?.error || 'Ingen bild hittades eller kunde inte skapa länk.';
+                              const details = data?.details ? `\n\nDetaljer: ${data.details}` : '';
+                              alert(errorMsg + details);
                             }
-                          } catch {
-                            alert('Kunde inte hämta bildlänk.');
+                          } catch (err) {
+                            alert('Kunde inte hämta bildlänk: ' + (err instanceof Error ? err.message : 'Okänt fel'));
                           }
                         }}
                         style={{ padding: '4px 8px', background: '#1f2937', color: '#f9fafb', border: '1px solid #4b5563' }}
