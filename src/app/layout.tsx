@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     description: 'Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis. Vi håndterer hele byttet for deg - raskt og enkelt.',
     images: [
       {
-        url: 'https://stromsjef.no/cheap-logo.png',
+        url: 'https://stromsjef.no/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Strømsjef - logo',
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Strømsjef – Sammenlign og bytt strømavtale enkelt',
     description: 'Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis.',
-    images: ['https://stromsjef.no/cheap-logo.png'],
+    images: ['https://stromsjef.no/og-image.png'],
   },
   alternates: {
     canonical: 'https://stromsjef.no',
