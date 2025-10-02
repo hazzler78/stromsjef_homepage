@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file');
     const consentRaw = formData.get('consent');
     const consent = typeof consentRaw === 'string' ? consentRaw === 'true' : false;
+    console.log('Debug: Form data - consentRaw:', consentRaw, 'consent:', consent);
     if (!file || !(file instanceof File)) {
       return NextResponse.json({ error: 'No file uploaded or file is not a valid image.' }, { status: 400 });
     }
@@ -666,9 +667,14 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
 
           if (!billAnalysisError && billAnalysisData) {
             billAnalysisId = billAnalysisData.id as number;
+            console.log('Debug: bill_analysis created with ID:', billAnalysisId);
+          } else {
+            console.log('Debug: bill_analysis creation failed:', billAnalysisError);
           }
+          
           // Om samtycke: ladda upp filen till privat bucket och spara referensen
           console.log('Debug: Upload check - consent:', consent, 'billAnalysisId:', billAnalysisId);
+          console.log('Debug: About to check upload conditions...');
           if (consent && billAnalysisId) {
             try {
               const bucketName = 'invoice-ocr';
