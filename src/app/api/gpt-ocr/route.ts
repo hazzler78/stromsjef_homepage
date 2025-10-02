@@ -668,6 +668,7 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
             billAnalysisId = billAnalysisData.id as number;
           }
           // Om samtycke: ladda upp filen till privat bucket och spara referensen
+          console.log('Debug: Upload check - consent:', consent, 'billAnalysisId:', billAnalysisId);
           if (consent && billAnalysisId) {
             try {
               const bucketName = 'invoice-ocr';
@@ -739,6 +740,39 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
             }
           } else if (consent && !billAnalysisId) {
             console.error('Cannot upload file: consent given but billAnalysisId is null');
+            console.log('Debug: Trying to use logId as fallback for storage key');
+            // Fallback: använd logId istället för billAnalysisId
+            try {
+              const bucketName = 'invoice-ocr';
+              const storageKey = `${logId}/${imageSha256}.${mimeType === 'image/png' ? 'png' : 'jpg'}`;
+              console.log('Fallback: Uploading file with key:', storageKey);
+              
+              const uploadRes = await supabase.storage.from(bucketName).upload(storageKey, arrayBuffer, {
+                contentType: mimeType,
+                upsert: false,
+              });
+              
+              if (uploadRes.error) {
+                console.error('Fallback upload failed:', uploadRes.error);
+              } else {
+                console.log('Fallback upload successful, saving reference');
+                const { error: insertError } = await supabase.from('invoice_ocr_files').insert([
+                  {
+                    invoice_ocr_id: logId,
+                    storage_key: storageKey,
+                    image_sha256: imageSha256,
+                  }
+                ]);
+                
+                if (insertError) {
+                  console.error('Fallback: Failed to insert invoice_ocr_files record:', insertError);
+                } else {
+                  console.log('Fallback: Successfully saved file reference to database');
+                }
+              }
+            } catch (fallbackError) {
+              console.error('Fallback upload failed completely:', fallbackError);
+            }
           }
         }
       }
