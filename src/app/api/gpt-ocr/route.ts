@@ -710,10 +710,7 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
               
               if (uploadRes.error) {
                 console.error('Storage upload failed:', uploadRes.error);
-                console.error('Upload error details:', {
-                  message: uploadRes.error.message,
-                  error: uploadRes.error.error
-                });
+                console.error('Upload error message:', uploadRes.error.message);
               } else {
                 console.log('File uploaded successfully, saving reference to invoice_ocr_files');
                 const { error: insertError } = await supabase.from('invoice_ocr_files').insert([
