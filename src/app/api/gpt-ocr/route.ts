@@ -712,7 +712,6 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
                 console.error('Storage upload failed:', uploadRes.error);
                 console.error('Upload error details:', {
                   message: uploadRes.error.message,
-                  statusCode: uploadRes.error.statusCode,
                   error: uploadRes.error.error
                 });
               } else {
