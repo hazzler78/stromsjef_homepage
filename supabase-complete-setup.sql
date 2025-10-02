@@ -160,8 +160,32 @@ CREATE TRIGGER trigger_update_bill_analysis_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_bill_analysis_updated_at();
 
--- 11. Add comments for documentation
+-- 11. Create chatlog table for AI conversations
+CREATE TABLE IF NOT EXISTS chatlog (
+  id SERIAL PRIMARY KEY,
+  session_id VARCHAR(255) NOT NULL,
+  user_agent TEXT,
+  messages JSONB NOT NULL,
+  ai_response TEXT,
+  total_tokens INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for chatlog
+CREATE INDEX IF NOT EXISTS idx_chatlog_session_id ON chatlog(session_id);
+CREATE INDEX IF NOT EXISTS idx_chatlog_created_at ON chatlog(created_at);
+CREATE INDEX IF NOT EXISTS idx_chatlog_session_created ON chatlog(session_id, created_at);
+
+-- Enable RLS for chatlog
+ALTER TABLE chatlog ENABLE ROW LEVEL SECURITY;
+
+-- Create policy for chatlog
+CREATE POLICY "Allow all operations on chatlog" ON chatlog
+  FOR ALL USING (true) WITH CHECK (true);
+
+-- 12. Add comments for documentation
 COMMENT ON TABLE invoice_ocr IS 'Main table for invoice OCR processing';
 COMMENT ON TABLE invoice_ocr_files IS 'File storage references for invoice images';
 COMMENT ON TABLE bill_analysis IS 'Detailed electricity bill analysis results';
 COMMENT ON TABLE bill_cost_items IS 'Individual cost items from bill analysis';
+COMMENT ON TABLE chatlog IS 'Stores AI chat conversations and responses';

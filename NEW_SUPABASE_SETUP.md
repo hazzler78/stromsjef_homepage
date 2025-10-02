@@ -30,6 +30,7 @@ Kör följande SQL-filer i ordning:
 - `supabase-shared-cards.sql` - Delade kort
 - `supabase-bill-analysis.sql` - Fakturaanalys
 - `supabase-invoice-ocr-logs.sql` - OCR-loggar
+- `supabase-chatlog.sql` - Chat-loggar
 
 ## Steg 3: RLS Policies
 Efter att ha skapat tabellerna, kontrollera att RLS (Row Level Security) är aktiverat och att policies är satta korrekt.

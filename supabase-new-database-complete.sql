@@ -378,7 +378,33 @@ INSERT INTO ai_providers (name, type, features, url, active) VALUES
 ON CONFLICT DO NOTHING;
 
 -- ============================================
--- 11. KOMMENTARER FÖR DOKUMENTATION
+-- 11. CHATLOG TABELL FÖR AI-KONVERSATIONER
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS chatlog (
+  id SERIAL PRIMARY KEY,
+  session_id VARCHAR(255) NOT NULL,
+  user_agent TEXT,
+  messages JSONB NOT NULL,
+  ai_response TEXT,
+  total_tokens INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for chatlog
+CREATE INDEX IF NOT EXISTS idx_chatlog_session_id ON chatlog(session_id);
+CREATE INDEX IF NOT EXISTS idx_chatlog_created_at ON chatlog(created_at);
+CREATE INDEX IF NOT EXISTS idx_chatlog_session_created ON chatlog(session_id, created_at);
+
+-- Enable RLS for chatlog
+ALTER TABLE chatlog ENABLE ROW LEVEL SECURITY;
+
+-- Create policy for chatlog
+CREATE POLICY "Allow all operations on chatlog" ON chatlog
+  FOR ALL USING (true) WITH CHECK (true);
+
+-- ============================================
+-- 12. KOMMENTARER FÖR DOKUMENTATION
 -- ============================================
 
 COMMENT ON TABLE invoice_ocr IS 'Main table for invoice OCR processing';
@@ -394,3 +420,4 @@ COMMENT ON TABLE share_tracking IS 'Social media sharing tracking';
 COMMENT ON TABLE shared_cards IS 'Shared content from Telegram bot';
 COMMENT ON TABLE customer_reminders IS 'Customer reminder system';
 COMMENT ON TABLE contact_submissions IS 'Contact form submissions';
+COMMENT ON TABLE chatlog IS 'Stores AI chat conversations and responses';
