@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Invoice Upload</title>
+</head>
+<body>
+    <h1>Test Invoice Upload</h1>
+    
+    <form id="uploadForm" enctype="multipart/form-data">
+        <div>
+            <label for="file">Välj fakturabild:</label>
+            <input type="file" id="file" name="file" accept="image/png,image/jpeg,image/jpg" required>
+        </div>
+        
+        <div>
+            <label>
+                <input type="checkbox" id="consent" name="consent" value="true">
+                Jag samtycker till att min fakturabild sparas för analys
+            </label>
+        </div>
+        
+        <button type="submit">Ladda upp och analysera</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('file');
+            const consentInput = document.getElementById('consent');
+            
+            if (!fileInput.files[0]) {
+                alert('Välj en fil först');
+                return;
+            }
+            
+            formData.append('file', fileInput.files[0]);
+            formData.append('consent', consentInput.checked ? 'true' : 'false');
+            
+            console.log('Uploading file:', fileInput.files[0].name);
+            console.log('Consent:', consentInput.checked);
+            
+            try {
+                console.log('Attempting to fetch /api/gpt-ocr...');
+                const response = await fetch('/api/gpt-ocr', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                console.log('Upload result:', result);
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>Resultat:</h3>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                console.error('Error type:', error.constructor.name);
+                console.error('Error message:', error.message);
+                console.error('Error stack:', error.stack);
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>Fel:</h3>
+                    <p><strong>Typ:</strong> ${error.constructor.name}</p>
+                    <p><strong>Meddelande:</strong> ${error.message}</p>
+                    <p><strong>Stack:</strong> <pre>${error.stack}</pre></p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

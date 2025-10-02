@@ -675,7 +675,10 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
           // Om samtycke: ladda upp filen till privat bucket och spara referensen
           console.log('Debug: Upload check - consent:', consent, 'billAnalysisId:', billAnalysisId);
           console.log('Debug: About to check upload conditions...');
-          if (consent && billAnalysisId) {
+          
+          // TEMPORÄRT: Hoppa över bilduppladdning för att testa resten
+          console.log('Debug: TEMPORARILY SKIPPING IMAGE UPLOAD FOR TESTING');
+          if (false && consent && billAnalysisId) {
             try {
               const bucketName = 'invoice-ocr';
               console.log('Attempting to upload file to storage bucket:', bucketName);

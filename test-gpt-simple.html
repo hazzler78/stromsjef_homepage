@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test GPT Simple</title>
+</head>
+<body>
+    <h1>Test GPT Simple</h1>
+    
+    <form id="testForm">
+        <div>
+            <label for="file">Välj fakturabild:</label>
+            <input type="file" id="file" name="file" accept="image/png,image/jpeg,image/jpg" required>
+        </div>
+        
+        <div>
+            <label>
+                <input type="checkbox" id="consent" name="consent" value="true">
+                Jag samtycker till att min fakturabild sparas för analys
+            </label>
+        </div>
+        
+        <button type="submit">Testa GPT</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('file');
+            const consentInput = document.getElementById('consent');
+            
+            if (!fileInput.files[0]) {
+                alert('Välj en fil först');
+                return;
+            }
+            
+            formData.append('file', fileInput.files[0]);
+            formData.append('consent', consentInput.checked ? 'true' : 'false');
+            
+            console.log('Testing GPT with file:', fileInput.files[0].name);
+            console.log('Consent:', consentInput.checked);
+            
+            try {
+                const response = await fetch('/api/gpt-ocr', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                console.log('GPT result:', result);
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>Resultat:</h3>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('GPT error:', error);
+                document.getElementById('result').innerHTML = `
+                    <h3>Fel:</h3>
+                    <p><strong>Typ:</strong> ${error.constructor.name}</p>
+                    <p><strong>Meddelande:</strong> ${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
