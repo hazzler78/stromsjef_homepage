@@ -668,10 +668,11 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
             billAnalysisId = billAnalysisData.id as number;
           }
           // Om samtycke: ladda upp filen till privat bucket och spara referensen
-          if (consent) {
+          if (consent && billAnalysisId) {
             try {
               const bucketName = 'invoice-ocr';
               console.log('Attempting to upload file to storage bucket:', bucketName);
+              console.log('Using billAnalysisId for storage key:', billAnalysisId);
               
               // Check if bucket exists
               const { data: existingBucket, error: getBucketError } = await supabase.storage.getBucket(bucketName);
@@ -688,10 +689,11 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
                 
                 if (createError) {
                   console.error('Failed to create bucket:', createError);
+                  // Continue anyway, bucket might exist but not be accessible
                 }
               }
               
-              const storageKey = `${logId}/${imageSha256}.${mimeType === 'image/png' ? 'png' : 'jpg'}`;
+              const storageKey = `${billAnalysisId}/${imageSha256}.${mimeType === 'image/png' ? 'png' : 'jpg'}`;
               console.log('Uploading file with key:', storageKey);
               
               // Upload using the already-read ArrayBuffer for better Edge compatibility
@@ -708,6 +710,11 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
               
               if (uploadRes.error) {
                 console.error('Storage upload failed:', uploadRes.error);
+                console.error('Upload error details:', {
+                  message: uploadRes.error.message,
+                  statusCode: uploadRes.error.statusCode,
+                  error: uploadRes.error.error
+                });
               } else {
                 console.log('File uploaded successfully, saving reference to invoice_ocr_files');
                 const { error: insertError } = await supabase.from('invoice_ocr_files').insert([
@@ -720,6 +727,11 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
                 
                 if (insertError) {
                   console.error('Failed to insert invoice_ocr_files record:', insertError);
+                  console.error('Insert error details:', {
+                    message: insertError.message,
+                    details: insertError.details,
+                    hint: insertError.hint
+                  });
                 } else {
                   console.log('Successfully saved file reference to database');
                 }
@@ -727,7 +739,10 @@ Svar på norsk og vær hjelpsom og pedagogisk.`;
             } catch (e) {
               console.error('Failed to upload invoice image to storage:', e);
               console.error('Error details:', e instanceof Error ? e.message : String(e));
+              console.error('Stack trace:', e instanceof Error ? e.stack : 'No stack trace');
             }
+          } else if (consent && !billAnalysisId) {
+            console.error('Cannot upload file: consent given but billAnalysisId is null');
           }
         }
       }
