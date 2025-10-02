@@ -201,7 +201,86 @@ export default function AdminInvoices() {
                             const res = await fetch(`/api/invoice-ocr/file-url?invoiceId=${log.id}`);
                             const data = await res.json();
                             if (data?.url) {
-                              window.open(data.url, '_blank');
+                              // Robust URL-hantering
+                              const origin = window.location.protocol + '//' + window.location.host;
+                              const imageUrl = data.url.startsWith('http') ? data.url : origin + data.url;
+                              
+                              // Validera URL
+                              try {
+                                new URL(imageUrl);
+                                
+                                // Försök öppna i nytt fönster
+                                const newWindow = window.open(imageUrl, '_blank');
+                                
+                                if (!newWindow) {
+                                  // Fallback: Skapa overlay med bild
+                                  const overlay = document.createElement('div');
+                                  overlay.style.cssText = `
+                                    position: fixed;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    background: rgba(0,0,0,0.8);
+                                    z-index: 10000;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    cursor: pointer;
+                                  `;
+                                  
+                                  const img = document.createElement('img');
+                                  img.src = imageUrl;
+                                  img.style.cssText = `
+                                    max-width: 90%;
+                                    max-height: 90%;
+                                    object-fit: contain;
+                                    border-radius: 8px;
+                                    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+                                  `;
+                                  
+                                  const closeBtn = document.createElement('button');
+                                  closeBtn.innerHTML = '×';
+                                  closeBtn.style.cssText = `
+                                    position: absolute;
+                                    top: 20px;
+                                    right: 20px;
+                                    background: rgba(0,0,0,0.7);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 50%;
+                                    width: 40px;
+                                    height: 40px;
+                                    font-size: 24px;
+                                    cursor: pointer;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                  `;
+                                  
+                                  overlay.appendChild(img);
+                                  overlay.appendChild(closeBtn);
+                                  document.body.appendChild(overlay);
+                                  
+                                  const closeOverlay = () => {
+                                    document.body.removeChild(overlay);
+                                  };
+                                  
+                                  overlay.onclick = closeOverlay;
+                                  closeBtn.onclick = closeOverlay;
+                                  
+                                  // Stäng med Escape-tangent
+                                  const handleEscape = (e: KeyboardEvent) => {
+                                    if (e.key === 'Escape') {
+                                      closeOverlay();
+                                      document.removeEventListener('keydown', handleEscape);
+                                    }
+                                  };
+                                  document.addEventListener('keydown', handleEscape);
+                                }
+                              } catch (urlError) {
+                                alert('Ogiltig URL: ' + imageUrl);
+                              }
                             } else {
                               // Visa detaljerat felmeddelande från API
                               const errorMsg = data?.error || 'Ingen bild hittades eller kunde inte skapa länk.';

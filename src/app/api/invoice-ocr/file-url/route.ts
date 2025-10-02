@@ -70,18 +70,11 @@ export async function GET(req: NextRequest) {
 
     console.log('Debug: Found file with storage_key:', fileRow.storage_key);
 
-    const { data: signed, error: signErr } = await supabase
-      .storage
-      .from('invoice-ocr')
-      .createSignedUrl(fileRow.storage_key, 60 * 10); // 10 minutes
+    // Använd proxy-endpoint istället för signed URL för att undvika edge runtime-problem
+    const proxyUrl = `/api/invoice-ocr/proxy-image?key=${encodeURIComponent(fileRow.storage_key)}`;
+    console.log('Debug: Using proxy URL:', proxyUrl);
 
-    console.log('Debug: Signed URL result:', { signed, signErr });
-
-    if (signErr || !signed?.signedUrl) {
-      return NextResponse.json({ error: 'Could not create signed URL' }, { status: 500 });
-    }
-
-    return NextResponse.json({ url: signed.signedUrl });
+    return NextResponse.json({ url: proxyUrl });
   } catch (err) {
     console.error('Debug: Unexpected error:', err);
     return NextResponse.json({ error: 'Server error', details: String(err) }, { status: 500 });
