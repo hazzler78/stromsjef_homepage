@@ -43,7 +43,6 @@ export const metadata: Metadata = {
         alt: 'Strømsjef - logo',
       },
     ],
-    fbAppId: '1552012742628310',
   },
   twitter: {
     card: 'summary_large_image',
@@ -103,6 +102,7 @@ export default function RootLayout({
           }
         `}</script>
         <meta name="facebook-domain-verification" content="in9xjxefhkl6pbe4g33zjwrsnkliin" />
+        <meta property="fb:app_id" content="1552012742628310" />
         <meta name="tiktok-developers-site-verification" content="i7h859t0QF0G6Dua8q4h9qJUXwuPQoof" />
       </head>
       <body className={inter.className}>
