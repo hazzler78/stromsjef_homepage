@@ -278,7 +278,7 @@ export default function AdminInvoices() {
                                   };
                                   document.addEventListener('keydown', handleEscape);
                                 }
-                              } catch (urlError) {
+                              } catch {
                                 alert('Ogiltig URL: ' + imageUrl);
                               }
                             } else {
