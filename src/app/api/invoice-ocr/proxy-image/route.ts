@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// INTE edge runtime - för att undvika Supabase-konflikter
-// export const runtime = 'edge';
+export const runtime = 'edge';
 
 export async function GET(req: NextRequest) {
   try {
