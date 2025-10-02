@@ -43,6 +43,7 @@ export const metadata: Metadata = {
         alt: 'Strømsjef - logo',
       },
     ],
+    fbAppId: '1552012742628310',
   },
   twitter: {
     card: 'summary_large_image',
