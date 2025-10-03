@@ -59,3 +59,5 @@ export async function POST() {
     }, { status: 500 });
   }
 }
+
+export const runtime = 'edge';
