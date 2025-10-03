@@ -84,21 +84,21 @@ export default function ForbrukerrådetPricesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen bg-gray-900 p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-gray-800 rounded-lg shadow p-6">
             <div className="text-center">
-              <div className="text-red-600 text-lg font-semibold mb-2">Fel vid laddning</div>
-              <div className="text-gray-600 mb-4">{error}</div>
+              <div className="text-red-400 text-lg font-semibold mb-2">Fel vid laddning</div>
+              <div className="text-gray-200 mb-4">{error}</div>
               {error.includes('Missing Supabase configuration') && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 text-left">
-                  <h4 className="font-semibold text-yellow-800 mb-2">Konfigurationsproblem</h4>
-                  <p className="text-yellow-700 text-sm mb-2">
+                <div className="bg-yellow-800 border border-yellow-600 rounded-lg p-4 mb-4 text-left">
+                  <h4 className="font-semibold text-yellow-200 mb-2">Konfigurationsproblem</h4>
+                  <p className="text-yellow-100 text-sm mb-2">
                     För att visa Forbrukerrådet-priser behöver följande environment variables vara satta:
                   </p>
-                  <ul className="text-yellow-700 text-sm list-disc list-inside space-y-1">
-                    <li><code className="bg-yellow-100 px-1 rounded">NEXT_PUBLIC_SUPABASE_URL</code></li>
-                    <li><code className="bg-yellow-100 px-1 rounded">NEXT_PUBLIC_SUPABASE_ANON_KEY</code></li>
+                  <ul className="text-yellow-100 text-sm list-disc list-inside space-y-1">
+                    <li><code className="bg-yellow-800 px-1 rounded text-yellow-200">NEXT_PUBLIC_SUPABASE_URL</code></li>
+                    <li><code className="bg-yellow-800 px-1 rounded text-yellow-200">NEXT_PUBLIC_SUPABASE_ANON_KEY</code></li>
                   </ul>
                 </div>
               )}
@@ -129,12 +129,12 @@ export default function ForbrukerrådetPricesPage() {
                 ← Tillbaka till Admin
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">📊 Forbrukerrådet Priser</h1>
-                <p className="text-gray-600 mt-1">Prisdata från Forbrukerrådets strømprisportal</p>
+                <h1 className="text-3xl font-bold text-white">📊 Forbrukerrådet Priser</h1>
+                <p className="text-gray-200 mt-1">Prisdata från Forbrukerrådets strømprisportal</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-200">
                 Senast uppdaterad: {new Date().toLocaleString('sv-SE')}
               </div>
             </div>
@@ -174,11 +174,11 @@ export default function ForbrukerrådetPricesPage() {
           )}
 
           {/* Filters */}
-          <div className="px-6 py-6 bg-gray-50 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">🔍 Filter & Sök</h3>
+          <div className="px-6 py-6 bg-gray-800 border-b border-gray-600">
+            <h3 className="text-lg font-semibold text-white mb-4">🔍 Filter & Sök</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">År</label>
+                <label className="block text-sm font-medium text-white mb-1">År</label>
                 <select
                   value={filter.year}
                   onChange={(e) => setFilter({ ...filter, year: parseInt(e.target.value) })}
@@ -191,7 +191,7 @@ export default function ForbrukerrådetPricesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Uke</label>
+                <label className="block text-sm font-medium text-white mb-1">Uke</label>
                 <select
                   value={filter.week}
                   onChange={(e) => setFilter({ ...filter, week: parseInt(e.target.value) })}
@@ -205,7 +205,7 @@ export default function ForbrukerrådetPricesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Forbruk</label>
+                <label className="block text-sm font-medium text-white mb-1">Forbruk</label>
                 <select
                   value={filter.consumption}
                   onChange={(e) => setFilter({ ...filter, consumption: parseInt(e.target.value) })}
@@ -221,7 +221,7 @@ export default function ForbrukerrådetPricesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Pristype</label>
+                <label className="block text-sm font-medium text-white mb-1">Pristype</label>
                 <select
                   value={filter.name}
                   onChange={(e) => setFilter({ ...filter, name: e.target.value })}
@@ -259,19 +259,19 @@ export default function ForbrukerrådetPricesPage() {
 
           {/* Results Summary */}
           {!loading && !error && (
-            <div className="px-6 py-4 bg-indigo-50 border-b border-indigo-200">
+            <div className="px-6 py-4 bg-indigo-800 border-b border-indigo-600">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="text-sm font-medium text-indigo-900">
+                  <div className="text-sm font-medium text-white">
                     📊 Visar {filteredPrices.length} av {prices.length} priser
                   </div>
                   {filteredPrices.length !== prices.length && (
-                    <div className="text-sm text-indigo-700">
+                    <div className="text-sm text-gray-200">
                       (filtrerat från {prices.length} totalt)
                     </div>
                   )}
                 </div>
-                <div className="text-sm text-indigo-600">
+                <div className="text-sm text-gray-200">
                   Senast uppdaterad: {prices.length > 0 ? new Date(prices[0].created_at).toLocaleString('sv-SE') : 'N/A'}
                 </div>
               </div>
@@ -282,18 +282,18 @@ export default function ForbrukerrådetPricesPage() {
           {!loading && !error && (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-indigo-50 to-blue-50">
+                <thead className="bg-gradient-to-r from-indigo-800 to-blue-800">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">📅 År/Uke</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">⚡ Forbruk</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">🏷️ Pristype</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">📍 NO1</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">📍 NO2</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">📍 NO3</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">📍 NO4</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">📍 NO5</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">🇳🇴 Nasjonalt</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">🕒 Oppdatert</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📅 År/Uke</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">⚡ Forbruk</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">🏷️ Pristype</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📍 NO1</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📍 NO2</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📍 NO3</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📍 NO4</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📍 NO5</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">🇳🇴 Nasjonalt</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">🕒 Oppdatert</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -304,7 +304,7 @@ export default function ForbrukerrådetPricesPage() {
                           <div className="text-sm font-semibold text-gray-900">
                             {price.year}
                           </div>
-                          <div className="ml-2 text-sm text-gray-500">
+                          <div className="ml-2 text-sm text-gray-600">
                             Uke {price.week}
                           </div>
                         </div>
@@ -337,10 +337,10 @@ export default function ForbrukerrådetPricesPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-mono font-semibold text-white bg-indigo-600">
                         {formatForbrukerrådetPrice(price.national)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         <div className="flex flex-col">
                           <div>{new Date(price.created_at).toLocaleDateString('sv-SE')}</div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-gray-500">
                             {new Date(price.created_at).toLocaleTimeString('sv-SE')}
                           </div>
                         </div>
@@ -362,7 +362,7 @@ export default function ForbrukerrådetPricesPage() {
                   </svg>
                 </div>
                 <div className="text-lg font-medium text-gray-900">Ingen data funnet</div>
-                <div className="text-sm text-gray-500">Prova att ändra filterinställningarna</div>
+                <div className="text-sm text-gray-600">Prova att ändra filterinställningarna</div>
               </div>
             </div>
           )}

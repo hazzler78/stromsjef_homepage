@@ -31,8 +31,12 @@ export async function getForbrukerrådetPrices(filter: ForbrukerrådetPriceFilte
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
+  // Debug information
+  console.log('Supabase URL:', supabaseUrl ? 'Set' : 'Missing');
+  console.log('Supabase Key:', supabaseKey ? 'Set' : 'Missing');
+  
   if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase configuration. Please check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.');
+    throw new Error(`Missing Supabase configuration. URL: ${supabaseUrl ? 'Set' : 'Missing'}, Key: ${supabaseKey ? 'Set' : 'Missing'}. Please check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.`);
   }
 
   const supabase = createClient(supabaseUrl, supabaseKey);
