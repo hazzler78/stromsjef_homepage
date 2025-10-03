@@ -82,6 +82,27 @@ export default function ForbrukerrådetPricesPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-center">
+              <div className="text-red-600 text-lg font-semibold mb-2">Fel vid laddning</div>
+              <div className="text-gray-600">{error}</div>
+              <button 
+                onClick={loadPrices}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Försök igen
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
@@ -239,7 +260,7 @@ export default function ForbrukerrådetPricesPage() {
                   )}
                 </div>
                 <div className="text-sm text-indigo-600">
-                  Senast uppdaterad: {prices.length > 0 ? new Date(prices[0].createdAt).toLocaleString('sv-SE') : 'N/A'}
+                  Senast uppdaterad: {prices.length > 0 ? new Date(prices[0].created_at).toLocaleString('sv-SE') : 'N/A'}
                 </div>
               </div>
             </div>
@@ -306,17 +327,18 @@ export default function ForbrukerrådetPricesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <div className="flex flex-col">
-                          <div>{new Date(price.createdAt).toLocaleDateString('sv-SE')}</div>
+                          <div>{new Date(price.created_at).toLocaleDateString('sv-SE')}</div>
                           <div className="text-xs text-gray-400">
-                            {new Date(price.createdAt).toLocaleTimeString('sv-SE')}
+                            {new Date(price.created_at).toLocaleTimeString('sv-SE')}
                           </div>
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-            </table>
-          </div>
+              </table>
+            </div>
+          )}
 
           {/* Empty State */}
           {filteredPrices.length === 0 && !loading && !error && (
@@ -337,4 +359,3 @@ export default function ForbrukerrådetPricesPage() {
     </div>
   );
 }
-
