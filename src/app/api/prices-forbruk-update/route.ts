@@ -42,50 +42,58 @@ export async function POST(request: Request) {
     const clientId = process.env.FORBRUK_CLIENT_ID;
     const clientSecret = process.env.FORBRUK_CLIENT_SECRET;
 
-    if (!clientId || !clientSecret) {
-      return NextResponse.json(
-        { error: 'Missing Forbrukerrådet credentials' },
-        { status: 500 }
-      );
-    }
+    // Optional: allow caller to provide an already-issued access token
+    const providedAccessToken = request.headers.get('x-access-token') || request.headers.get('X-Access-Token');
 
-    // 1) Get access token
-    const tokenResponse = await fetch(authUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'stromsjef-prices/1.0',
-      },
-      body: new URLSearchParams({
-        clientId,
-        clientSecret,
-      }),
-      cache: 'no-store',
-    });
-
-    if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text().catch(() => '');
-      console.error('❌ Token request failed:', tokenResponse.status, errorText);
-      return NextResponse.json(
-        { error: 'Failed to obtain access token', status: tokenResponse.status, body: errorText },
-        { status: 502 }
-      );
-    }
-
-    const tokenData: ForbrukerrådetTokenResponse = await tokenResponse.json();
-    const accessToken = tokenData.accessToken;
-
+    let accessToken = providedAccessToken || '';
     if (!accessToken) {
-      return NextResponse.json(
-        { error: 'No access token in response', tokenKeys: Object.keys(tokenData) },
-        { status: 502 }
-      );
+      if (!clientId || !clientSecret) {
+        return NextResponse.json(
+          { error: 'Missing Forbrukerrådet credentials' },
+          { status: 500 }
+        );
+      }
+
+      // 1) Get access token
+      const tokenResponse = await fetch(authUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'stromsjef-prices/1.0',
+        },
+        body: new URLSearchParams({
+          clientId,
+          clientSecret,
+        }),
+        cache: 'no-store',
+      });
+
+      if (!tokenResponse.ok) {
+        const errorText = await tokenResponse.text().catch(() => '');
+        console.error('❌ Token request failed:', tokenResponse.status, errorText);
+        return NextResponse.json(
+          { error: 'Failed to obtain access token', status: tokenResponse.status, body: errorText },
+          { status: 502 }
+        );
+      }
+
+      const tokenData: ForbrukerrådetTokenResponse = await tokenResponse.json();
+      accessToken = tokenData.accessToken;
+
+      if (!accessToken) {
+        return NextResponse.json(
+          { error: 'No access token in response', tokenKeys: Object.keys(tokenData) },
+          { status: 502 }
+        );
+      }
+
+      console.log('✅ Access token obtained');
+    } else {
+      console.log('✅ Using provided access token');
     }
 
-    console.log('✅ Access token obtained');
-
-    // 2) Fetch price data from all available feeds
-    const feeds = ['/feed/week', '/feed/agreements', '/feed/prices'];
+    // 2) Fetch price data from available feeds
+    const feeds = ['/feed/week'];
     const allPriceData: ForbrukerrådetPriceData[] = [];
 
     for (const feed of feeds) {
@@ -136,22 +144,31 @@ export async function POST(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Transform data for storage
-    const transformedData = allPriceData.map(record => ({
-      year: record.year,
-      week: record.week,
-      consumption: record.consumption,
-      name: record.name,
-      no1: record.no1,
-      no2: record.no2,
-      no3: record.no3,
-      no4: record.no4,
-      no5: record.no5,
-      national: record.national,
-      created_at: record.createdAt,
-      updated_at: record.updatedAt,
-      source: 'forbrukerradet',
-    }));
+    // Transform data for storage with validation
+    const transformedData = allPriceData
+      .filter(record => 
+        record.no1 !== null && record.no1 !== undefined &&
+        record.no2 !== null && record.no2 !== undefined &&
+        record.no3 !== null && record.no3 !== undefined &&
+        record.no4 !== null && record.no4 !== undefined &&
+        record.no5 !== null && record.no5 !== undefined &&
+        record.national !== null && record.national !== undefined
+      )
+      .map(record => ({
+        year: record.year,
+        week: record.week,
+        consumption: record.consumption,
+        name: record.name,
+        no1: Number(record.no1),
+        no2: Number(record.no2),
+        no3: Number(record.no3),
+        no4: Number(record.no4),
+        no5: Number(record.no5),
+        national: Number(record.national),
+        created_at: record.createdAt,
+        updated_at: record.updatedAt,
+        source: 'forbrukerradet',
+      }));
 
     // Insert/update data
     const { error: insertError } = await supabase

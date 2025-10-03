@@ -39,6 +39,10 @@ CREATE POLICY "Allow public read access" ON forbrukerradet_prices
 CREATE POLICY "Allow service role full access" ON forbrukerradet_prices
   FOR ALL USING (auth.role() = 'service_role');
 
+-- Policy to allow anonymous inserts (for API calls)
+CREATE POLICY "Allow anonymous inserts" ON forbrukerradet_prices
+  FOR INSERT WITH CHECK (true);
+
 -- Comments for documentation
 COMMENT ON TABLE forbrukerradet_prices IS 'Price data from Forbrukerrådet strømprisportal feeds';
 COMMENT ON COLUMN forbrukerradet_prices.year IS 'Year of the price data';
