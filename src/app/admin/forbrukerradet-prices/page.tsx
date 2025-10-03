@@ -89,7 +89,19 @@ export default function ForbrukerrådetPricesPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-center">
               <div className="text-red-600 text-lg font-semibold mb-2">Fel vid laddning</div>
-              <div className="text-gray-600">{error}</div>
+              <div className="text-gray-600 mb-4">{error}</div>
+              {error.includes('Missing Supabase configuration') && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 text-left">
+                  <h4 className="font-semibold text-yellow-800 mb-2">Konfigurationsproblem</h4>
+                  <p className="text-yellow-700 text-sm mb-2">
+                    För att visa Forbrukerrådet-priser behöver följande environment variables vara satta:
+                  </p>
+                  <ul className="text-yellow-700 text-sm list-disc list-inside space-y-1">
+                    <li><code className="bg-yellow-100 px-1 rounded">NEXT_PUBLIC_SUPABASE_URL</code></li>
+                    <li><code className="bg-yellow-100 px-1 rounded">NEXT_PUBLIC_SUPABASE_ANON_KEY</code></li>
+                  </ul>
+                </div>
+              )}
               <button 
                 onClick={loadPrices}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -307,22 +319,22 @@ export default function ForbrukerrådetPricesPage() {
                           {getPriceTypeDisplayName(String(price.name))}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700 bg-gray-50">
                         {formatForbrukerrådetPrice(price.no1)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700 bg-gray-50">
                         {formatForbrukerrådetPrice(price.no2)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700 bg-gray-50">
                         {formatForbrukerrådetPrice(price.no3)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700 bg-gray-50">
                         {formatForbrukerrådetPrice(price.no4)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700 bg-gray-50">
                         {formatForbrukerrådetPrice(price.no5)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono font-semibold text-indigo-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono font-semibold text-indigo-800 bg-indigo-50">
                         {formatForbrukerrådetPrice(price.national)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
