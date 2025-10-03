@@ -81,6 +81,13 @@ const adminSections = [
     href: "/admin/business-plans",
     icon: "🏢",
     color: "bg-blue-600"
+  },
+  {
+    title: "Forbrukerrådet Priser",
+    description: "Visa och hantera priser från Forbrukerrådets strømprisportal",
+    href: "/admin/forbrukerradet-prices",
+    icon: "📊",
+    color: "bg-red-500"
   }
 ];
 

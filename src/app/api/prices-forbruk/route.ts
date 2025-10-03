@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     const overrideAccept = url.searchParams.get('accept') || undefined; // optional: override Accept header
 
     const baseUrl = overrideBaseUrl || process.env.FORBRUK_BASE_URL || 'https://strom-api.forbrukerradet.no';
-    const authUrl = overrideAuthUrl || process.env.FORBRUK_AUTH_URL || `${baseUrl}/oauth/token`;
+    const authUrl = overrideAuthUrl || process.env.FORBRUK_AUTH_URL || `${baseUrl}/api/auth/token`;
     const clientId = process.env.FORBRUK_CLIENT_ID;
     const clientSecret = process.env.FORBRUK_CLIENT_SECRET;
     const scope = overrideScope || process.env.FORBRUK_SCOPE; // optional
