@@ -54,6 +54,15 @@ export default function ForbrukerrådetPricesPage() {
     return values;
   };
 
+  // Filter prices based on current filter state
+  const filteredPrices = prices.filter(price => {
+    if (filter.year && price.year !== filter.year) return false;
+    if (filter.week && price.week !== filter.week) return false;
+    if (filter.consumption && price.consumption !== filter.consumption) return false;
+    if (filter.name && price.name !== filter.name) return false;
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
