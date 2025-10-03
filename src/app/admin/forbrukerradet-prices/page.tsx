@@ -145,7 +145,7 @@ export default function ForbrukerrådetPricesPage() {
                 >
                   <option value="">Alle typer</option>
                   {getUniqueValues('name').map(name => (
-                    <option key={name} value={name}>{getPriceTypeDisplayName(name)}</option>
+                    <option key={name} value={name}>{getPriceTypeDisplayName(String(name))}</option>
                   ))}
                 </select>
               </div>
