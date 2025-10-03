@@ -22,8 +22,13 @@ export default function ForbrukerrådetPricesPage() {
   const loadPrices = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await getLatestForbrukerrådetPrices(50);
       setPrices(data);
+      
+      if (data.length === 0) {
+        setError('Ingen data hittades i databasen. Tabellen är tom. Kör update-endpointen för att hämta data från Forbrukerrådet.');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load prices');
     } finally {
@@ -100,6 +105,40 @@ export default function ForbrukerrådetPricesPage() {
                     <li><code className="bg-yellow-800 px-1 rounded text-yellow-200">NEXT_PUBLIC_SUPABASE_URL</code></li>
                     <li><code className="bg-yellow-800 px-1 rounded text-yellow-200">NEXT_PUBLIC_SUPABASE_ANON_KEY</code></li>
                   </ul>
+                </div>
+              )}
+              
+              {error.includes('Ingen data hittades i databasen') && (
+                <div className="bg-blue-800 border border-blue-600 rounded-lg p-4 mb-4 text-left">
+                  <h4 className="font-semibold text-blue-200 mb-2">Tom databas</h4>
+                  <p className="text-blue-100 text-sm mb-2">
+                    Tabellen finns men är tom. Du behöver köra update-endpointen för att hämta data från Forbrukerrådet.
+                  </p>
+                  <div className="mt-3">
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('/api/prices-forbruk-update', {
+                            method: 'POST',
+                            headers: {
+                              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_UPDATE_SECRET_KEY || 'your-secret-key'}`
+                            }
+                          });
+                          if (response.ok) {
+                            alert('Data hämtad! Laddar om sidan...');
+                            window.location.reload();
+                          } else {
+                            alert('Fel vid hämtning av data. Kontrollera att UPDATE_SECRET_KEY är satt.');
+                          }
+                        } catch (err) {
+                          alert('Fel vid hämtning av data: ' + (err instanceof Error ? err.message : 'Unknown error'));
+                        }
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                    >
+                      Hämta data från Forbrukerrådet
+                    </button>
+                  </div>
                 </div>
               )}
               <button 
