@@ -319,22 +319,22 @@ export default function ForbrukerrådetPricesPage() {
                           {getPriceTypeDisplayName(String(price.name))}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700 bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white bg-gray-800">
                         {formatForbrukerrådetPrice(price.no1)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700 bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white bg-gray-800">
                         {formatForbrukerrådetPrice(price.no2)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700 bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white bg-gray-800">
                         {formatForbrukerrådetPrice(price.no3)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700 bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white bg-gray-800">
                         {formatForbrukerrådetPrice(price.no4)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-700 bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white bg-gray-800">
                         {formatForbrukerrådetPrice(price.no5)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono font-semibold text-indigo-800 bg-indigo-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono font-semibold text-white bg-indigo-600">
                         {formatForbrukerrådetPrice(price.national)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
