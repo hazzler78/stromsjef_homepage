@@ -1,65 +1,114 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { getForbrukerrådetPrices, getLatestForbrukerrådetPrices, ForbrukerrådetPrice, getPriceTypeDisplayName, getConsumptionDisplayName, formatForbrukerrådetPrice } from '@/lib/forbrukerradetService';
+"use client";
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { getForbrukerrådetPrices } from '@/lib/forbrukerradetService';
 
-export default function ForbrukerrådetPricesPage() {
+const ADMIN_PASSWORD = "grodan2025";
+
+type ForbrukerrådetPrice = {
+  id: number;
+  year: number;
+  week: number;
+  consumption: number;
+  name: string;
+  no1: number;
+  no2: number;
+  no3: number;
+  no4: number;
+  no5: number;
+  national: number;
+  created_at: string;
+  updated_at: string;
+  source: string;
+};
+
+export default function AdminForbrukerrådetPrices() {
   const [prices, setPrices] = useState<ForbrukerrådetPrice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [authed, setAuthed] = useState(false);
+  const [input, setInput] = useState("");
+  const [authError, setAuthError] = useState("");
   const [filter, setFilter] = useState({
-    year: new Date().getFullYear(),
+    year: 0,
     week: 0,
     consumption: 0,
-    name: '',
+    name: ''
   });
 
   useEffect(() => {
-    loadPrices();
+    if (typeof window !== 'undefined') {
+      if (sessionStorage.getItem('admin_authed') === 'true') setAuthed(true);
+    }
   }, []);
 
-  const loadPrices = async () => {
+  useEffect(() => {
+    if (authed) {
+      fetchPrices();
+    }
+  }, [authed]);
+
+  const fetchPrices = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getLatestForbrukerrådetPrices(50);
+      const data = await getForbrukerrådetPrices();
       setPrices(data);
-      
-      if (data.length === 0) {
-        setError('Ingen data hittades i databasen. Tabellen är tom. Kör update-endpointen för att hämta data från Forbrukerrådet.');
-      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load prices');
+      console.error('Error fetching prices:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFilter = async () => {
-    try {
-      setLoading(true);
-      const data = await getForbrukerrådetPrices({
-        year: filter.year || undefined,
-        week: filter.week || undefined,
-        consumption: filter.consumption || undefined,
-        name: filter.name || undefined,
-        limit: 100,
-      });
-      setPrices(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to filter prices');
-    } finally {
-      setLoading(false);
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input === ADMIN_PASSWORD) {
+      setAuthed(true);
+      sessionStorage.setItem('admin_authed', 'true');
+      setAuthError('');
+    } else {
+      setAuthError('Fel lösenord!');
     }
   };
 
-  const getUniqueValues = (key: keyof ForbrukerrådetPrice) => {
-    const values = [...new Set(prices.map(p => p[key]))].sort();
-    return values;
+  const getUniqueValues = (field: keyof ForbrukerrådetPrice) => {
+    const values = prices.map(price => price[field]);
+    return Array.from(new Set(values)).sort();
   };
 
-  // Filter prices based on current filter state
+  const getConsumptionDisplayName = (consumption: number) => {
+    const consumptionMap: { [key: number]: string } = {
+      5000: '5 MWh',
+      10000: '10 MWh', 
+      16000: '16 MWh',
+      20000: '20 MWh',
+      40000: '40 MWh'
+    };
+    return consumptionMap[consumption] || `${consumption} MWh`;
+  };
+
+  const getPriceTypeDisplayName = (name: string) => {
+    const typeMap: { [key: string]: string } = {
+      'spot': 'Spotpris',
+      'variable': 'Variabel pris',
+      'fixed 1 year': 'Fast 1 år',
+      'fixed 2 years': 'Fast 2 år',
+      'fixed 3 years': 'Fast 3 år',
+      'fixed 5 years': 'Fast 5 år',
+      'purchase': 'Innkjøp',
+      'plus': 'Plus',
+      'other': 'Annet',
+      'hourly_spot': 'Timepris'
+    };
+    return typeMap[name] || name;
+  };
+
+  const formatForbrukerrådetPrice = (price: number) => {
+    return `${price.toFixed(4)} øre/kWh`;
+  };
+
   const filteredPrices = prices.filter(price => {
     if (filter.year && price.year !== filter.year) return false;
     if (filter.week && price.week !== filter.week) return false;
@@ -68,345 +117,461 @@ export default function ForbrukerrådetPricesPage() {
     return true;
   });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="animate-pulse">
-              <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-              <div className="space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-4 bg-gray-200 rounded"></div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const triggerUpdate = async () => {
+    try {
+      const response = await fetch('/api/prices-forbruk-update', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_UPDATE_SECRET_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        alert('Priser uppdaterade! Laddar om sidan...');
+        window.location.reload();
+      } else {
+        const errorData = await response.json();
+        alert(`Fel vid uppdatering: ${errorData.error}`);
+      }
+    } catch (err) {
+      alert(`Fel vid uppdatering: ${err}`);
+    }
+  };
 
-  if (error) {
+  if (!authed) {
     return (
-      <div className="min-h-screen bg-gray-900 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-gray-800 rounded-lg shadow p-6">
-            <div className="text-center">
-              <div className="text-red-400 text-lg font-semibold mb-2">Fel vid laddning</div>
-              <div className="text-gray-200 mb-4">{error}</div>
-              {error.includes('Missing Supabase configuration') && (
-                <div className="bg-yellow-800 border border-yellow-600 rounded-lg p-4 mb-4 text-left">
-                  <h4 className="font-semibold text-yellow-200 mb-2">Konfigurationsproblem</h4>
-                  <p className="text-yellow-100 text-sm mb-2">
-                    För att visa Forbrukerrådet-priser behöver följande environment variables vara satta:
-                  </p>
-                  <ul className="text-yellow-100 text-sm list-disc list-inside space-y-1">
-                    <li><code className="bg-yellow-800 px-1 rounded text-yellow-200">NEXT_PUBLIC_SUPABASE_URL</code></li>
-                    <li><code className="bg-yellow-800 px-1 rounded text-yellow-200">NEXT_PUBLIC_SUPABASE_ANON_KEY</code></li>
-                  </ul>
-                </div>
-              )}
-              
-              {error.includes('Ingen data hittades i databasen') && (
-                <div className="bg-blue-800 border border-blue-600 rounded-lg p-4 mb-4 text-left">
-                  <h4 className="font-semibold text-blue-200 mb-2">Tom databas</h4>
-                  <p className="text-blue-100 text-sm mb-2">
-                    Tabellen finns men är tom. Du behöver köra update-endpointen för att hämta data från Forbrukerrådet.
-                  </p>
-                  <div className="mt-3">
-                    <button 
-                      onClick={async () => {
-                        try {
-                          const response = await fetch('/api/prices-forbruk-update', {
-                            method: 'POST',
-                            headers: {
-                              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_UPDATE_SECRET_KEY || 'your-secret-key'}`
-                            }
-                          });
-                          if (response.ok) {
-                            alert('Data hämtad! Laddar om sidan...');
-                            window.location.reload();
-                          } else {
-                            alert('Fel vid hämtning av data. Kontrollera att UPDATE_SECRET_KEY är satt.');
-                          }
-                        } catch (err) {
-                          alert('Fel vid hämtning av data: ' + (err instanceof Error ? err.message : 'Unknown error'));
-                        }
-                      }}
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
-                    >
-                      Hämta data från Forbrukerrådet
-                    </button>
-                  </div>
-                </div>
-              )}
-              <button 
-                onClick={loadPrices}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Försök igen
-              </button>
-            </div>
-          </div>
-        </div>
+      <div style={{ 
+        maxWidth: 400, 
+        margin: '4rem auto', 
+        padding: 24, 
+        border: '1px solid #e5e7eb', 
+        borderRadius: 12,
+        background: 'white',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+      }}>
+        <h2 style={{ marginBottom: 16, textAlign: 'center' }}>Admininloggning</h2>
+        <form onSubmit={handleLogin}>
+          <input
+            type="password"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder="Lösenord"
+            style={{ 
+              width: '100%', 
+              padding: 12, 
+              fontSize: 16, 
+              marginBottom: 12, 
+              borderRadius: 8, 
+              border: '1px solid #cbd5e1',
+              boxSizing: 'border-box'
+            }}
+            autoFocus
+          />
+          <button 
+            type="submit" 
+            style={{ 
+              width: '100%', 
+              padding: 12, 
+              fontSize: 16, 
+              borderRadius: 8, 
+              background: 'var(--primary)', 
+              color: 'white', 
+              border: 'none', 
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            Logga in
+          </button>
+        </form>
+        {authError && <div style={{ color: 'red', marginTop: 8, textAlign: 'center' }}>{authError}</div>}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div style={{ 
+      maxWidth: 1200, 
+      margin: '2rem auto', 
+      padding: 24,
+      minHeight: '100vh',
+      background: 'white'
+    }}>
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <Link 
-                href="/admin" 
-                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                ← Tillbaka till Admin
-              </Link>
-              <div>
-                <h1 className="text-3xl font-bold text-white">📊 Forbrukerrådet Priser</h1>
-                <p className="text-gray-200 mt-1">Prisdata från Forbrukerrådets strømprisportal</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="text-sm text-gray-200">
-                Senast uppdaterad: {new Date().toLocaleString('sv-SE')}
-              </div>
-            </div>
-          </div>
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: 48,
+        padding: '2rem',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: 16,
+        color: 'white'
+      }}>
+        <h1 style={{ 
+          fontSize: '2.5rem', 
+          marginBottom: 8,
+          fontWeight: 700
+        }}>
+          📊 Forbrukerrådet Priser
+        </h1>
+        <p style={{ 
+          fontSize: '1.1rem', 
+          opacity: 0.9,
+          margin: 0
+        }}>
+          Visa och hantera priser från Forbrukerrådets strømprisportal
+        </p>
+        <div style={{ 
+          marginTop: 16,
+          fontSize: '0.9rem',
+          opacity: 0.8
+        }}>
+          Senast uppdaterad: {prices.length > 0 ? new Date(prices[0].created_at).toLocaleString('sv-SE') : 'N/A'}
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+      {/* Navigation */}
+      <div style={{ marginBottom: 24 }}>
+        <Link 
+          href="/admin" 
+          style={{ 
+            display: 'inline-flex',
+            alignItems: 'center',
+            padding: '8px 16px',
+            border: '1px solid #cbd5e1',
+            borderRadius: 6,
+            textDecoration: 'none',
+            color: '#374151',
+            background: 'white',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+          }}
+        >
+          ← Tillbaka till Admin
+        </Link>
+      </div>
 
-          {/* Error State */}
-          {error && (
-            <div className="px-6 py-4 bg-red-50 border-l-4 border-red-400">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
+      {/* Error State */}
+      {error && (
+        <div style={{ 
+          padding: 16, 
+          background: '#fef2f2', 
+          border: '1px solid #fecaca',
+          borderRadius: 8,
+          marginBottom: 24
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ marginRight: 12, color: '#dc2626' }}>⚠️</div>
+            <div>
+              <h3 style={{ margin: 0, color: '#991b1b', fontSize: '14px', fontWeight: 600 }}>Fel vid laddning</h3>
+              <p style={{ margin: '4px 0 0 0', color: '#b91c1c', fontSize: '14px' }}>{error}</p>
+              {error.includes('Missing Supabase configuration') && (
+                <div style={{ 
+                  marginTop: 12, 
+                  padding: 12, 
+                  background: '#fef3c7', 
+                  border: '1px solid #fbbf24',
+                  borderRadius: 6
+                }}>
+                  <p style={{ margin: 0, color: '#92400e', fontSize: '13px' }}>
+                    <strong>Lösning:</strong> Kontrollera att följande miljövariabler är satta:<br/>
+                    • NEXT_PUBLIC_SUPABASE_URL<br/>
+                    • NEXT_PUBLIC_SUPABASE_ANON_KEY
+                  </p>
                 </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">Fel vid laddning</h3>
-                  <p className="text-sm text-red-700 mt-1">{error}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Loading State */}
-          {loading && (
-            <div className="px-6 py-12 text-center">
-              <div className="inline-flex flex-col items-center space-y-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                <div className="text-lg font-medium text-gray-900">Laddar priser...</div>
-                <div className="text-sm text-gray-500">Hämtar data från Forbrukerrådet</div>
-              </div>
-            </div>
-          )}
-
-          {/* Filters */}
-          <div className="px-6 py-6 bg-gray-800 border-b border-gray-600">
-            <h3 className="text-lg font-semibold text-white mb-4">🔍 Filter & Sök</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-white mb-1">År</label>
-                <select
-                  value={filter.year}
-                  onChange={(e) => setFilter({ ...filter, year: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+              )}
+              {error.includes('Ingen data hittades') && (
+                <button 
+                  onClick={triggerUpdate}
+                  style={{
+                    marginTop: 12,
+                    padding: '8px 16px',
+                    background: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
                 >
-                  {getUniqueValues('year').map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-1">Uke</label>
-                <select
-                  value={filter.week}
-                  onChange={(e) => setFilter({ ...filter, week: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-                >
-                  <option value={0}>Alle uker</option>
-                  {getUniqueValues('week').map(week => (
-                    <option key={week} value={week}>Uke {week}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-1">Forbruk</label>
-                <select
-                  value={filter.consumption}
-                  onChange={(e) => setFilter({ ...filter, consumption: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-                >
-                  <option value={0}>Alle nivåer</option>
-                  {getUniqueValues('consumption').map(consumption => (
-                    <option key={consumption} value={consumption}>
-                      {getConsumptionDisplayName(Number(consumption))}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-1">Pristype</label>
-                <select
-                  value={filter.name}
-                  onChange={(e) => setFilter({ ...filter, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-                >
-                  <option value="">Alle typer</option>
-                  {getUniqueValues('name').map(name => (
-                    <option key={name} value={name}>{getPriceTypeDisplayName(String(name))}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="mt-6 flex space-x-3">
-              <button
-                onClick={handleFilter}
-                className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 shadow-sm transition-colors"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
-                </svg>
-                Filtrer
-              </button>
-              <button
-                onClick={loadPrices}
-                className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 shadow-sm transition-colors"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Reset
-              </button>
+                  Hämta data från Forbrukerrådet
+                </button>
+              )}
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Results Summary */}
-          {!loading && !error && (
-            <div className="px-6 py-4 bg-indigo-800 border-b border-indigo-600">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="text-sm font-medium text-white">
-                    📊 Visar {filteredPrices.length} av {prices.length} priser
-                  </div>
-                  {filteredPrices.length !== prices.length && (
-                    <div className="text-sm text-gray-200">
-                      (filtrerat från {prices.length} totalt)
+      {/* Loading State */}
+      {loading && (
+        <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+          <div style={{ 
+            display: 'inline-block',
+            width: 48,
+            height: 48,
+            border: '3px solid #e5e7eb',
+            borderTop: '3px solid #3b82f6',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <div style={{ marginTop: 16, fontSize: '18px', fontWeight: 500, color: '#374151' }}>Laddar priser...</div>
+          <div style={{ marginTop: 8, fontSize: '14px', color: '#6b7280' }}>Hämtar data från Forbrukerrådet</div>
+        </div>
+      )}
+
+      {/* Filters */}
+      {!loading && !error && (
+        <div style={{ 
+          padding: 24, 
+          background: '#f9fafb', 
+          border: '1px solid #e5e7eb',
+          borderRadius: 8,
+          marginBottom: 24
+        }}>
+          <h3 style={{ margin: '0 0 16px 0', color: '#374151', fontSize: '18px', fontWeight: 600 }}>🔍 Filter & Sök</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: 4 }}>År</label>
+              <select
+                value={filter.year}
+                onChange={(e) => setFilter({ ...filter, year: parseInt(e.target.value) })}
+                style={{ 
+                  width: '100%', 
+                  padding: '8px 12px', 
+                  border: '1px solid #d1d5db', 
+                  borderRadius: 6,
+                  fontSize: '14px'
+                }}
+              >
+                <option value={0}>Alle år</option>
+                {getUniqueValues('year').map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: 4 }}>Uke</label>
+              <select
+                value={filter.week}
+                onChange={(e) => setFilter({ ...filter, week: parseInt(e.target.value) })}
+                style={{ 
+                  width: '100%', 
+                  padding: '8px 12px', 
+                  border: '1px solid #d1d5db', 
+                  borderRadius: 6,
+                  fontSize: '14px'
+                }}
+              >
+                <option value={0}>Alle uker</option>
+                {getUniqueValues('week').map(week => (
+                  <option key={week} value={week}>Uke {week}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: 4 }}>Forbruk</label>
+              <select
+                value={filter.consumption}
+                onChange={(e) => setFilter({ ...filter, consumption: parseInt(e.target.value) })}
+                style={{ 
+                  width: '100%', 
+                  padding: '8px 12px', 
+                  border: '1px solid #d1d5db', 
+                  borderRadius: 6,
+                  fontSize: '14px'
+                }}
+              >
+                <option value={0}>Alle nivåer</option>
+                {getUniqueValues('consumption').map(consumption => (
+                  <option key={consumption} value={consumption}>
+                    {getConsumptionDisplayName(Number(consumption))}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#374151', marginBottom: 4 }}>Pristype</label>
+              <select
+                value={filter.name}
+                onChange={(e) => setFilter({ ...filter, name: e.target.value })}
+                style={{ 
+                  width: '100%', 
+                  padding: '8px 12px', 
+                  border: '1px solid #d1d5db', 
+                  borderRadius: 6,
+                  fontSize: '14px'
+                }}
+              >
+                <option value="">Alle typer</option>
+                {getUniqueValues('name').map(name => (
+                  <option key={name} value={name}>
+                    {getPriceTypeDisplayName(String(name))}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Results Summary */}
+      {!loading && !error && (
+        <div style={{ 
+          padding: 16, 
+          background: '#eff6ff', 
+          border: '1px solid #bfdbfe',
+          borderRadius: 8,
+          marginBottom: 24
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ fontSize: '14px', fontWeight: 500, color: '#1e40af' }}>
+                📊 Visar {filteredPrices.length} av {prices.length} priser
+              </div>
+              {filteredPrices.length !== prices.length && (
+                <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                  (filtrerat från {prices.length} totalt)
+                </div>
+              )}
+            </div>
+            <div style={{ fontSize: '14px', color: '#6b7280' }}>
+              Senast uppdaterad: {prices.length > 0 ? new Date(prices[0].created_at).toLocaleString('sv-SE') : 'N/A'}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Data Table */}
+      {!loading && !error && (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#f3f4f6' }}>
+                <th style={{ padding: 12, border: '1px solid #e5e7eb', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#374151' }}>📅 År/Uke</th>
+                <th style={{ padding: 12, border: '1px solid #e5e7eb', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#374151' }}>⚡ Forbruk</th>
+                <th style={{ padding: 12, border: '1px solid #e5e7eb', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#374151' }}>🏷️ Pristype</th>
+                <th style={{ padding: 12, border: '1px solid #e5e7eb', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#374151' }}>📍 NO1</th>
+                <th style={{ padding: 12, border: '1px solid #e5e7eb', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#374151' }}>📍 NO2</th>
+                <th style={{ padding: 12, border: '1px solid #e5e7eb', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#374151' }}>📍 NO3</th>
+                <th style={{ padding: 12, border: '1px solid #e5e7eb', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#374151' }}>📍 NO4</th>
+                <th style={{ padding: 12, border: '1px solid #e5e7eb', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#374151' }}>📍 NO5</th>
+                <th style={{ padding: 12, border: '1px solid #e5e7eb', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#374151' }}>🇳🇴 Nasjonalt</th>
+                <th style={{ padding: 12, border: '1px solid #e5e7eb', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#374151' }}>🕒 Oppdatert</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPrices.map((price, index) => (
+                <tr key={price.id} style={{ background: index % 2 === 0 ? 'white' : '#f9fafb' }}>
+                  <td style={{ padding: 12, border: '1px solid #e5e7eb' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#1f2937' }}>
+                        {price.year}
+                      </div>
+                      <div style={{ marginLeft: 8, fontSize: '14px', color: '#6b7280' }}>
+                        Uke {price.week}
+                      </div>
                     </div>
-                  )}
-                </div>
-                <div className="text-sm text-gray-200">
-                  Senast uppdaterad: {prices.length > 0 ? new Date(prices[0].created_at).toLocaleString('sv-SE') : 'N/A'}
-                </div>
-              </div>
-            </div>
-          )}
+                  </td>
+                  <td style={{ padding: 12, border: '1px solid #e5e7eb' }}>
+                    <span style={{ 
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      padding: '4px 8px',
+                      borderRadius: 12,
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      background: '#fef3c7',
+                      color: '#92400e'
+                    }}>
+                      {getConsumptionDisplayName(Number(price.consumption))}
+                    </span>
+                  </td>
+                  <td style={{ padding: 12, border: '1px solid #e5e7eb' }}>
+                    <span style={{ 
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      padding: '4px 8px',
+                      borderRadius: 12,
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      background: '#dbeafe',
+                      color: '#1e40af'
+                    }}>
+                      {getPriceTypeDisplayName(String(price.name))}
+                    </span>
+                  </td>
+                  <td style={{ padding: 12, border: '1px solid #e5e7eb', fontSize: '14px', fontFamily: 'monospace', color: '#1f2937' }}>
+                    {formatForbrukerrådetPrice(price.no1)}
+                  </td>
+                  <td style={{ padding: 12, border: '1px solid #e5e7eb', fontSize: '14px', fontFamily: 'monospace', color: '#1f2937' }}>
+                    {formatForbrukerrådetPrice(price.no2)}
+                  </td>
+                  <td style={{ padding: 12, border: '1px solid #e5e7eb', fontSize: '14px', fontFamily: 'monospace', color: '#1f2937' }}>
+                    {formatForbrukerrådetPrice(price.no3)}
+                  </td>
+                  <td style={{ padding: 12, border: '1px solid #e5e7eb', fontSize: '14px', fontFamily: 'monospace', color: '#1f2937' }}>
+                    {formatForbrukerrådetPrice(price.no4)}
+                  </td>
+                  <td style={{ padding: 12, border: '1px solid #e5e7eb', fontSize: '14px', fontFamily: 'monospace', color: '#1f2937' }}>
+                    {formatForbrukerrådetPrice(price.no5)}
+                  </td>
+                  <td style={{ padding: 12, border: '1px solid #e5e7eb', fontSize: '14px', fontFamily: 'monospace', fontWeight: 600, color: '#1f2937' }}>
+                    {formatForbrukerrådetPrice(price.national)}
+                  </td>
+                  <td style={{ padding: 12, border: '1px solid #e5e7eb', fontSize: '14px', color: '#6b7280' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <div>{new Date(price.created_at).toLocaleDateString('sv-SE')}</div>
+                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                        {new Date(price.created_at).toLocaleTimeString('sv-SE')}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-          {/* Data Table */}
-          {!loading && !error && (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-indigo-800 to-blue-800">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📅 År/Uke</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">⚡ Forbruk</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">🏷️ Pristype</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📍 NO1</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📍 NO2</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📍 NO3</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📍 NO4</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">📍 NO5</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">🇳🇴 Nasjonalt</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">🕒 Oppdatert</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredPrices.map((price, index) => (
-                    <tr key={price.id} className={`hover:bg-indigo-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="text-sm font-semibold text-gray-900">
-                            {price.year}
-                          </div>
-                          <div className="ml-2 text-sm text-gray-600">
-                            Uke {price.week}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {getConsumptionDisplayName(Number(price.consumption))}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {getPriceTypeDisplayName(String(price.name))}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white bg-gray-800">
-                        {formatForbrukerrådetPrice(price.no1)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white bg-gray-800">
-                        {formatForbrukerrådetPrice(price.no2)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white bg-gray-800">
-                        {formatForbrukerrådetPrice(price.no3)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white bg-gray-800">
-                        {formatForbrukerrådetPrice(price.no4)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white bg-gray-800">
-                        {formatForbrukerrådetPrice(price.no5)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono font-semibold text-white bg-indigo-600">
-                        {formatForbrukerrådetPrice(price.national)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        <div className="flex flex-col">
-                          <div>{new Date(price.created_at).toLocaleDateString('sv-SE')}</div>
-                          <div className="text-xs text-gray-500">
-                            {new Date(price.created_at).toLocaleTimeString('sv-SE')}
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Empty State */}
-          {filteredPrices.length === 0 && !loading && !error && (
-            <div className="px-6 py-12 text-center">
-              <div className="flex flex-col items-center space-y-4">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <div className="text-lg font-medium text-gray-900">Ingen data funnet</div>
-                <div className="text-sm text-gray-600">Prova att ändra filterinställningarna</div>
-              </div>
-            </div>
+      {/* Empty State */}
+      {filteredPrices.length === 0 && !loading && !error && (
+        <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+          <div style={{ fontSize: '48px', marginBottom: 16 }}>📊</div>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#374151', margin: '0 0 8px 0' }}>Ingen data hittades</h3>
+          <p style={{ color: '#6b7280', margin: '0 0 24px 0' }}>
+            {prices.length === 0 
+              ? 'Ingen data hittades i databasen. Tabellen är tom. Kör update-endpointen för att hämta data från Forbrukerrådet.'
+              : 'Inga poster matchar de valda filtren. Prova att ändra filterinställningarna.'
+            }
+          </p>
+          {prices.length === 0 && (
+            <button 
+              onClick={triggerUpdate}
+              style={{
+                padding: '12px 24px',
+                background: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: 8,
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 500
+              }}
+            >
+              Hämta data från Forbrukerrådet
+            </button>
           )}
         </div>
-      </div>
+      )}
+
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
