@@ -183,9 +183,38 @@ ALTER TABLE chatlog ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow all operations on chatlog" ON chatlog
   FOR ALL USING (true) WITH CHECK (true);
 
--- 12. Add comments for documentation
+-- 12. Create contacts table for form submissions
+CREATE TABLE IF NOT EXISTS contacts (
+  id SERIAL PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  name VARCHAR(255),
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  message TEXT,
+  ref VARCHAR(255),
+  campaign_code VARCHAR(255),
+  subscribe_newsletter BOOLEAN DEFAULT false,
+  form_type VARCHAR(100)
+);
+
+-- Create indexes for contacts
+CREATE INDEX IF NOT EXISTS idx_contacts_created_at ON contacts(created_at);
+CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
+CREATE INDEX IF NOT EXISTS idx_contacts_ref ON contacts(ref);
+CREATE INDEX IF NOT EXISTS idx_contacts_campaign_code ON contacts(campaign_code);
+CREATE INDEX IF NOT EXISTS idx_contacts_form_type ON contacts(form_type);
+
+-- Enable RLS for contacts
+ALTER TABLE contacts ENABLE ROW LEVEL SECURITY;
+
+-- Create policy for contacts
+CREATE POLICY "Allow all operations on contacts" ON contacts
+  FOR ALL USING (true) WITH CHECK (true);
+
+-- 13. Add comments for documentation
 COMMENT ON TABLE invoice_ocr IS 'Main table for invoice OCR processing';
 COMMENT ON TABLE invoice_ocr_files IS 'File storage references for invoice images';
 COMMENT ON TABLE bill_analysis IS 'Detailed electricity bill analysis results';
 COMMENT ON TABLE bill_cost_items IS 'Individual cost items from bill analysis';
 COMMENT ON TABLE chatlog IS 'Stores AI chat conversations and responses';
+COMMENT ON TABLE contacts IS 'Stores contact form submissions and newsletter signups';
