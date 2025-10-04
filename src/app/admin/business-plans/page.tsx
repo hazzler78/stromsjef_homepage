@@ -208,33 +208,106 @@ export default function AdminBusinessPlans() {
         {editing && (
           <div style={{ marginTop: 16, border: '1px solid #e5e7eb', borderRadius: 8, padding: 16, background: '#fff' }}>
             <h3 style={{ marginTop: 0 }}>Redigera plan</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
-              <input placeholder="ID" value={editing.id} onChange={e => setEditing({ ...editing, id: e.target.value })} />
-              <input placeholder="Leverantör" value={editing.supplier_name || ''} onChange={e => setEditing({ ...editing, supplier_name: e.target.value })} />
-              <input placeholder="Plan" value={editing.plan_name || ''} onChange={e => setEditing({ ...editing, plan_name: e.target.value })} />
-              <input type="number" step="0.01" placeholder="Pris (øre/kWh)" value={editing.price_per_kwh ?? 0} onChange={e => setEditing({ ...editing, price_per_kwh: Number(e.target.value) })} />
-              <input type="number" step="1" placeholder="Månadsavgift" value={editing.monthly_fee ?? 0} onChange={e => setEditing({ ...editing, monthly_fee: Number(e.target.value) })} />
-              <input type="number" step="1" placeholder="Bindingstid (mån)" value={editing.binding_time ?? 0} onChange={e => setEditing({ ...editing, binding_time: Number(e.target.value) })} />
-              <select value={editing.price_zone} onChange={e => setEditing({ ...editing, price_zone: e.target.value as PriceZone })}>
-                {(['ALL','NO1','NO2','NO3','NO4','NO5'] as PriceZone[]).map(z => (<option key={z} value={z}>{z}</option>))}
-              </select>
-              <input placeholder="Logo URL" value={editing.logo_url || ''} onChange={e => setEditing({ ...editing, logo_url: e.target.value })} />
-              <input placeholder="Affiliate-länk" value={editing.affiliate_link || ''} onChange={e => setEditing({ ...editing, affiliate_link: e.target.value })} />
-              <input placeholder="Pris-badge" value={editing.price_badge || ''} onChange={e => setEditing({ ...editing, price_badge: e.target.value })} />
-              <input placeholder="Bindingstid text" value={editing.binding_time_text || ''} onChange={e => setEditing({ ...editing, binding_time_text: e.target.value })} />
-              <input placeholder="Villkorsgaranti" value={editing.terms_guarantee || ''} onChange={e => setEditing({ ...editing, terms_guarantee: e.target.value })} />
-              <input placeholder="Ansvarsfriskrivning" value={editing.guarantee_disclaimer || ''} onChange={e => setEditing({ ...editing, guarantee_disclaimer: e.target.value })} />
-              <input type="number" step="1" placeholder="Bruddgebyr" value={editing.termination_fee ?? 0} onChange={e => setEditing({ ...editing, termination_fee: Number(e.target.value) })} />
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <input type="checkbox" checked={!!editing.featured} onChange={e => setEditing({ ...editing, featured: e.target.checked })} /> Featured
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <input type="checkbox" checked={!!editing.recommended} onChange={e => setEditing({ ...editing, recommended: e.target.checked })} /> Rekommenderad
-              </label>
+            
+            <div style={{ marginBottom: 16 }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 600, color: '#374151' }}>Grundläggande information</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>ID (unik identifierare)</label>
+                  <input placeholder="t.ex. vstrom-bedrift-2024" value={editing.id} onChange={e => setEditing({ ...editing, id: e.target.value })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Leverantör</label>
+                  <input placeholder="t.ex. V-strom" value={editing.supplier_name || ''} onChange={e => setEditing({ ...editing, supplier_name: e.target.value })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Plan namn</label>
+                  <input placeholder="t.ex. Renspott Bedrift" value={editing.plan_name || ''} onChange={e => setEditing({ ...editing, plan_name: e.target.value })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Prisområde</label>
+                  <select value={editing.price_zone} onChange={e => setEditing({ ...editing, price_zone: e.target.value as PriceZone })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }}>
+                    {(['ALL','NO1','NO2','NO3','NO4','NO5'] as PriceZone[]).map(z => (<option key={z} value={z}>{z}</option>))}
+                  </select>
+                </div>
+              </div>
             </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 600, color: '#374151' }}>Priser och avgifter</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Pris per kWh (øre)</label>
+                  <input type="number" step="0.01" placeholder="49.90" value={editing.price_per_kwh ?? 0} onChange={e => setEditing({ ...editing, price_per_kwh: Number(e.target.value) })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Månadsavgift (kr)</label>
+                  <input type="number" step="1" placeholder="0" value={editing.monthly_fee ?? 0} onChange={e => setEditing({ ...editing, monthly_fee: Number(e.target.value) })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Bindingstid (månader)</label>
+                  <input type="number" step="1" placeholder="0" value={editing.binding_time ?? 0} onChange={e => setEditing({ ...editing, binding_time: Number(e.target.value) })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Bruddgebyr (kr)</label>
+                  <input type="number" step="1" placeholder="0" value={editing.termination_fee ?? 0} onChange={e => setEditing({ ...editing, termination_fee: Number(e.target.value) })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 600, color: '#374151' }}>Länkar och media</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Logo URL</label>
+                  <input placeholder="/logos/vstrom.png" value={editing.logo_url || ''} onChange={e => setEditing({ ...editing, logo_url: e.target.value })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Affiliate-länk</label>
+                  <input placeholder="https://example.com/affiliate" value={editing.affiliate_link || ''} onChange={e => setEditing({ ...editing, affiliate_link: e.target.value })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 600, color: '#374151' }}>Text och beskrivningar</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Pris-badge (text över pris)</label>
+                  <input placeholder="t.ex. Kampanje" value={editing.price_badge || ''} onChange={e => setEditing({ ...editing, price_badge: e.target.value })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Bindingstid text</label>
+                  <input placeholder="t.ex. Ingen bindingstid" value={editing.binding_time_text || ''} onChange={e => setEditing({ ...editing, binding_time_text: e.target.value })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Villkorsgaranti</label>
+                  <input placeholder="t.ex. 12 månaders prisgaranti" value={editing.terms_guarantee || ''} onChange={e => setEditing({ ...editing, terms_guarantee: e.target.value })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Ansvarsfriskrivning</label>
+                  <input placeholder="t.ex. Gäller endast för nya kunder" value={editing.guarantee_disclaimer || ''} onChange={e => setEditing({ ...editing, guarantee_disclaimer: e.target.value })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 600, color: '#374151' }}>Inställningar</h4>
+              <div style={{ display: 'flex', gap: 16 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <input type="checkbox" checked={!!editing.featured} onChange={e => setEditing({ ...editing, featured: e.target.checked })} />
+                  <span style={{ fontSize: '14px' }}>Utvald (visas först)</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <input type="checkbox" checked={!!editing.recommended} onChange={e => setEditing({ ...editing, recommended: e.target.checked })} />
+                  <span style={{ fontSize: '14px' }}>Rekommenderad (grön badge)</span>
+                </label>
+              </div>
+            </div>
+
             <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-              <button onClick={() => editing && save(editing)} disabled={saving}>{saving ? 'Sparar…' : 'Spara'}</button>
-              <button onClick={() => setEditing(null)}>Avbryt</button>
+              <button onClick={() => editing && save(editing)} disabled={saving} style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}>{saving ? 'Sparar…' : 'Spara'}</button>
+              <button onClick={() => setEditing(null)} style={{ padding: '8px 16px', background: '#6b7280', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}>Avbryt</button>
             </div>
           </div>
         )}
