@@ -241,7 +241,7 @@ function BottomNavContent() {
         {pathname === '/' && <ActiveIndicator />}
       </NavItem>
       <NavItem href={withDefaultCtaUtm('/jamfor-elpriser', 'bottomnav', 'compare')} className={pathname === '/jamfor-elpriser' ? 'active' : ''}>
-        Sammenlign
+        Fakturaanalyse
         {pathname === '/jamfor-elpriser' && <ActiveIndicator />}
       </NavItem>
       <NavItem href={withDefaultCtaUtm('/media', 'bottomnav', 'media')} className={pathname === '/media' ? 'active' : ''}>

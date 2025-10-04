@@ -90,21 +90,21 @@ export default function JamforElpriser() {
     } catch {}
   }, []);
 
-  // Spåra sidvisning
-  useEffect(() => {
-    try {
-      if (typeof window === 'undefined') return;
-      const sid = sessionIdRef.current || localStorage.getItem('invoiceSessionId') || '';
-      const payload = JSON.stringify({ path: '/jamfor-elpriser', sessionId: sid });
-      const url = '/api/events/page-view';
-      if (navigator.sendBeacon) {
-        const blob = new Blob([payload], { type: 'application/json' });
-        navigator.sendBeacon(url, blob);
-      } else {
-        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload }).catch(() => {});
-      }
-    } catch {}
-  }, []);
+  // Spåra sidvisning - tillfälligt inaktiverat för att undvika 500-fel
+  // useEffect(() => {
+  //   try {
+  //     if (typeof window === 'undefined') return;
+  //     const sid = sessionIdRef.current || localStorage.getItem('invoiceSessionId') || '';
+  //     const payload = JSON.stringify({ path: '/jamfor-elpriser', sessionId: sid });
+  //     const url = '/api/events/page-view';
+  //     if (navigator.sendBeacon) {
+  //       const blob = new Blob([payload], { type: 'application/json' });
+  //       navigator.sendBeacon(url, blob);
+  //     } else {
+  //       fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload }).catch(() => {});
+  //     }
+  //   } catch {}
+  // }, []);
 
   // Funktion för att spåra kontraktsklick från AI-användare
   const trackContractClick = (contractType: 'rorligt' | 'fastpris' | 'start-her') => {
@@ -345,7 +345,7 @@ export default function JamforElpriser() {
             textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
             textAlign: 'center'
           }}>
-            Sammenlign din strømregning med AI
+            Sjekk din strømregning med AI
           </h1>
           <p style={{ 
             fontSize: '1.25rem', 
