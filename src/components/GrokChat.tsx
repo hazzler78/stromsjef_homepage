@@ -177,19 +177,14 @@ export default function GrokChat() {
     function updatePositions() {
       const mobile = window.innerWidth <= 600;
       
-      // Check for cookie banner
+      // Check for cookie banner - let CSS handle positioning
       let cookieOffset = 0;
       let bottomNavOffset = 0;
       try {
         const banner = selectCookieBannerElement();
         if (banner && isElementVisible(banner)) {
-          const rect = banner.getBoundingClientRect();
-          const isAtBottom = Math.abs(window.innerHeight - rect.bottom) < 10;
-          const isOverlappingBottom = rect.bottom > window.innerHeight - 100;
-          
-          if (isAtBottom || isOverlappingBottom) {
-            cookieOffset = Math.ceil(rect.height) + 10;
-          }
+          // Only add minimal offset since CSS margin-bottom handles most positioning
+          cookieOffset = 20; // Small buffer for chat positioning
         }
       } catch {
         // Ignore errors

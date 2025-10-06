@@ -129,7 +129,7 @@ export default function RootLayout({
               })();
             `}
           </Script>
-          {/* Ensure Cookiebot banner sits above bottom nav and chat bubble */}
+          {/* Minimal Cookiebot adjustments - let it handle its own positioning */}
           <Script id="cookiebot-adjust" strategy="afterInteractive">{
             `(() => {
               function isVisible(el){
@@ -139,23 +139,25 @@ export default function RootLayout({
                 const rect = el.getBoundingClientRect();
                 return rect.height > 0 && rect.width > 0;
               }
+              
               function adjust(){
                 try{
                   const banner = document.querySelector('#CybotCookiebotDialog, [id^="CybotCookiebot"], #CookiebotDialog, .CookieConsent, .CookiebotWidget, #CookieConsent, #CookieDeclaration, .cookieconsent, .cookie-declaration');
                   if(!banner || !isVisible(banner)) return;
-                  const nav = document.querySelector('[data-bottom-nav="true"]');
-                  const navHeight = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
-                  const chatBtn = document.querySelector('[aria-label="Åpne chat"], [aria-label="Lukk chat"]');
-                  const chatSize = chatBtn ? Math.max(chatBtn.clientHeight, 56) : 56;
-                  const gap = 20;
-                  const newBottom = navHeight + chatSize + gap;
-                  const el = banner;
-                  const style = (el as HTMLElement).style as CSSStyleDeclaration;
-                  style.position = 'fixed';
-                  style.bottom = newBottom + 'px';
-                  style.zIndex = '1002';
+                  
+                  // Only set z-index to ensure proper layering, let Cookiebot handle positioning
+                  const el = banner as HTMLElement;
+                  el.style.zIndex = '1002';
+                  
+                  // Ensure scrollable content for small screens
+                  const content = el.querySelector('.CybotCookiebotDialogBody, .cookieconsent, .cookie-content') as HTMLElement;
+                  if (content) {
+                    content.style.maxHeight = 'calc(100vh - 120px)';
+                    content.style.overflowY = 'auto';
+                  }
                 }catch{}
               }
+              
               adjust();
               window.addEventListener('resize', adjust);
               const obs = new MutationObserver(adjust);

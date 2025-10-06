@@ -391,17 +391,33 @@ p {
   animation: shimmer 2s infinite;
 }
 
-/* Cookie-bot z-index fix */
+/* Cookiebot styling - let it handle its own positioning */
+#CybotCookiebotDialog,
+#CookiebotDialog,
+.CookieConsent,
+.CookiebotWidget,
 #CookieConsent,
 #CookieDeclaration,
-#Cookiebot,
 .cookieconsent,
 .cookie-declaration,
 [id*="cookie"],
 [class*="cookie"] {
-  z-index: 999 !important;
-  max-height: calc(100vh - 100px) !important;
+  /* Remove aggressive positioning - let Cookiebot handle its own positioning */
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  width: auto !important;
+  
+  /* Ensure proper layering */
+  z-index: 1002 !important;
+  
+  /* Make content scrollable for small screens */
+  max-height: calc(100vh - 120px) !important;
   overflow-y: auto !important;
+  
+  /* Add margin-bottom with safe area support */
+  margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 100px) !important;
 }
 
 /* Ensure our navigation stays above cookie elements */
@@ -411,6 +427,16 @@ nav[style*="z-index"],
   z-index: 1003 !important;
   position: fixed !important;
   bottom: 0 !important;
+}
+
+/* Cookiebot icon positioning - move to bottom-left above menu */
+#CybotCookiebotDialog + div,
+.CookiebotWidget > div:first-child,
+[id*="cookie"] > div:first-child {
+  position: fixed !important;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 100px) !important;
+  left: 20px !important;
+  z-index: 1004 !important;
 }
 
 /* Remove dark mode for now */

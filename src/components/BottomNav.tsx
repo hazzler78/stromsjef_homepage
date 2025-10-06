@@ -180,16 +180,16 @@ function BottomNavContent() {
           }
           
           if (isOverlappingNav) {
-            // Move the cookie banner up by adjusting its position
-            const newBottom = navHeight + 20; // 20px gap above nav
+            // Let CSS handle the positioning with margin-bottom instead of forcing position
+            // Only ensure proper z-index layering
+            const el = banner as HTMLElement;
+            el.style.zIndex = '1002'; // Below our nav (1003)
             
-            if (banner.style.position === 'fixed' || banner.style.position === '') {
-              banner.style.position = 'fixed';
-              banner.style.bottom = `${newBottom}px`;
-              banner.style.zIndex = '1002'; // Below our nav (1003)
-            }
+            // Add margin-bottom to push content up from navigation
+            const safeAreaBottom = window.CSS?.supports?.('padding: env(safe-area-inset-bottom)') ? 'env(safe-area-inset-bottom, 0px)' : '0px';
+            el.style.marginBottom = `calc(${safeAreaBottom} + 100px)`;
             
-            // No offset needed for nav since we moved the banner
+            // No offset needed for nav since CSS handles spacing
             setBottomOffset(0);
           } else {
             setBottomOffset(0);
