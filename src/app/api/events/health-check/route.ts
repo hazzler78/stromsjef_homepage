@@ -17,7 +17,7 @@ export async function GET() {
     
     // Check if analytics tables exist
     const tables = ['banner_impressions', 'hero_impressions', 'banner_clicks', 'hero_clicks'];
-    const results = {};
+    const results: Record<string, string> = {};
     
     for (const table of tables) {
       try {
