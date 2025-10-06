@@ -1,6 +1,7 @@
 "use client";
 
 import styled from 'styled-components';
+import Script from 'next/script';
 
 const Section = styled.section`
   padding: 4rem 0;
@@ -52,8 +53,10 @@ const List = styled.ul`
 
 export default function Cookies() {
   return (
-    <Section>
-      <Container>
+    <>
+      <Script id="CookieDeclaration" src="https://consent.cookiebot.com/fc97bed6-e600-4863-ae67-f6f9d8bd5f4e/cd.js" type="text/javascript" async />
+      <Section>
+        <Container>
         <Title>Cookiepolicy for Strømsjef.se</Title>
         <Updated>Sist oppdatert: September 2024</Updated>
 
@@ -61,6 +64,11 @@ export default function Cookies() {
         <Paragraph>
           Cookies er små tekstfiler som lagres på din enhet når du besøker et nettsted. De brukes for at siden skal fungere, for å forbedre brukeropplevelsen og for å samle statistikk.
         </Paragraph>
+
+        <SectionTitle>Cookie Declaration</SectionTitle>
+        <div id="CookieDeclaration" style={{ marginBottom: '2rem' }}>
+          {/* Cookie Declaration will be loaded here by Cookiebot */}
+        </div>
 
         <SectionTitle>Hvilke cookies bruker vi?</SectionTitle>
         <Paragraph>
@@ -86,7 +94,8 @@ export default function Cookies() {
         <Paragraph>
           Har du spørsmål om vår cookiepolicy? Kontakt oss på <Mail href="mailto:post@stromsjef.no">post@stromsjef.no</Mail>.
         </Paragraph>
-      </Container>
-    </Section>
+        </Container>
+      </Section>
+    </>
   );
 } 
