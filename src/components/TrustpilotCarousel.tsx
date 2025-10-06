@@ -181,7 +181,14 @@ export default function TrustpilotCarousel({
     if (!el) return;
     const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
     if (Math.abs(delta) < 0.5) return;
-    e.preventDefault();
+    
+    // Only preventDefault if we can actually prevent it
+    try {
+      e.preventDefault();
+    } catch (err) {
+      // Ignore passive event listener errors
+    }
+    
     wheelAccum.current += delta;
     if (!wheelRaf.current) {
       wheelRaf.current = requestAnimationFrame(() => {
