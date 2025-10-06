@@ -185,7 +185,7 @@ export default function TrustpilotCarousel({
     // Only preventDefault if we can actually prevent it
     try {
       e.preventDefault();
-    } catch (err) {
+    } catch {
       // Ignore passive event listener errors
     }
     
