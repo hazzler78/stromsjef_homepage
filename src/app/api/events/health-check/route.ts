@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export async function GET() {
@@ -23,7 +23,7 @@ export async function GET() {
       try {
         const { error } = await supabase.from(table).select('*').limit(1);
         results[table] = error ? 'missing' : 'exists';
-      } catch (e) {
+      } catch {
         results[table] = 'error';
       }
     }
