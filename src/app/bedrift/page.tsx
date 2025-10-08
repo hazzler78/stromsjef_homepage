@@ -73,10 +73,6 @@ const Logo = styled.img`
   object-fit: contain;
 `;
 
-function formatPrice(value: number) {
-  return `${value.toLocaleString('no-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} øre/kWh`;
-}
-
 type BusinessPlan = {
   id: string;
   supplier_name: string;
@@ -181,8 +177,6 @@ export default function Bedrift() {
                       )}
                     </div>
                   )}
-                  <div style={{ fontWeight: 800 }}>{formatPrice(plan.price_per_kwh)}</div>
-                  <div style={{ fontSize: '0.9rem', color: 'var(--gray-600)' }}>{plan.monthly_fee === 0 ? '0 kr månedsavgift' : `${plan.monthly_fee} kr/mnd`}</div>
                   <GlassButton
                     variant="secondary"
                     size="sm"
@@ -194,9 +188,9 @@ export default function Bedrift() {
                         window.open(plan.affiliate_link, '_blank');
                       }
                     }}
-                    aria-label={`Velg ${plan.supplier_name} ${plan.plan_name}`}
+                    aria-label={`Les mer om ${plan.supplier_name} ${plan.plan_name}`}
                   >
-                    Velg avtalen
+                    Les mer
                   </GlassButton>
                 </div>
               </PlanCard>
