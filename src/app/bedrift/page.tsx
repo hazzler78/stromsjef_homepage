@@ -109,9 +109,6 @@ export default function Bedrift() {
       .from('business_electricity_plans')
       .select('*')
       .in('price_zone', [PriceZone.ALL, PriceZone.NO1, PriceZone.NO2, PriceZone.NO3, PriceZone.NO4, PriceZone.NO5])
-      .order('sort_order', { ascending: true, nullsLast: true })
-      .order('binding_time', { ascending: true })
-      .order('price_per_kwh', { ascending: true })
       .then(({ data, error }: { data: BusinessPlan[] | null; error: unknown }) => {
         if (error) {
           const msg = (error as { message?: string })?.message || 'Unknown error';

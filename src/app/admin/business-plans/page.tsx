@@ -68,12 +68,24 @@ export default function AdminBusinessPlans() {
       const supabase = getSupabase();
       const { data, error } = await supabase
         .from('business_electricity_plans')
-        .select('*')
-        .order('sort_order', { ascending: true, nullsLast: true })
-        .order('binding_time', { ascending: true })
-        .order('price_per_kwh', { ascending: true });
+        .select('*');
       if (error) throw error;
-      setItems(data as Plan[]);
+      // Sort in JavaScript to handle nulls properly
+      const sorted = (data as Plan[]).sort((a, b) => {
+        const sortA = a.sort_order ?? Number.POSITIVE_INFINITY;
+        const sortB = b.sort_order ?? Number.POSITIVE_INFINITY;
+        if (sortA !== sortB) return sortA - sortB;
+        
+        const bindDiff = (a.binding_time || 0) - (b.binding_time || 0);
+        if (bindDiff !== 0) return bindDiff;
+        
+        const priceA = a.price_per_kwh || Number.POSITIVE_INFINITY;
+        const priceB = b.price_per_kwh || Number.POSITIVE_INFINITY;
+        if (priceA !== priceB) return priceA - priceB;
+        
+        return a.supplier_name.localeCompare(b.supplier_name);
+      });
+      setItems(sorted);
     } catch (e) {
       setError((e as Error).message);
     } finally {
