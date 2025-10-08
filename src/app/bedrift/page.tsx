@@ -158,9 +158,8 @@ export default function Bedrift() {
                 <div className="details">
                   <div style={{ fontWeight: 700 }}>{plan.supplier_name} · {plan.plan_name}</div>
                   <div style={{ fontSize: '0.95rem', color: 'var(--gray-600)' }}>
-                    {plan.binding_time > 0 ? `Bindingstid ${plan.binding_time} mnd` : 'Ingen bindingstid'}
-                    {plan.termination_fee ? ` · Bruddgebyr ${plan.termination_fee} kr` : ''}
-                    {plan.terms_guarantee ? ` · ${plan.terms_guarantee}` : ''}
+                    {plan.termination_fee ? `Bruddgebyr ${plan.termination_fee} kr` : ''}
+                    {plan.terms_guarantee ? `${plan.termination_fee ? ' · ' : ''}${plan.terms_guarantee}` : ''}
                   </div>
                   {plan.guarantee_disclaimer && (
                     <div style={{ fontSize: '0.85rem', color: 'var(--gray-500)', marginTop: 4 }}>{plan.guarantee_disclaimer}</div>
