@@ -109,6 +109,7 @@ export default function Bedrift() {
       .from('business_electricity_plans')
       .select('*')
       .in('price_zone', [PriceZone.ALL, PriceZone.NO1, PriceZone.NO2, PriceZone.NO3, PriceZone.NO4, PriceZone.NO5])
+      .order('sort_order', { ascending: true, nullsLast: true })
       .order('binding_time', { ascending: true })
       .order('price_per_kwh', { ascending: true })
       .then(({ data, error }: { data: BusinessPlan[] | null; error: unknown }) => {
@@ -119,11 +120,21 @@ export default function Bedrift() {
           return;
         }
         const safe = (data || []).slice().sort((a, b) => {
+          // Sort by sort_order first (nulls last)
+          const sortA = a.sort_order ?? Number.POSITIVE_INFINITY;
+          const sortB = b.sort_order ?? Number.POSITIVE_INFINITY;
+          if (sortA !== sortB) return sortA - sortB;
+          
+          // Then by binding time
           const bindDiff = (Number.isFinite(a.binding_time) ? a.binding_time : 0) - (Number.isFinite(b.binding_time) ? b.binding_time : 0);
           if (bindDiff !== 0) return bindDiff;
+          
+          // Then by price
           const priceA = Number.isFinite(a.price_per_kwh) ? a.price_per_kwh : Number.POSITIVE_INFINITY;
           const priceB = Number.isFinite(b.price_per_kwh) ? b.price_per_kwh : Number.POSITIVE_INFINITY;
           if (priceA !== priceB) return priceA - priceB;
+          
+          // Finally by supplier name
           return a.supplier_name.localeCompare(b.supplier_name);
         });
         setPlans(safe);

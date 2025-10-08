@@ -69,7 +69,7 @@ export default function AdminBusinessPlans() {
       const { data, error } = await supabase
         .from('business_electricity_plans')
         .select('*')
-        .order('price_zone')
+        .order('sort_order', { ascending: true, nullsLast: true })
         .order('binding_time', { ascending: true })
         .order('price_per_kwh', { ascending: true });
       if (error) throw error;
@@ -187,7 +187,10 @@ export default function AdminBusinessPlans() {
         {!loading && (
           <div style={{ display: 'grid', gap: 8 }}>
             {filtered.map(p => (
-              <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 8, alignItems: 'center', border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, background: '#fff' }}>
+              <div key={p.id} style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto auto', gap: 8, alignItems: 'center', border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, background: '#fff' }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#9ca3af', minWidth: 40 }}>
+                  {p.sort_order ?? '—'}
+                </div>
                 <div>
                   <div style={{ fontWeight: 700 }}>{p.supplier_name} · {p.plan_name}</div>
                   <div style={{ fontSize: 12, color: '#6b7280' }}>{p.price_zone} · {p.price_per_kwh} øre/kWh · {p.monthly_fee} kr/mnd</div>
@@ -215,6 +218,10 @@ export default function AdminBusinessPlans() {
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>ID (unik identifierare)</label>
                   <input placeholder="t.ex. vstrom-bedrift-2024" value={editing.id} onChange={e => setEditing({ ...editing, id: e.target.value })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Sorteringsordning (1=först)</label>
+                  <input type="number" step="1" placeholder="1, 2, 3..." value={editing.sort_order ?? ''} onChange={e => setEditing({ ...editing, sort_order: e.target.value ? Number(e.target.value) : null })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Leverantör</label>
