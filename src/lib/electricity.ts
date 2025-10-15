@@ -78,6 +78,9 @@ export function inferZoneFromPostalCode(postalCode: string): PriceZone | undefin
     // Hordaland fylke (NO5) - includes Bergen area (5000-5099)
     if (fullCode >= 5000 && fullCode <= 5099) return PriceZone.NO5; // Bergen area
     
+    // Special case: 5419 is in NO2
+    if (fullCode === 5419) return PriceZone.NO2;
+    
     // Møre og Romsdal fylke (NO5) - includes Ålesund, Molde, Kristiansund (6000-6999)
     if (fullCode >= 6000 && fullCode <= 6999) return PriceZone.NO5; // Møre og Romsdal area
     
