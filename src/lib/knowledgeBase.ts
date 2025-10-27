@@ -158,7 +158,7 @@ export const providers: ProviderInfo[] = [
   {
     name: "Cheap Energy Norge",
     type: "rorligt",
-    features: ["Spotpris", "0 kr månedsavgift (kampanjer)", "Enkel bytteprosess"],
+    features: ["Spotpris", "Enkel bytteprosess"],
     url: "https://cheapenergy.no/?utm_source=stromsjef.no",
     active: true
   },

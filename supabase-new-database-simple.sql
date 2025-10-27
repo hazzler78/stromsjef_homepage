@@ -338,7 +338,7 @@ ON CONFLICT DO NOTHING;
 
 -- Lägg till exempel leverantörer (på norska)
 INSERT INTO ai_providers (name, type, features, url, active) VALUES
-('Cheap Energy', 'rorligt', ARRAY['0 kr månadsavgift', '0 øre påslag', 'Ingen bindingsperiode'], 'https://www.cheapenergy.se/elchef-rorligt/', true),
+('Cheap Energy', 'rorligt', ARRAY['Spotpris', 'Ingen bindingsperiode'], 'https://www.cheapenergy.se/elchef-rorligt/', true),
 ('Svealands Elbolag', 'fastpris', ARRAY['Prisgaranti', 'Valgfri bindingsperiode', 'Ingen skjulte avgifter'], 'https://www.svealandselbolag.se/elchef-fastpris/', true),
 ('Energi2.se', 'foretag', ARRAY['Bedriftsavtaler', 'Tilpassede løsninger', 'Volumrabatter'], 'https://energi2.se/elchef/', true)
 ON CONFLICT DO NOTHING;
