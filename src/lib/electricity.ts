@@ -599,4 +599,44 @@ export const mockElectricityPlans: ElectricityPlan[] = [
   },
 ];
 
+/**
+ * Maps supplier names to their corresponding logo file paths.
+ * This function provides a fallback when logo_url is not set in the database.
+ */
+export function getSupplierLogoUrl(supplierName: string): string {
+  if (!supplierName) return '/favicon.svg';
+  
+  // Normalize supplier name: lowercase, remove extra spaces, handle common variations
+  const normalized = supplierName.toLowerCase().trim();
+  
+  // Map supplier names to logo files
+  const logoMap: Record<string, string> = {
+    'cheap energy': '/logos/cheap-energy.png',
+    'kilden kraft': '/logos/kilden-kraft.png',
+    'barum energi': '/logos/barum-energi.png',
+    'barum': '/logos/barum-energi.png',
+    'vstrom': '/logos/vstrom.png',
+    'v strom': '/logos/vstrom.png',
+    'fortum': '/logos/fortum.png',
+    'ishavskraft': '/logos/ishavskraft.png',
+    'ishavs kraft': '/logos/ishavskraft.png',
+    'tibber': '/logos/tibber.png',
+  };
+  
+  // Direct match
+  if (logoMap[normalized]) {
+    return logoMap[normalized];
+  }
+  
+  // Partial match - check if any key is contained in the supplier name
+  for (const [key, logoPath] of Object.entries(logoMap)) {
+    if (normalized.includes(key) || key.includes(normalized)) {
+      return logoPath;
+    }
+  }
+  
+  // Default fallback
+  return '/favicon.svg';
+}
+
 

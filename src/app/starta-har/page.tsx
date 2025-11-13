@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import GlassButton from '@/components/GlassButton';
-import { ElectricityPlan, PriceZone, inferZoneFromPostalCode } from '@/lib/electricity';
+import { ElectricityPlan, PriceZone, inferZoneFromPostalCode, getSupplierLogoUrl } from '@/lib/electricity';
 import { createClient } from '@supabase/supabase-js';
 
 const Section = styled.section`
@@ -184,7 +184,7 @@ export default function StartaHar() {
           guaranteeDisclaimer: r.guarantee_disclaimer || undefined,
           terminationFee: r.termination_fee != null ? Number(r.termination_fee) : undefined,
           priceZone: r.price_zone,
-          logoUrl: r.logo_url || undefined,
+          logoUrl: r.logo_url || getSupplierLogoUrl(r.supplier_name),
           affiliateLink: r.affiliate_link || undefined,
           featured: !!r.featured,
           recommended: !!r.recommended,
@@ -313,7 +313,7 @@ export default function StartaHar() {
             {error && <div style={{ color: '#b91c1c' }}>Feil: {error}</div>}
             {effectiveZone && filteredPlans.map(plan => (
               <PlanCard key={plan.id}>
-                <Logo className="logo" src={plan.logoUrl || '/favicon.svg'} alt={`${plan.supplierName} logo`} />
+                <Logo className="logo" src={plan.logoUrl || getSupplierLogoUrl(plan.supplierName)} alt={`${plan.supplierName} logo`} />
                 <div className="details">
                   <div style={{ fontWeight: 700 }}>{plan.supplierName} · {plan.planName}</div>
                   <div style={{ fontSize: '0.95rem', color: 'var(--gray-600)' }}>

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import GlassButton from '@/components/GlassButton';
-import { PriceZone } from '@/lib/electricity';
+import { PriceZone, getSupplierLogoUrl } from '@/lib/electricity';
 import { createClient } from '@supabase/supabase-js';
 
 const Section = styled.section`
@@ -154,7 +154,7 @@ export default function Bedrift() {
             {error && <div style={{ color: '#b91c1c' }}>Feil: {error}</div>}
             {!loading && plans.map(plan => (
               <PlanCard key={plan.id}>
-                <Logo className="logo" src={plan.logo_url || '/favicon.svg'} alt={`${plan.supplier_name} logo`} />
+                <Logo className="logo" src={plan.logo_url || getSupplierLogoUrl(plan.supplier_name)} alt={`${plan.supplier_name} logo`} />
                 <div className="details">
                   <div style={{ fontWeight: 700 }}>{plan.supplier_name} · {plan.plan_name}</div>
                   <div style={{ fontSize: '0.95rem', color: 'var(--gray-600)' }}>
