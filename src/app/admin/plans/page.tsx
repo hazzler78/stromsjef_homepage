@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import styled from 'styled-components';
+import { getSupplierLogoUrl } from '@/lib/electricity';
 
 type PriceZone = 'ALL' | 'NO1' | 'NO2' | 'NO3' | 'NO4' | 'NO5';
 
@@ -207,7 +208,15 @@ export default function AdminPlans() {
                 <option value="NO5">NO5</option>
               </select>
             </label>
-            <label>Leverantör<input value={editing.supplier_name} onChange={e => setEditing({ ...editing, supplier_name: e.target.value })} /></label>
+            <label>Leverantör<input value={editing.supplier_name} onChange={e => {
+              const newSupplierName = e.target.value;
+              // Auto-fill logo_url only if it's empty or placeholder
+              const shouldAutoFill = !editing.logo_url || editing.logo_url === '/logos/placeholder.png';
+              const newLogoUrl = newSupplierName && shouldAutoFill 
+                ? getSupplierLogoUrl(newSupplierName) 
+                : editing.logo_url || '/logos/placeholder.png';
+              setEditing({ ...editing, supplier_name: newSupplierName, logo_url: newLogoUrl });
+            }} /></label>
             <label>Plan<input value={editing.plan_name} onChange={e => setEditing({ ...editing, plan_name: e.target.value })} /></label>
             <label>Pris (øre/kWh)<input type="number" step="0.01" value={editing.price_per_kwh} onChange={e => setEditing({ ...editing, price_per_kwh: Number(e.target.value) })} /></label>
             <label>Månadsavgift<input type="number" step="0.01" value={editing.monthly_fee} onChange={e => setEditing({ ...editing, monthly_fee: Number(e.target.value) })} /></label>
@@ -237,7 +246,7 @@ export default function AdminPlans() {
       <div style={{ display: 'grid', gap: 8 }}>
         {filtered.map(p => (
           <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '80px 1fr auto auto', alignItems: 'center', gap: 12, border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, background: '#fff' }}>
-            <img src={p.logo_url || '/favicon.svg'} alt="logo" style={{ width: 64, height: 64, objectFit: 'contain' }} />
+            <img src={p.logo_url || getSupplierLogoUrl(p.supplier_name)} alt="logo" style={{ width: 64, height: 64, objectFit: 'contain' }} />
             <div>
               <div style={{ fontWeight: 700 }}>{p.supplier_name} · {p.plan_name} <span style={{ color: '#64748b' }}>({p.price_zone})</span></div>
               <div style={{ color: '#475569', fontSize: 14 }}>{p.price_per_kwh} øre/kWh · {p.monthly_fee} kr/mnd · {p.binding_time > 0 ? `${p.binding_time} mnd bindingstid` : 'Ingen bindingstid'}{p.termination_fee ? ` · Bruddgebyr ${p.termination_fee} kr` : ''}</div>

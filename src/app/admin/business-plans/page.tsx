@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { createClient } from '@supabase/supabase-js';
+import { getSupplierLogoUrl } from '@/lib/electricity';
 
 type PriceZone = 'ALL' | 'NO1' | 'NO2' | 'NO3' | 'NO4' | 'NO5';
 
@@ -237,7 +238,15 @@ export default function AdminBusinessPlans() {
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Leverantör</label>
-                  <input placeholder="t.ex. V-strom" value={editing.supplier_name || ''} onChange={e => setEditing({ ...editing, supplier_name: e.target.value })} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
+                  <input placeholder="t.ex. V-strom" value={editing.supplier_name || ''} onChange={e => {
+                    const newSupplierName = e.target.value;
+                    // Auto-fill logo_url only if it's empty
+                    const shouldAutoFill = !editing.logo_url;
+                    const newLogoUrl = newSupplierName && shouldAutoFill 
+                      ? getSupplierLogoUrl(newSupplierName) 
+                      : editing.logo_url || '';
+                    setEditing({ ...editing, supplier_name: newSupplierName, logo_url: newLogoUrl });
+                  }} style={{ width: '100%', padding: 8, border: '1px solid #d1d5db', borderRadius: 6 }} />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>Plan namn</label>
