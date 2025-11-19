@@ -73,14 +73,14 @@ export default function AdminPlans() {
       if (error) throw error;
       // Sort in JavaScript to handle nulls properly and respect sort_order
       const sorted = (data as Plan[]).sort((a, b) => {
-        // 1) Price zone first
-        const zoneDiff = a.price_zone.localeCompare(b.price_zone);
-        if (zoneDiff !== 0) return zoneDiff;
-        
-        // 2) Sort order (nulls last)
+        // 1) Sort order first (nulls last - items without sort_order go to bottom)
         const sortA = a.sort_order ?? Number.POSITIVE_INFINITY;
         const sortB = b.sort_order ?? Number.POSITIVE_INFINITY;
         if (sortA !== sortB) return sortA - sortB;
+        
+        // 2) Price zone (for items with same sort_order or both null)
+        const zoneDiff = a.price_zone.localeCompare(b.price_zone);
+        if (zoneDiff !== 0) return zoneDiff;
         
         // 3) Binding time
         const bindDiff = (a.binding_time || 0) - (b.binding_time || 0);
