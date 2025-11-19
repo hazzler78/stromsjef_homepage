@@ -69,12 +69,32 @@ export default function AdminPlans() {
       const supabase = getSupabase();
       const { data, error } = await supabase
         .from('electricity_plans')
-        .select('*')
-        .order('price_zone')
-        .order('binding_time', { ascending: true })
-        .order('price_per_kwh', { ascending: true });
+        .select('*');
       if (error) throw error;
-      setItems(data as Plan[]);
+      // Sort in JavaScript to handle nulls properly and respect sort_order
+      const sorted = (data as Plan[]).sort((a, b) => {
+        // 1) Price zone first
+        const zoneDiff = a.price_zone.localeCompare(b.price_zone);
+        if (zoneDiff !== 0) return zoneDiff;
+        
+        // 2) Sort order (nulls last)
+        const sortA = a.sort_order ?? Number.POSITIVE_INFINITY;
+        const sortB = b.sort_order ?? Number.POSITIVE_INFINITY;
+        if (sortA !== sortB) return sortA - sortB;
+        
+        // 3) Binding time
+        const bindDiff = (a.binding_time || 0) - (b.binding_time || 0);
+        if (bindDiff !== 0) return bindDiff;
+        
+        // 4) Price per kWh
+        const priceA = a.price_per_kwh || Number.POSITIVE_INFINITY;
+        const priceB = b.price_per_kwh || Number.POSITIVE_INFINITY;
+        if (priceA !== priceB) return priceA - priceB;
+        
+        // 5) Supplier name as stable fallback
+        return a.supplier_name.localeCompare(b.supplier_name);
+      });
+      setItems(sorted);
     } catch (e) {
       setError((e as Error).message);
     } finally {
