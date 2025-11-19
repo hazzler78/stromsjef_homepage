@@ -178,8 +178,6 @@ export default function StartHer() {
       .from('electricity_plans')
       .select('*')
       .in('price_zone', [z, PriceZone.ALL])
-      .order('binding_time', { ascending: true })
-      .order('price_per_kwh', { ascending: true })
       .then(({ data, error }: { data: DbPlanRow[] | null; error: unknown }) => {
         if (error) {
           const msg = (error as { message?: string })?.message || 'Unknown error';
@@ -215,13 +213,23 @@ export default function StartHer() {
           sortOrder: r.sort_order != null ? Number(r.sort_order) : undefined,
           priceBadge: r.price_badge || undefined,
         }));
-        // Sort by binding time (ASC), then price (ASC), then supplier name
+        // Sort by sort_order first (nulls last), then binding time, price, and supplier name
         setPlans(mapped.sort((a, b) => {
+          // 1) Sort order first (nulls last - items without sort_order go to bottom)
+          const sortA = a.sortOrder ?? Number.POSITIVE_INFINITY;
+          const sortB = b.sortOrder ?? Number.POSITIVE_INFINITY;
+          if (sortA !== sortB) return sortA - sortB;
+          
+          // 2) Binding time
           const bindDiff = (Number.isFinite(a.bindingTime) ? a.bindingTime : 0) - (Number.isFinite(b.bindingTime) ? b.bindingTime : 0);
           if (bindDiff !== 0) return bindDiff;
+          
+          // 3) Price per kWh
           const priceA = Number.isFinite(a.pricePerKwh) ? a.pricePerKwh : Number.POSITIVE_INFINITY;
           const priceB = Number.isFinite(b.pricePerKwh) ? b.pricePerKwh : Number.POSITIVE_INFINITY;
           if (priceA !== priceB) return priceA - priceB;
+          
+          // 4) Supplier name as stable fallback
           return a.supplierName.localeCompare(b.supplierName);
         }));
       })

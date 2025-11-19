@@ -152,7 +152,6 @@ export default function StartaHar() {
       .from('electricity_plans')
       .select('*')
       .in('price_zone', [z, PriceZone.ALL])
-      .order('binding_time', { ascending: true })
       .then(({ data, error }: { data: DbPlanRow[] | null; error: unknown }) => {
         if (error) {
           const msg = (error as { message?: string })?.message || 'Unknown error';
@@ -188,7 +187,7 @@ export default function StartaHar() {
           affiliateLink: r.affiliate_link || undefined,
           featured: !!r.featured,
           recommended: !!r.recommended,
-          // sortOrder intentionally ignored in sorting to prefer price within binding time
+          sortOrder: r.sort_order != null ? Number(r.sort_order) : undefined,
           priceBadge: r.price_badge || undefined,
         }));
         // Debug: Log the data before sorting
@@ -200,19 +199,24 @@ export default function StartaHar() {
           sortOrder: p.sortOrder
         })));
         
-        // Sort by binding time (lowest to highest), then by price (lowest to highest)
+        // Sort by sort_order first (nulls last), then binding time, price, and supplier name
         const sorted = mapped.sort((a, b) => {
-          // 1) Binding time ASC
+          // 1) Sort order first (nulls last - items without sort_order go to bottom)
+          const sortA = a.sortOrder ?? Number.POSITIVE_INFINITY;
+          const sortB = b.sortOrder ?? Number.POSITIVE_INFINITY;
+          if (sortA !== sortB) return sortA - sortB;
+          
+          // 2) Binding time ASC
           const aBinding = Number.isFinite(a.bindingTime) ? a.bindingTime : 0;
           const bBinding = Number.isFinite(b.bindingTime) ? b.bindingTime : 0;
           if (aBinding !== bBinding) return aBinding - bBinding;
 
-          // 2) Price ASC
+          // 3) Price ASC
           const aPrice = Number.isFinite(a.pricePerKwh) ? a.pricePerKwh : Number.POSITIVE_INFINITY;
           const bPrice = Number.isFinite(b.pricePerKwh) ? b.pricePerKwh : Number.POSITIVE_INFINITY;
           if (aPrice !== bPrice) return aPrice - bPrice;
 
-          // 3) Stable fallback: supplier name
+          // 4) Stable fallback: supplier name
           return a.supplierName.localeCompare(b.supplierName);
         });
         
