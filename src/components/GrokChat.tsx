@@ -142,6 +142,7 @@ export default function GrokChat() {
   const [chatBottom, setChatBottom] = useState(24);
   const [chatWindowBottom, setChatWindowBottom] = useState(90);
   const [chatWindowHeight, setChatWindowHeight] = useState(480);
+  const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
     function selectCookieBannerElement(): HTMLElement | null {
@@ -180,6 +181,7 @@ export default function GrokChat() {
 
     function updatePositions() {
       const mobile = window.innerWidth <= 600;
+      setIsMobile(mobile);
       
       // Check for cookie banner - let CSS handle positioning
       let cookieOffset = 0;
@@ -442,9 +444,9 @@ export default function GrokChat() {
             position: 'fixed',
             bottom: chatWindowBottom,
             right: 12,
-            left: 12,
-            width: 'auto',
-            maxWidth: 'none',
+            left: isMobile ? 12 : 'auto',
+            width: isMobile ? 'auto' : 420,
+            maxWidth: isMobile ? 'none' : 420,
             height: chatWindowHeight,
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'var(--glass-blur)',
