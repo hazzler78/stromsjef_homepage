@@ -8,6 +8,7 @@ import CampaignBanner from '@/components/CampaignBanner';
 import GrokChat from '@/components/GrokChat';
 import Footer from '@/components/Footer';
 import CookieConsent from '@/components/CookieConsent';
+import MetaPixel from '@/components/MetaPixel';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -104,6 +105,16 @@ export default function RootLayout({
         <meta name="facebook-domain-verification" content="in9xjxefhkl6pbe4g33zjwrsnkliin" />
         <meta property="fb:app_id" content="1552012742628310" />
         <meta name="tiktok-developers-site-verification" content="i7h859t0QF0G6Dua8q4h9qJUXwuPQoof" />
+        {/* Meta Pixel noscript fallback */}
+        <noscript>
+          <img 
+            height="1" 
+            width="1" 
+            style={{ display: 'none' }}
+            src="https://www.facebook.com/tr?id=25319650941056197&ev=PageView&noscript=1"
+            alt=""
+          />
+        </noscript>
       </head>
       <body className={inter.className}>
         <StyledComponentsRegistry>
@@ -138,6 +149,7 @@ export default function RootLayout({
         </StyledComponentsRegistry>
         <GrokChat />
         <CookieConsent />
+        <MetaPixel />
       </body>
     </html>
   );

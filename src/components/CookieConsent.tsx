@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { initializeMetaPixel } from './MetaPixel';
 
 const CookieBanner = styled.div<{ $isVisible: boolean }>`
   position: fixed;
@@ -351,9 +352,17 @@ export default function CookieConsent() {
 
     // Marketing cookies
     if (prefs.marketing) {
-      // Enable marketing tracking
+      // Enable marketing tracking (Meta Pixel)
+      initializeMetaPixel();
     } else {
       // Disable marketing
+      // Meta Pixel doesn't have a built-in disable method
+      // Users can opt out via Facebook settings
+    }
+    
+    // Dispatch custom event to notify other components
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('cookieConsentChanged'));
     }
   };
 
