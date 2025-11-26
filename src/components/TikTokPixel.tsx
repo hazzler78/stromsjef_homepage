@@ -29,7 +29,8 @@ function initTikTokPixel() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ttq.setAndDefer = function(t: any, e: string) {
       t[e] = function(...args: unknown[]) {
-        t.push([e].concat(args));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        t.push([e].concat(args as any[]));
       };
     };
     for (let i = 0; i < ttq.methods.length; i++) {
