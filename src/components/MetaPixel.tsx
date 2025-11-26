@@ -15,23 +15,22 @@ declare global {
 function initMetaPixel() {
   if (typeof window === 'undefined' || window.fbq) return;
 
-  (function(f: Window, b: Document, e: string, v: string) {
-    if ((f as unknown as { fbq?: unknown }).fbq) return;
-    const n = (f as unknown as { fbq?: unknown }).fbq = function(...args: unknown[]) {
-      const nCallMethod = (n as { callMethod?: unknown }).callMethod;
-      if (nCallMethod) {
-        nCallMethod.apply(n, args);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (function(f: any, b: Document, e: string, v: string) {
+    if (f.fbq) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const n: any = f.fbq = function(...args: any[]) {
+      if (n.callMethod) {
+        n.callMethod.apply(n, args);
       } else {
-        ((n as { queue?: unknown[] }).queue = (n as { queue?: unknown[] }).queue || []).push(args);
+        n.queue.push(args);
       }
     };
-    if (!(f as unknown as { _fbq?: unknown })._fbq) {
-      (f as unknown as { _fbq?: unknown })._fbq = n;
-    }
-    (n as { push?: unknown }).push = n;
-    (n as { loaded?: boolean }).loaded = true;
-    (n as { version?: string }).version = '2.0';
-    (n as { queue?: unknown[] }).queue = [];
+    if (!f._fbq) f._fbq = n;
+    n.push = n;
+    n.loaded = true;
+    n.version = '2.0';
+    n.queue = [];
     const t = b.createElement(e) as HTMLScriptElement;
     t.async = true;
     t.src = v;
