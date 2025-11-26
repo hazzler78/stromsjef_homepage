@@ -1,7 +1,6 @@
 "use client";
 
 import styled from 'styled-components';
-import Script from 'next/script';
 
 const Section = styled.section`
   padding: 4rem 0;

@@ -322,7 +322,7 @@ export default function CookieConsent() {
         const prefs = JSON.parse(savedPreferences);
         setPreferences(prefs);
         applyCookiePreferences(prefs);
-      } catch (e) {
+      } catch {
         // Invalid preferences, show banner again
         setIsVisible(true);
       }
@@ -338,7 +338,9 @@ export default function CookieConsent() {
       // Enable analytics tracking
       // This is where you would initialize Google Analytics, etc.
       if (typeof window !== 'undefined') {
-        (window as any).dataLayer = (window as any).dataLayer || [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const win = window as typeof window & { dataLayer?: unknown[] };
+        win.dataLayer = win.dataLayer || [];
         // Add your analytics initialization here if needed
         // Example: gtag('config', 'GA_MEASUREMENT_ID');
       }
