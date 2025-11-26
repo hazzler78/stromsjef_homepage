@@ -146,6 +146,10 @@ export default function GrokChat() {
   useEffect(() => {
     function selectCookieBannerElement(): HTMLElement | null {
       const candidates = [
+        // Our custom cookie consent banner
+        '[data-cookie-banner="true"]',
+        
+        // Cookiebot specific (legacy support)
         '#CybotCookiebotDialog',
         '[id^="CybotCookiebot"]',
         '#CookiebotDialog',

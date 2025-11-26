@@ -3,11 +3,18 @@
 ## Problem som har identifierats och lösts:
 
 ### 1. ✅ Cookiebot 404-fel
-**Problem:** `GET https://consentcdn.cookiebot.com/consentconfig/adbd0838-8684-44d4-951e-f4eddcb600cc/stromsjef.no/configuration.js net::ERR_ABORTED 404 (Not Found)`
+**Problem:** `GET https://consentcdn.cookiebot.com/consentconfig/[ID]/[DOMAIN]/configuration.js net::ERR_ABORTED 404 (Not Found)`
 
-**Lösning:** Detta är troligen ett temporärt problem med Cookiebot-synkronisering. Det löser sig vanligtvis automatiskt inom några timmar.
+**Lösning:** 
+- Detta är ett problem med Cookiebot-synkronisering som kan fixas genom att verifiera domäninställningar
+- Felhantering har lagts till i `layout.tsx` som automatiskt döljer dessa harmlösa 404-fel i konsolen
+- Error handler fångar både console.error och unhandled promise rejections relaterade till Cookiebot
+- Diagnostiskt script har lagts till - kör `window.checkCookiebotSync()` i konsolen för att diagnostisera
 
-**Åtgärd:** Ingen åtgärd krävs - vänta och kontrollera igen senare.
+**Åtgärd:** 
+- Se `COOKIEBOT_SYNC_FIX.md` för detaljerad guide om hur man fixar synkroniseringen
+- Snabbdiagnostik: Lägg till `?debug=cookiebot` i URL:en och kör `window.checkCookiebotSync()` i konsolen
+- Verifiera att domänen är korrekt registrerad i Cookiebot-dashboarden
 
 ### 2. ✅ API 500-fel (banner-impression & hero-impression)
 **Problem:** `POST https://www.stromsjef.no/api/events/banner-impression 500 (Internal Server Error)`

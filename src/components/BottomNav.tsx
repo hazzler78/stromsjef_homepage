@@ -63,7 +63,10 @@ function BottomNavContent() {
     const selectCookieBannerElement = (): HTMLElement | null => {
       // Comprehensive list of cookie banner selectors for different browsers and implementations
       const candidates = [
-        // Cookiebot specific
+        // Our custom cookie consent banner
+        '[data-cookie-banner="true"]',
+        
+        // Cookiebot specific (legacy support)
         '#CybotCookiebotDialog',
         '[id^="CybotCookiebot"]',
         '#CookiebotDialog',

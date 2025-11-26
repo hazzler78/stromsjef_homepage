@@ -7,6 +7,7 @@ import BottomNav from '@/components/BottomNav';
 import CampaignBanner from '@/components/CampaignBanner';
 import GrokChat from '@/components/GrokChat';
 import Footer from '@/components/Footer';
+import CookieConsent from '@/components/CookieConsent';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -63,7 +64,6 @@ export default function RootLayout({
   return (
     <html lang="no">
       <head>
-        <Script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="fc97bed6-e600-4863-ae67-f6f9d8bd5f4e" data-blockingmode="auto" strategy="beforeInteractive" />
         {/* Primary favicon (SVG) */}
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         {/* Fallbacks for wider browser support */}
@@ -129,41 +129,6 @@ export default function RootLayout({
               })();
             `}
           </Script>
-          {/* Minimal Cookiebot adjustments - let it handle its own positioning */}
-          <Script id="cookiebot-adjust" strategy="afterInteractive">{
-            `(() => {
-              function isVisible(el){
-                if(!el) return false;
-                const style = window.getComputedStyle(el);
-                if(style.display==='none' || style.visibility==='hidden' || style.opacity==='0') return false;
-                const rect = el.getBoundingClientRect();
-                return rect.height > 0 && rect.width > 0;
-              }
-              
-              function adjust(){
-                try{
-                  const banner = document.querySelector('#CybotCookiebotDialog, [id^="CybotCookiebot"], #CookiebotDialog, .CookieConsent, .CookiebotWidget, #CookieConsent, #CookieDeclaration, .cookieconsent, .cookie-declaration');
-                  if(!banner || !isVisible(banner)) return;
-                  
-                  // Only set z-index to ensure proper layering, let Cookiebot handle positioning
-                  const el = banner as HTMLElement;
-                  el.style.zIndex = '1002';
-                  
-                  // Ensure scrollable content for small screens
-                  const content = el.querySelector('.CybotCookiebotDialogBody, .cookieconsent, .cookie-content') as HTMLElement;
-                  if (content) {
-                    content.style.maxHeight = 'calc(100vh - 120px)';
-                    content.style.overflowY = 'auto';
-                  }
-                }catch{}
-              }
-              
-              adjust();
-              window.addEventListener('resize', adjust);
-              const obs = new MutationObserver(adjust);
-              obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style','class'] });
-            })();`}
-          </Script>
           <CampaignBanner />
           <div id="app">
             {children}
@@ -172,6 +137,7 @@ export default function RootLayout({
           </div>
         </StyledComponentsRegistry>
         <GrokChat />
+        <CookieConsent />
       </body>
     </html>
   );
