@@ -118,7 +118,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 
 const SettingsButton = styled.button`
   position: fixed;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 100px);
   left: 20px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -131,7 +131,7 @@ const SettingsButton = styled.button`
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1001;
+  z-index: 1004;
   transition: all 0.2s;
   
   &:hover {
@@ -147,7 +147,7 @@ const SettingsButton = styled.button`
   }
   
   @media (max-width: 600px) {
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 100px);
     width: 44px;
     height: 44px;
     
