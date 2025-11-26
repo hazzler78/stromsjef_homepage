@@ -21,6 +21,7 @@ function initMetaPixel() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const n: any = f.fbq = function(...args: any[]) {
       if (n.callMethod) {
+        // eslint-disable-next-line prefer-spread
         n.callMethod.apply(n, args);
       } else {
         n.queue.push(args);
