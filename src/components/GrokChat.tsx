@@ -104,7 +104,7 @@ function generateSessionId(): string {
 
 export default function GrokChat() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>(initialMessages);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -131,7 +131,7 @@ export default function GrokChat() {
       setShowBaerumOffer(true);
       // Lägg till meddelandet i chatten
       setMessages(prev => [...prev, {
-        role: 'assistant',
+        role: 'assistant' as const,
         content: 'Hei! Vil du ha 99 øre fastpris i dag?'
       }]);
     }, 2000);
@@ -256,7 +256,7 @@ export default function GrokChat() {
     if (!input.trim()) return;
     setLoading(true);
     setError('');
-    const newMessages = [...messages, { role: 'user', content: input }];
+    const newMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [...messages, { role: 'user' as const, content: input }];
     setMessages(newMessages);
     setInput('');
     try {
@@ -328,7 +328,7 @@ export default function GrokChat() {
         aiMsg = aiMsg.replace(/^\s*(Hei|Heisann|Hallo|God\s*(morgen|dag|kveld))[,!\.\s-]*/i, '').trimStart();
       }
       
-      setMessages([...newMessages, { role: 'assistant', content: aiMsg }]);
+      setMessages([...newMessages, { role: 'assistant' as const, content: aiMsg }]);
     } catch {
       setError('Kunne ikke kontakte AI-en.');
     } finally {
@@ -357,11 +357,11 @@ export default function GrokChat() {
     // Lägg till användarens val i chatten
     const choiceMessage = 'Jeg vil starte her og finne riktig avtale';
     
-    setMessages(prev => [...prev, { role: 'user', content: choiceMessage }]);
+    setMessages(prev => [...prev, { role: 'user' as const, content: choiceMessage }]);
     
     // Lägg till en notifiering i chatten
     setMessages(prev => [...prev, { 
-      role: 'assistant', 
+      role: 'assistant' as const, 
       content: '**🎯 Perfekt!** Du sendes nå til vår avtalsfinner...' 
     }]);
     
@@ -374,7 +374,7 @@ export default function GrokChat() {
   // Funktion för att stänga Start här
   const closeStartHere = () => {
     setShowStartHere(false);
-    const newMessages = [...messages, { role: 'user', content: 'Nei takk, jeg tenker meg om' }];
+    const newMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [...messages, { role: 'user' as const, content: 'Nei takk, jeg tenker meg om' }];
     setMessages(newMessages);
   };
 
@@ -386,14 +386,14 @@ export default function GrokChat() {
     // Lägg till användarens val i chatten
     const choiceMessage = 'Jeg vil bruke AI-kalkylatoren';
     
-    setMessages(prev => [...prev, { role: 'user', content: choiceMessage }]);
+    setMessages(prev => [...prev, { role: 'user' as const, content: choiceMessage }]);
     
     // Skicka meddelande till AI för bekräftelse
     const response = await fetch('/api/grokchat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        messages: [...messages, { role: 'user', content: choiceMessage }],
+        messages: [...messages, { role: 'user' as const, content: choiceMessage }],
         sessionId,
         contractChoice: 'calculator',
       }),
@@ -403,7 +403,7 @@ export default function GrokChat() {
       const data = await response.json();
       const aiMessage = data.choices?.[0]?.message?.content || '';
       
-      setMessages(prev => [...prev, { role: 'assistant', content: aiMessage }]);
+      setMessages(prev => [...prev, { role: 'assistant' as const, content: aiMessage }]);
       
       // Navigering till jamfor-elpriser sidan efter kort fördröjning
       setTimeout(() => {
@@ -415,7 +415,7 @@ export default function GrokChat() {
   // Funktion för att stänga AI-kalkylator
   const closeCalculator = () => {
     setShowCalculator(false);
-    const newMessages = [...messages, { role: 'user', content: 'Nei takk, jeg trenger ikke kalkulator' }];
+    const newMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [...messages, { role: 'user' as const, content: 'Nei takk, jeg trenger ikke kalkulator' }];
     setMessages(newMessages);
   };
 
@@ -621,8 +621,8 @@ export default function GrokChat() {
                     onClose={() => setShowContactForm(false)} 
                     onSubmitted={() => {
                       // Add a message indicating the form was submitted
-                      const newMessages = [...messages, { 
-                        role: 'assistant', 
+                      const newMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [...messages, { 
+                        role: 'assistant' as const, 
                         content: 'Takk for din kontakt! Vi kommer tilbake så snart som mulig. Ha en fin dag!'
                       }];
                       setMessages(newMessages);
