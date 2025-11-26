@@ -20,30 +20,31 @@ function initTikTokPixel() {
   if (w.ttq) return;
 
   // TikTok Pixel initialization code
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (function(w: any, d: Document, t: string) {
     w.TiktokAnalyticsObject = t;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ttq: any = w[t] = w[t] || [];
     ttq.methods = ["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ttq.setAndDefer = function(t: any, e: string) {
-      t[e] = function() {
-        t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
+      t[e] = function(...args: unknown[]) {
+        t.push([e].concat(args));
       };
     };
     for (let i = 0; i < ttq.methods.length; i++) {
       ttq.setAndDefer(ttq, ttq.methods[i]);
     }
     ttq.instance = function(t: string) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const e = ttq._i[t] || [];
       for (let n = 0; n < ttq.methods.length; n++) {
         ttq.setAndDefer(e, ttq.methods[n]);
       }
       return e;
     };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ttq.load = function(e: string, n?: any) {
       const r = "https://analytics.tiktok.com/i18n/pixel/events.js";
-      const o = n && n.partner;
       ttq._i = ttq._i || {};
       ttq._i[e] = [];
       ttq._i[e]._u = r;
