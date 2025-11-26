@@ -121,12 +121,29 @@ export default function GrokChat() {
   const [startHereSubmitted, setStartHereSubmitted] = useState(false);
   const [showCalculator, setShowCalculator] = useState(false);
   const [calculatorSubmitted, setCalculatorSubmitted] = useState(false);
+  const [showBaerumOffer, setShowBaerumOffer] = useState(false);
 
   
   // Debug: Log when showContactForm changes
   useEffect(() => {
     console.log('showContactForm state:', showContactForm);
   }, [showContactForm]);
+
+  // Visa Bærum Energi-erbjudandet efter 2 sekunder när sidan laddas
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Öppna chatten automatiskt och visa Bærum-meddelandet
+      setOpen(true);
+      setShowBaerumOffer(true);
+      // Lägg till meddelandet i chatten
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Hei! Vil du ha 99 øre fastpris i dag?'
+      }]);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const prevOpenRef = useRef(false);
@@ -768,6 +785,108 @@ export default function GrokChat() {
                       }}
                     >
                       Nei takk, jeg trenger ikke kalkulator
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {showBaerumOffer && (
+              <div style={{
+                marginBottom: 18,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+              }}>
+                <ElgeIcon />
+                <div style={{
+                  background: '#e0f2fe',
+                  color: '#17416b',
+                  borderRadius: '16px 16px 16px 4px',
+                  padding: '12px 16px',
+                  maxWidth: 'calc(100vw - 80px)',
+                  fontSize: 16,
+                  fontWeight: 500,
+                  boxShadow: '0 2px 8px rgba(0,106,167,0.12)',
+                  marginLeft: 8,
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2, opacity: 0.7 }}>
+                    Elge
+                  </div>
+                  <div style={{ marginBottom: 12 }}>
+                    <strong>Hei! Vil du ha 99 øre fastpris i dag?</strong>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
+                    <a
+                      href="https://baerumenergi.no/privat/fastpris-1-ar/?utm_source=stromsjef.no"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        // Spåra klicket
+                        const baerumUrl = 'https://baerumenergi.no/privat/fastpris-1-ar/?utm_source=stromsjef.no';
+                        const payload = JSON.stringify({
+                          buttonType: 'baerum_energi',
+                          href: baerumUrl,
+                          sessionId: sessionId,
+                          source: 'grokchat'
+                        });
+
+                        // Använd sendBeacon för bättre tillförlitlighet
+                        if (navigator.sendBeacon) {
+                          const blob = new Blob([payload], { type: 'application/json' });
+                          navigator.sendBeacon('/api/events/chat-click', blob);
+                        } else {
+                          fetch('/api/events/chat-click', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: payload
+                          }).catch(() => {});
+                        }
+                      }}
+                      style={{
+                        background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                        color: 'white',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        padding: '12px 16px',
+                        borderRadius: 12,
+                        fontSize: 14,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        textDecoration: 'none',
+                        display: 'block',
+                        backdropFilter: 'var(--glass-blur)',
+                        WebkitBackdropFilter: 'var(--glass-blur)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: 'var(--glass-shadow-light)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                        e.currentTarget.style.boxShadow = 'var(--glass-shadow-medium)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        e.currentTarget.style.boxShadow = 'var(--glass-shadow-light)';
+                      }}
+                    >
+                      Trykk her →
+                    </a>
+                    <button
+                      onClick={() => setShowBaerumOffer(false)}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        color: '#17416b',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        padding: '8px 12px',
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        backdropFilter: 'var(--glass-blur)',
+                        WebkitBackdropFilter: 'var(--glass-blur)',
+                      }}
+                    >
+                      Nei takk
                     </button>
                   </div>
                 </div>

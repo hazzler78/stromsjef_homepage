@@ -60,3 +60,21 @@ CREATE INDEX IF NOT EXISTS idx_hero_impressions_created ON hero_impressions(crea
 CREATE INDEX IF NOT EXISTS idx_hero_clicks_variant ON hero_clicks(variant);
 CREATE INDEX IF NOT EXISTS idx_hero_clicks_session ON hero_clicks(session_id);
 CREATE INDEX IF NOT EXISTS idx_hero_clicks_created ON hero_clicks(created_at);
+
+-- Chat clicks table
+CREATE TABLE IF NOT EXISTS chat_clicks (
+  id SERIAL PRIMARY KEY,
+  button_type VARCHAR(50),
+  href TEXT,
+  session_id VARCHAR(255),
+  source VARCHAR(50) DEFAULT 'grokchat',
+  user_agent TEXT,
+  referer TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Add indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_chat_clicks_button_type ON chat_clicks(button_type);
+CREATE INDEX IF NOT EXISTS idx_chat_clicks_session ON chat_clicks(session_id);
+CREATE INDEX IF NOT EXISTS idx_chat_clicks_created ON chat_clicks(created_at);
+CREATE INDEX IF NOT EXISTS idx_chat_clicks_source ON chat_clicks(source);
