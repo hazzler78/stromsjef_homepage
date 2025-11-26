@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Image from "next/image";
-import { withDefaultCtaUtm } from '@/lib/utm';
 
 const Banner = styled.div<{ $isCollapsed: boolean }>`
   width: 100%;
@@ -116,7 +115,7 @@ export default function CampaignBanner() {
     } catch {}
   }, [variant]);
 
-  const href = withDefaultCtaUtm('/jamfor-elpriser', 'banner', `variant${variant}`, 'ai-savings');
+  const href = 'https://baerumenergi.no/privat/fastpris-1-ar/?utm_source=stromsjef.no';
 
   const handleClick = () => {
     try {
@@ -135,13 +134,13 @@ export default function CampaignBanner() {
   // Expanded text variants
   const textA = (
     <>
-      Nyhet! La vår <Highlight>AI</Highlight> analysere din strømregning og regne ut din mulige besparelse.
+      Vår beste deal akkurat nå: <Highlight>Fastpris 99 øre/kWh</Highlight> – anbefales sterkt!
     </>
   );
 
   const textB = (
     <>
-      Test vår <Highlight>AI</Highlight> – last opp din regning og se hvor mye du kan spare.
+      Vår beste deal akkurat nå: <Highlight>Fastpris 99 øre/kWh</Highlight> – anbefales sterkt!
     </>
   );
 
@@ -149,16 +148,16 @@ export default function CampaignBanner() {
   const collapsedTextA = (
     <CollapsedText>
       <Image src="/favicon.svg" alt="Strømsjef" width={16} height={16} style={{ verticalAlign: 'middle' }} />
-      <Highlight>AI</Highlight>analyse av din strømregning
-      <StyledLink href={href} onClick={handleClick}>Prøv nå</StyledLink>
+      <Highlight>Fastpris 99 øre/kWh</Highlight> – anbefales sterkt!
+      <StyledLink href={href} onClick={handleClick} target="_blank" rel="noopener noreferrer">Se avtale</StyledLink>
     </CollapsedText>
   );
 
   const collapsedTextB = (
     <CollapsedText>
       <Image src="/favicon.svg" alt="Strømsjef" width={16} height={16} style={{ verticalAlign: 'middle' }} />
-      Last opp regning med <Highlight>AI</Highlight>
-      <StyledLink href={href} onClick={handleClick}>Prøv nå</StyledLink>
+      <Highlight>Fastpris 99 øre/kWh</Highlight> – anbefales sterkt!
+      <StyledLink href={href} onClick={handleClick} target="_blank" rel="noopener noreferrer">Se avtale</StyledLink>
     </CollapsedText>
   );
 
@@ -171,8 +170,7 @@ export default function CampaignBanner() {
           <Image src="/favicon.svg" alt="Strømsjef" width={20} height={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
           {variant === 'A' ? textA : textB}
           <br />
-          Last opp din regning og få en tydelig gjennomgang –
-          <StyledLink href={href} onClick={handleClick}>Prøv nå</StyledLink>
+          <StyledLink href={href} onClick={handleClick} target="_blank" rel="noopener noreferrer">Se avtale →</StyledLink>
         </>
       )}
     </Banner>
