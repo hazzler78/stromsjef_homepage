@@ -129,11 +129,6 @@ export default function GrokChat() {
       // Öppna chatten automatiskt och visa Bærum-meddelandet
       setOpen(true);
       setShowBaerumOffer(true);
-      // Lägg till meddelandet i chatten
-      setMessages(prev => [...prev, {
-        role: 'assistant' as const,
-        content: 'Hei! Vil du ha 99 øre fastpris i dag?'
-      }]);
     }, 2000);
 
     return () => clearTimeout(timer);
