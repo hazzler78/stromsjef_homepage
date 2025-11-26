@@ -9,6 +9,7 @@ import GrokChat from '@/components/GrokChat';
 import Footer from '@/components/Footer';
 import CookieConsent from '@/components/CookieConsent';
 import MetaPixel from '@/components/MetaPixel';
+import TikTokPixel from '@/components/TikTokPixel';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -150,6 +151,7 @@ export default function RootLayout({
         <GrokChat />
         <CookieConsent />
         <MetaPixel />
+        <TikTokPixel />
       </body>
     </html>
   );

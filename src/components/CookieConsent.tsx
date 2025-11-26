@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { initializeMetaPixel } from './MetaPixel';
+import { initializeTikTokPixel } from './TikTokPixel';
 
 const CookieBanner = styled.div<{ $isVisible: boolean }>`
   position: fixed;
@@ -352,12 +353,13 @@ export default function CookieConsent() {
 
     // Marketing cookies
     if (prefs.marketing) {
-      // Enable marketing tracking (Meta Pixel)
+      // Enable marketing tracking (Meta Pixel and TikTok Pixel)
       initializeMetaPixel();
+      initializeTikTokPixel();
     } else {
       // Disable marketing
-      // Meta Pixel doesn't have a built-in disable method
-      // Users can opt out via Facebook settings
+      // Meta Pixel and TikTok Pixel don't have built-in disable methods
+      // Users can opt out via Facebook/TikTok settings
     }
     
     // Dispatch custom event to notify other components
