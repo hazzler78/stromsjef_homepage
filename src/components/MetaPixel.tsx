@@ -13,7 +13,11 @@ declare global {
 
 // Initialize Meta Pixel script
 function initMetaPixel() {
-  if (typeof window === 'undefined' || window.fbq) return;
+  if (typeof window === 'undefined') return;
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const win = window as any;
+  if (win.fbq) return;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (function(f: any, b: Document, e: string, v: string) {
@@ -39,13 +43,13 @@ function initMetaPixel() {
     if (s && s.parentNode) {
       s.parentNode.insertBefore(t, s);
     }
-  })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+  })(win, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
 
   // Initialize and track PageView
   // The fbq function queues calls if the script hasn't loaded yet
-  if (window.fbq) {
-    window.fbq('init', META_PIXEL_ID);
-    window.fbq('track', 'PageView');
+  if (win.fbq && typeof win.fbq === 'function') {
+    win.fbq('init', META_PIXEL_ID);
+    win.fbq('track', 'PageView');
   }
 }
 
