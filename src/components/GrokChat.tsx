@@ -85,13 +85,7 @@ function renderMarkdown(text: string) {
   return html;
 }
 
-const initialMessages = [
-  {
-    role: 'assistant',
-    content:
-      'Hei! Jeg er Elge – spør meg om strømavtaler, bytte eller strømpriser så hjelper jeg deg med en gang.'
-  }
-];
+const initialMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [];
 
 function ElgeIcon() {
   return (
