@@ -54,6 +54,14 @@ const adminSections = [
     category: "content"
   },
   {
+    title: "Chat Klick",
+    description: "Spåra klick från GrokChat-komponenten (Elge)",
+    href: "/admin/chat-clicks",
+    icon: "🖱️",
+    color: "bg-purple-500",
+    category: "analytics"
+  },
+  {
     title: "AI Kunskapsbas",
     description: "Hantera AI-chattens kunskap, kampanjer och leverantörer",
     href: "/admin/knowledge",
