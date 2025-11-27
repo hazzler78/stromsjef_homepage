@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-const TIKTOK_PIXEL_ID = 'D4JLVOBC77UBCCH9E2IG';
+const TIKTOK_PIXEL_ID = 'D4K2FURC77U10O2JCNVG';
 
 declare global {
   interface Window {
