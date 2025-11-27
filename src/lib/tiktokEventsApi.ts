@@ -94,7 +94,7 @@ export async function sendTikTokEvent(
       return { success: false, error: `HTTP ${response.status}: ${errorText}` };
     }
 
-    const result = await response.json();
+    await response.json();
     return { success: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
