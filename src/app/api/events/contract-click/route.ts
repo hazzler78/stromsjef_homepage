@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 // removed unused createClient
 import { getSupabaseServerClient } from '@/lib/supabaseServer';
+import { sendTikTokEvent, getTikTokEventContext } from '@/lib/tiktokEventsApi';
 
 // Create Supabase client per-request
 
@@ -57,6 +58,17 @@ export async function POST(request: NextRequest) {
       console.error('Error logging contract click:', error);
       return NextResponse.json({ error: 'Failed to log contract click' }, { status: 500 });
     }
+
+    // Send event to TikTok Events API
+    const tiktokContext = getTikTokEventContext(request);
+    await sendTikTokEvent('CompletePayment', {
+      context: tiktokContext,
+      properties: {
+        content_type: contractType,
+        value: savingsAmount,
+        currency: 'NOK',
+      },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
