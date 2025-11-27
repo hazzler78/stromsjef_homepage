@@ -5,8 +5,8 @@
 
 const TIKTOK_PIXEL_ID = 'D4K2J7BC77U4IAHDMR40';
 const TIKTOK_ACCESS_TOKEN = process.env.TIKTOK_ACCESS_TOKEN || '';
-// Use test event code from env, or default to TEST77286 for testing
-const TIKTOK_TEST_EVENT_CODE = process.env.TIKTOK_TEST_EVENT_CODE || (process.env.NODE_ENV === 'development' ? 'TEST77286' : '');
+// Use test event code from env, or default to TEST87379 for testing
+const TIKTOK_TEST_EVENT_CODE = process.env.TIKTOK_TEST_EVENT_CODE || (process.env.NODE_ENV === 'development' ? 'TEST87379' : '');
 
 interface TikTokEventProperties {
   event?: string;
