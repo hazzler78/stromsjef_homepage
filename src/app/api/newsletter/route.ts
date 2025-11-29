@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     // Validera e-postadress
     if (!email || !email.includes('@')) {
       return NextResponse.json(
-        { error: 'Ogiltig e-postadress' },
+        { error: 'Ugyldig e-postadresse' },
         { status: 400 }
       );
     }
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     if (!MAILERLITE_API_KEY) {
       console.error('MAILERLITE_API_KEY saknas i miljövariabler');
       return NextResponse.json(
-        { error: 'Konfigurationsfel' },
+        { error: 'Konfigurasjonsfeil. Kontakt support.' },
         { status: 500 }
       );
     }
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       // Hantera specifika fel
       if (response.status === 409) {
         return NextResponse.json(
-          { error: 'Denna e-postadress är redan registrerad' },
+          { error: 'Denne e-postadressen er allerede registrert' },
           { status: 409 }
         );
       }
@@ -115,19 +115,35 @@ export async function POST(request: NextRequest) {
       const message: string | undefined = (errorData && (errorData.message || errorData.error || errorData?.errors?.[0])) as string | undefined;
       if (message && message.toLowerCase().includes('subscriber') && message.toLowerCase().includes('limit')) {
         return NextResponse.json(
-          { error: 'Vi har nått gränsen för prenumeranter i vårt nyhetsbrev just nu. Försök gärna igen senare.' },
+          { error: 'Vi har nådd grensen for abonnenter i nyhetsbrevet vårt akkurat nå. Prøv igjen senere.' },
           { status: 429 }
         );
       }
       
-      // Kontrollera om det är ett grupp-ID-fel
-      const groupsError = errorData?.errors?.['groups.0'] || errorData?.errors?.groups?.[0];
-      if (groupsError && (groupsError.includes('invalid') || groupsError.includes('not found'))) {
-        console.error(`[MailerLite] Group ID validation failed. Attempted ID: ${groupIdNumber}, Error: ${JSON.stringify(groupsError)}`);
+      // Kontrollera om det är ett grupp-ID-fel - flera möjliga format
+      const groupsError = errorData?.errors?.['groups.0'] || 
+                         errorData?.errors?.groups?.[0] || 
+                         errorData?.errors?.groups ||
+                         (typeof errorData?.errors === 'object' && Object.keys(errorData.errors).some(k => k.includes('group')));
+      
+      const groupsErrorString = typeof groupsError === 'string' ? groupsError : JSON.stringify(groupsError);
+      const hasGroupError = groupsErrorString && (
+        groupsErrorString.toLowerCase().includes('invalid') || 
+        groupsErrorString.toLowerCase().includes('not found') ||
+        groupsErrorString.toLowerCase().includes('does not exist') ||
+        groupsErrorString.toLowerCase().includes('selected groups')
+      );
+      
+      if (hasGroupError || (response.status === 400 && groupIdNumber)) {
+        console.error(`[MailerLite] Group ID validation failed. Attempted ID: ${groupIdNumber}, Error: ${JSON.stringify(errorData)}`);
         return NextResponse.json(
           { 
-            error: `Felaktigt grupp-ID för Mailerlite. Försökte använda grupp-ID: ${groupIdNumber}. Kontrollera att MAILERLITE_GROUP_ID=${MAILERLITE_GROUP_ID} är korrekt i MailerLite eller ta bort den från miljövariablerna för att lägga till prenumeranter i "All subscribers".`,
-            debug: process.env.NODE_ENV === 'development' ? { attemptedGroupId: groupIdNumber, error: groupsError } : undefined
+            error: `Kunne ikke registrere e-postadressen. Feil gruppe-ID i konfigurasjonen. Kontakt support hvis problemet vedvarer.`,
+            debug: process.env.NODE_ENV === 'development' ? { 
+              attemptedGroupId: groupIdNumber, 
+              rawGroupId: MAILERLITE_GROUP_ID,
+              error: errorData 
+            } : undefined
           },
           { status: 400 }
         );
@@ -135,7 +151,7 @@ export async function POST(request: NextRequest) {
       
       return NextResponse.json(
         { 
-          error: 'Kunde inte registrera e-postadressen',
+          error: 'Kunne ikke registrere e-postadressen. Prøv igjen senere.',
           debug: process.env.NODE_ENV === 'development' ? { status: response.status, errorData } : undefined
         },
         { status: 500 }
@@ -157,7 +173,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: true, 
-        message: 'Prenumeration registrerad',
+        message: 'Påmelding registrert',
         subscriber_id: data.data.id 
       },
       { status: 200 }
@@ -166,7 +182,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Newsletter subscription error:', error);
     return NextResponse.json(
-      { error: 'Ett fel uppstod vid registrering' },
+      { error: 'En feil oppstod ved registrering. Prøv igjen senere.' },
       { status: 500 }
     );
   }
