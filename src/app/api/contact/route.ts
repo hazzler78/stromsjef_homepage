@@ -121,7 +121,7 @@ ${pendingId ? `\n🆔 *ID:* ${pendingId}\n\n💡 *Svara på detta meddelande* el
 
 async function addToMailerlite(email: string) {
   if (!MAILERLITE_API_KEY) {
-    console.error('MAILERLITE_API_KEY saknas i miljövariabler');
+    console.error('[MailerLite] MAILERLITE_API_KEY saknas i miljövariabler');
     return false;
   }
 
@@ -130,8 +130,15 @@ async function addToMailerlite(email: string) {
     status: 'active',
   };
   
-  if (MAILERLITE_GROUP_ID && !isNaN(Number(MAILERLITE_GROUP_ID))) {
-    body.groups = [Number(MAILERLITE_GROUP_ID)];
+  const groupIdNumber = MAILERLITE_GROUP_ID ? Number(MAILERLITE_GROUP_ID) : null;
+  if (MAILERLITE_GROUP_ID && !isNaN(groupIdNumber!) && groupIdNumber! > 0) {
+    body.groups = [groupIdNumber];
+    console.log(`[MailerLite] Attempting to add subscriber to group ID: ${groupIdNumber} (raw: "${MAILERLITE_GROUP_ID}")`);
+  } else {
+    console.log('[MailerLite] No valid MAILERLITE_GROUP_ID found, subscriber will be added to "All subscribers"');
+    if (MAILERLITE_GROUP_ID) {
+      console.warn(`[MailerLite] Invalid group ID format: "${MAILERLITE_GROUP_ID}"`);
+    }
   }
 
   try {
@@ -146,13 +153,26 @@ async function addToMailerlite(email: string) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Mailerlite API error:', errorData);
+      console.error('[MailerLite] API error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData: JSON.stringify(errorData, null, 2),
+        attemptedGroupId: groupIdNumber,
+        rawGroupId: MAILERLITE_GROUP_ID
+      });
+      
+      // Logga specifikt om det är ett grupp-ID-fel
+      const groupsError = errorData?.errors?.['groups.0'] || errorData?.errors?.groups?.[0];
+      if (groupsError && (groupsError.includes('invalid') || groupsError.includes('not found'))) {
+        console.error(`[MailerLite] Group ID validation failed. Attempted ID: ${groupIdNumber}, Error: ${JSON.stringify(groupsError)}`);
+      }
+      
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('Error adding to Mailerlite:', error);
+    console.error('[MailerLite] Error adding subscriber:', error);
     return false;
   }
 }

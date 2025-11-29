@@ -69,15 +69,21 @@ export async function POST(request: NextRequest) {
       email: email,
       status: 'active',
     };
-    if (MAILERLITE_GROUP_ID && !isNaN(Number(MAILERLITE_GROUP_ID))) {
-      body.groups = [Number(MAILERLITE_GROUP_ID)];
-      console.log(`Adding subscriber to MailerLite group ID: ${MAILERLITE_GROUP_ID}`);
+    
+    const groupIdNumber = MAILERLITE_GROUP_ID ? Number(MAILERLITE_GROUP_ID) : null;
+    if (MAILERLITE_GROUP_ID && !isNaN(groupIdNumber!) && groupIdNumber! > 0) {
+      body.groups = [groupIdNumber];
+      console.log(`[MailerLite] Attempting to add subscriber to group ID: ${groupIdNumber} (raw: "${MAILERLITE_GROUP_ID}")`);
     } else {
-      console.log('No valid MAILERLITE_GROUP_ID found, subscriber will be added to "All subscribers"');
+      console.log('[MailerLite] No valid MAILERLITE_GROUP_ID found, subscriber will be added to "All subscribers"');
+      if (MAILERLITE_GROUP_ID) {
+        console.warn(`[MailerLite] Invalid group ID format: "${MAILERLITE_GROUP_ID}"`);
+      }
     }
     // Om grupp-ID saknas eller är ogiltigt, skicka inte 'groups' alls (prenumerant hamnar i "All subscribers")
 
     // Lägg till prenumerant i Mailerlite
+    console.log('[MailerLite] Request body:', JSON.stringify(body, null, 2));
     const response = await fetch('https://connect.mailerlite.com/api/subscribers', {
       method: 'POST',
       headers: {
@@ -89,7 +95,14 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Mailerlite API error:', errorData);
+      console.error('[MailerLite] API error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData: JSON.stringify(errorData, null, 2),
+        attemptedGroupId: groupIdNumber,
+        rawGroupId: MAILERLITE_GROUP_ID
+      });
+      
       // Hantera specifika fel
       if (response.status === 409) {
         return NextResponse.json(
@@ -97,6 +110,7 @@ export async function POST(request: NextRequest) {
           { status: 409 }
         );
       }
+      
       // Plan-limit hos MailerLite (t.ex. "The subscriber might exceed the current subscriber limit.")
       const message: string | undefined = (errorData && (errorData.message || errorData.error || errorData?.errors?.[0])) as string | undefined;
       if (message && message.toLowerCase().includes('subscriber') && message.toLowerCase().includes('limit')) {
@@ -105,14 +119,25 @@ export async function POST(request: NextRequest) {
           { status: 429 }
         );
       }
-      if (errorData?.errors?.['groups.0']?.includes('The selected groups.0 is invalid.')) {
+      
+      // Kontrollera om det är ett grupp-ID-fel
+      const groupsError = errorData?.errors?.['groups.0'] || errorData?.errors?.groups?.[0];
+      if (groupsError && (groupsError.includes('invalid') || groupsError.includes('not found'))) {
+        console.error(`[MailerLite] Group ID validation failed. Attempted ID: ${groupIdNumber}, Error: ${JSON.stringify(groupsError)}`);
         return NextResponse.json(
-          { error: 'Felaktigt grupp-ID för Mailerlite. Kontrollera att MAILERLITE_GROUP_ID är korrekt eller ta bort den från .env.local för att lägga till prenumeranter i "All subscribers".' },
+          { 
+            error: `Felaktigt grupp-ID för Mailerlite. Försökte använda grupp-ID: ${groupIdNumber}. Kontrollera att MAILERLITE_GROUP_ID=${MAILERLITE_GROUP_ID} är korrekt i MailerLite eller ta bort den från miljövariablerna för att lägga till prenumeranter i "All subscribers".`,
+            debug: process.env.NODE_ENV === 'development' ? { attemptedGroupId: groupIdNumber, error: groupsError } : undefined
+          },
           { status: 400 }
         );
       }
+      
       return NextResponse.json(
-        { error: 'Kunde inte registrera e-postadressen' },
+        { 
+          error: 'Kunde inte registrera e-postadressen',
+          debug: process.env.NODE_ENV === 'development' ? { status: response.status, errorData } : undefined
+        },
         { status: 500 }
       );
     }
