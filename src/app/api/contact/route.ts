@@ -130,10 +130,10 @@ async function addToMailerlite(email: string) {
     status: 'active',
   };
   
-  const groupIdNumber = MAILERLITE_GROUP_ID ? Number(MAILERLITE_GROUP_ID) : null;
-  if (MAILERLITE_GROUP_ID && !isNaN(groupIdNumber!) && groupIdNumber! > 0) {
-    body.groups = [groupIdNumber];
-    console.log(`[MailerLite] Attempting to add subscriber to group ID: ${groupIdNumber} (raw: "${MAILERLITE_GROUP_ID}")`);
+  // Använd strängen direkt för att undvika JavaScript precision-problem med stora heltal
+  if (MAILERLITE_GROUP_ID && MAILERLITE_GROUP_ID.trim().length > 0) {
+    body.groups = [MAILERLITE_GROUP_ID]; // Använd strängen direkt - MailerLite accepterar detta
+    console.log(`[MailerLite] Attempting to add subscriber to group ID: ${MAILERLITE_GROUP_ID} (as string to avoid precision loss)`);
   } else {
     console.log('[MailerLite] No valid MAILERLITE_GROUP_ID found, subscriber will be added to "All subscribers"');
     if (MAILERLITE_GROUP_ID) {
@@ -157,14 +157,14 @@ async function addToMailerlite(email: string) {
         status: response.status,
         statusText: response.statusText,
         errorData: JSON.stringify(errorData, null, 2),
-        attemptedGroupId: groupIdNumber,
+        attemptedGroupId: MAILERLITE_GROUP_ID,
         rawGroupId: MAILERLITE_GROUP_ID
       });
       
       // Logga specifikt om det är ett grupp-ID-fel
       const groupsError = errorData?.errors?.['groups.0'] || errorData?.errors?.groups?.[0];
       if (groupsError && (groupsError.includes('invalid') || groupsError.includes('not found'))) {
-        console.error(`[MailerLite] Group ID validation failed. Attempted ID: ${groupIdNumber}, Error: ${JSON.stringify(groupsError)}`);
+        console.error(`[MailerLite] Group ID validation failed. Attempted ID: ${MAILERLITE_GROUP_ID}, Error: ${JSON.stringify(groupsError)}`);
       }
       
       return false;

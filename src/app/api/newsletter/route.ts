@@ -70,10 +70,11 @@ export async function POST(request: NextRequest) {
       status: 'active',
     };
     
-    const groupIdNumber = MAILERLITE_GROUP_ID ? Number(MAILERLITE_GROUP_ID) : null;
-    if (MAILERLITE_GROUP_ID && !isNaN(groupIdNumber!) && groupIdNumber! > 0) {
-      body.groups = [groupIdNumber];
-      console.log(`[MailerLite] Attempting to add subscriber to group ID: ${groupIdNumber} (raw: "${MAILERLITE_GROUP_ID}")`);
+    // Använd strängen direkt för att undvika JavaScript precision-problem med stora heltal
+    // MailerLite API accepterar group IDs som strängar eller nummer
+    if (MAILERLITE_GROUP_ID && MAILERLITE_GROUP_ID.trim().length > 0) {
+      body.groups = [MAILERLITE_GROUP_ID]; // Använd strängen direkt - MailerLite accepterar detta
+      console.log(`[MailerLite] Attempting to add subscriber to group ID: ${MAILERLITE_GROUP_ID} (as string to avoid precision loss)`);
     } else {
       console.log('[MailerLite] No valid MAILERLITE_GROUP_ID found, subscriber will be added to "All subscribers"');
       if (MAILERLITE_GROUP_ID) {
@@ -134,13 +135,13 @@ export async function POST(request: NextRequest) {
         groupsErrorString.toLowerCase().includes('selected groups')
       );
       
-      if (hasGroupError || (response.status === 400 && groupIdNumber)) {
-        console.error(`[MailerLite] Group ID validation failed. Attempted ID: ${groupIdNumber}, Error: ${JSON.stringify(errorData)}`);
+      if (hasGroupError || (response.status === 400 && MAILERLITE_GROUP_ID)) {
+        console.error(`[MailerLite] Group ID validation failed. Attempted ID: ${MAILERLITE_GROUP_ID}, Error: ${JSON.stringify(errorData)}`);
         return NextResponse.json(
           { 
             error: `Kunne ikke registrere e-postadressen. Feil gruppe-ID i konfigurasjonen. Kontakt support hvis problemet vedvarer.`,
             debug: process.env.NODE_ENV === 'development' ? { 
-              attemptedGroupId: groupIdNumber, 
+              attemptedGroupId: MAILERLITE_GROUP_ID, 
               rawGroupId: MAILERLITE_GROUP_ID,
               error: errorData 
             } : undefined

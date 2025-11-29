@@ -70,25 +70,32 @@ export async function GET() {
 
     const data = await response.json();
     const groups = data.data || [];
-    const groupIdNumber = Number(MAILERLITE_GROUP_ID);
+    // Jämför som strängar för att undvika JavaScript precision-problem med stora heltal
+    const groupIdString = String(MAILERLITE_GROUP_ID);
     
-    const foundGroup = groups.find((group: { id: number }) => group.id === groupIdNumber);
+    // MailerLite kan returnera IDs som strängar eller nummer, så vi jämför båda
+    const foundGroup = groups.find((group: { id: number | string }) => 
+      String(group.id) === groupIdString
+    );
     
     if (foundGroup) {
       return NextResponse.json({
         valid: true,
-        configuredGroupId: groupIdNumber,
+        configuredGroupId: groupIdString,
         groupName: foundGroup.name,
         group: foundGroup,
-        message: `Grupp-ID ${groupIdNumber} är giltigt och motsvarar gruppen "${foundGroup.name}"`,
+        message: `Grupp-ID ${groupIdString} är giltigt och motsvarar gruppen "${foundGroup.name}"`,
         debug: debugInfo
       });
     } else {
       return NextResponse.json({
         valid: false,
-        configuredGroupId: groupIdNumber,
-        availableGroups: groups.map((g: { id: number; name: string }) => ({ id: g.id, name: g.name })),
-        message: `Grupp-ID ${groupIdNumber} finns inte i MailerLite. Tillgängliga grupper listas ovan.`,
+        configuredGroupId: groupIdString,
+        availableGroups: groups.map((g: { id: number | string; name: string }) => ({ 
+          id: String(g.id), 
+          name: g.name 
+        })),
+        message: `Grupp-ID ${groupIdString} finns inte i MailerLite. Tillgängliga grupper listas ovan.`,
         debug: debugInfo,
         troubleshooting: {
           note: 'Om du har uppdaterat MAILERLITE_GROUP_ID i CloudFlare men ser fortfarande fel värde här:',
