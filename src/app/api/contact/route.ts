@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ContactFormData } from '@/lib/types';
 import { createClient } from '@supabase/supabase-js';
 
-const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
-const MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID;
 // Raw values first; sanitize below to avoid common dashboard quoting issues
+const RAW_MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
+const RAW_MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID;
 const RAW_TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const RAW_TELEGRAM_CHAT_IDS = process.env.TELEGRAM_CHAT_IDS;
 const rawSUPABASE_URL = process.env.SUPABASE_URL;
@@ -16,6 +16,11 @@ function sanitizeEnv(value: string | undefined): string | undefined {
   // Strip surrounding quotes if present (common misconfiguration in dashboards)
   return trimmed.replace(/^"|"$/g, '');
 }
+
+// Sanitized MailerLite config
+const MAILERLITE_API_KEY = sanitizeEnv(RAW_MAILERLITE_API_KEY);
+const MAILERLITE_GROUP_ID = sanitizeEnv(RAW_MAILERLITE_GROUP_ID);
+
 // Sanitized Telegram config
 const TELEGRAM_BOT_TOKEN = sanitizeEnv(RAW_TELEGRAM_BOT_TOKEN);
 const TELEGRAM_CHAT_IDS: string[] = (sanitizeEnv(RAW_TELEGRAM_CHAT_IDS) || '')

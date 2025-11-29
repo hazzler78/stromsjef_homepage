@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
-const MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID;
+// Raw values first; sanitize below to avoid common dashboard quoting issues
+const RAW_MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
+const RAW_MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID;
 
 function sanitizeEnv(value: string | undefined): string | undefined {
   if (!value) return value;
   const trimmed = value.trim();
   return trimmed.replace(/^"|"$/g, '');
 }
+
+// Sanitized MailerLite config
+const MAILERLITE_API_KEY = sanitizeEnv(RAW_MAILERLITE_API_KEY);
+const MAILERLITE_GROUP_ID = sanitizeEnv(RAW_MAILERLITE_GROUP_ID);
 
 const RAW_TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const RAW_TELEGRAM_CHAT_IDS = process.env.TELEGRAM_CHAT_IDS;
@@ -66,6 +71,9 @@ export async function POST(request: NextRequest) {
     };
     if (MAILERLITE_GROUP_ID && !isNaN(Number(MAILERLITE_GROUP_ID))) {
       body.groups = [Number(MAILERLITE_GROUP_ID)];
+      console.log(`Adding subscriber to MailerLite group ID: ${MAILERLITE_GROUP_ID}`);
+    } else {
+      console.log('No valid MAILERLITE_GROUP_ID found, subscriber will be added to "All subscribers"');
     }
     // Om grupp-ID saknas eller är ogiltigt, skicka inte 'groups' alls (prenumerant hamnar i "All subscribers")
 
