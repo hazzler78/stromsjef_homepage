@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
         status: response.status,
         statusText: response.statusText,
         errorData: JSON.stringify(errorData, null, 2),
-        attemptedGroupId: groupIdNumber,
+        attemptedGroupId: MAILERLITE_GROUP_ID,
         rawGroupId: MAILERLITE_GROUP_ID
       });
       
