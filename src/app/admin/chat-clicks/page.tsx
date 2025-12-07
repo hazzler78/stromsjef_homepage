@@ -121,37 +121,37 @@ export default function AdminChatClicks() {
     .slice(0, 7);
 
   return (
-    <div style={{ maxWidth: 1200, margin: '2rem auto', padding: 24 }}>
-      <h1>Chat-klick (Admin)</h1>
-      <p style={{ color: '#64748b', marginTop: 4, marginBottom: 12 }}>
+    <div style={{ maxWidth: 1200, margin: '2rem auto', padding: 24, background: 'white', minHeight: '100vh' }}>
+      <h1 style={{ color: '#1e293b', marginBottom: 8 }}>Chat-klick (Admin)</h1>
+      <p style={{ color: '#64748b', marginTop: 4, marginBottom: 12, fontSize: '16px' }}>
         Spårning av klick från GrokChat-komponenten (Elge)
       </p>
       
       {/* Statistik */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
-        <div style={{ background: '#f9fafb', padding: 16, borderRadius: 8, border: '1px solid #e5e7eb' }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--primary)' }}>{totalClicks}</div>
-          <div style={{ fontSize: 14, color: '#64748b' }}>Totalt klick</div>
+        <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8, border: '2px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ margin: '0 0 8px 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Totalt klick</h3>
+          <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#0066a7' }}>{totalClicks}</div>
         </div>
-        <div style={{ background: '#f9fafb', padding: 16, borderRadius: 8, border: '1px solid #e5e7eb' }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: '#10b981' }}>{baerumClicks}</div>
-          <div style={{ fontSize: 14, color: '#64748b' }}>Bærum Energi</div>
+        <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8, border: '2px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ margin: '0 0 8px 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Bærum Energi</h3>
+          <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#16a34a' }}>{baerumClicks}</div>
         </div>
-        <div style={{ background: '#f9fafb', padding: 16, borderRadius: 8, border: '1px solid #e5e7eb' }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: '#8b5cf6' }}>{uniqueSessions}</div>
-          <div style={{ fontSize: 14, color: '#64748b' }}>Unika sessioner</div>
+        <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8, border: '2px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ margin: '0 0 8px 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Unika sessioner</h3>
+          <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#8b5cf6' }}>{uniqueSessions}</div>
         </div>
       </div>
 
       {/* Daglig statistik */}
       {dailyStats.length > 0 && (
-        <div style={{ background: '#f9fafb', padding: 16, borderRadius: 8, border: '1px solid #e5e7eb', marginBottom: 24 }}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: 16 }}>Senaste 7 dagarna</h3>
+        <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8, border: '2px solid #e2e8f0', marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '600', color: '#1e293b' }}>Senaste 7 dagarna</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {dailyStats.map(([date, count]) => (
-              <div key={date} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 14 }}>{new Date(date).toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
-                <span style={{ fontWeight: 600, color: 'var(--primary)' }}>{count} klick</span>
+              <div key={date} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0' }}>
+                <span style={{ fontSize: '14px', color: '#1e293b', fontWeight: '500' }}>{new Date(date).toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                <span style={{ fontWeight: '600', color: '#0066a7', fontSize: '16px' }}>{count} klick</span>
               </div>
             ))}
           </div>
@@ -160,39 +160,39 @@ export default function AdminChatClicks() {
 
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <label style={{ fontSize: 12, color: '#64748b' }}>Från</label>
-          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }} />
-          <label style={{ fontSize: 12, color: '#64748b' }}>Till</label>
-          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }} />
+          <label style={{ fontSize: 14, color: '#64748b', fontWeight: '500' }}>Från</label>
+          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '14px', color: '#1e293b' }} />
+          <label style={{ fontSize: 14, color: '#64748b', fontWeight: '500' }}>Till</label>
+          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '14px', color: '#1e293b' }} />
         </div>
         <input
           placeholder="Sök (session, agent, href, button_type)"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{ flex: 1, minWidth: 240, padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }}
+          style={{ flex: 1, minWidth: 240, padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '14px', color: '#1e293b' }}
         />
-        <button onClick={fetchLogs} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #cbd5e1' }}>Uppdatera</button>
+        <button onClick={fetchLogs} style={{ padding: '10px 16px', borderRadius: 6, border: '1px solid #cbd5e1', background: 'white', color: '#1e293b', fontWeight: '500', cursor: 'pointer', fontSize: '14px' }}>Uppdatera</button>
       </div>
-      {loading && <p>Laddar...</p>}
-      {!loading && filtered.length === 0 && <p>Inga klickloggar.</p>}
+      {loading && <p style={{ color: '#64748b' }}>Laddar...</p>}
+      {!loading && filtered.length === 0 && <p style={{ color: '#64748b' }}>Inga klickloggar.</p>}
 
       {!loading && filtered.length > 0 && (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', borderRadius: 8, overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto', marginBottom: 24 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px', minWidth: '1000px' }}>
             <thead>
-              <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-                <th style={{ padding: 12, textAlign: 'left', fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Datum</th>
-                <th style={{ padding: 12, textAlign: 'left', fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Knapptyp</th>
-                <th style={{ padding: 12, textAlign: 'left', fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Länk</th>
-                <th style={{ padding: 12, textAlign: 'left', fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Session ID</th>
-                <th style={{ padding: 12, textAlign: 'left', fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>User Agent</th>
-                <th style={{ padding: 12, textAlign: 'left', fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Referer</th>
+              <tr style={{ background: '#1e293b' }}>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Datum</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Knapptyp</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Länk</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Session ID</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>User Agent</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Referer</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map(l => (
-                <tr key={l.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                  <td style={{ padding: 12, fontSize: 14 }}>
+              {filtered.map((l, index) => (
+                <tr key={l.id} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
+                  <td style={{ padding: '12px', color: '#1e293b' }}>
                     {new Date(l.created_at).toLocaleString('sv-SE', { 
                       year: 'numeric', 
                       month: '2-digit', 
@@ -201,32 +201,32 @@ export default function AdminChatClicks() {
                       minute: '2-digit' 
                     })}
                   </td>
-                  <td style={{ padding: 12, fontSize: 14 }}>
+                  <td style={{ padding: '12px', color: '#1e293b' }}>
                     <span style={{ 
                       background: l.button_type === 'baerum_energi' ? '#dbeafe' : '#f3f4f6', 
                       color: l.button_type === 'baerum_energi' ? '#1e40af' : '#374151',
-                      padding: '4px 8px', 
-                      borderRadius: 4, 
-                      fontSize: 12, 
-                      fontWeight: 600 
+                      padding: '4px 12px', 
+                      borderRadius: 6, 
+                      fontSize: '13px', 
+                      fontWeight: '600' 
                     }}>
                       {l.button_type || '—'}
                     </span>
                   </td>
-                  <td style={{ padding: 12, fontSize: 14 }}>
+                  <td style={{ padding: '12px', color: '#1e293b' }}>
                     {l.href ? (
-                      <a href={l.href} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline', maxWidth: 300, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <a href={l.href} target="_blank" rel="noopener noreferrer" style={{ color: '#0066a7', textDecoration: 'underline', maxWidth: 300, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {l.href}
                       </a>
                     ) : '—'}
                   </td>
-                  <td style={{ padding: 12, fontSize: 12, fontFamily: 'monospace', color: '#64748b' }}>
+                  <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'monospace', color: '#1e293b' }}>
                     {l.session_id ? l.session_id.substring(0, 16) + '...' : '—'}
                   </td>
-                  <td style={{ padding: 12, fontSize: 12, color: '#64748b', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: '12px', fontSize: '13px', color: '#1e293b', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {l.user_agent || '—'}
                   </td>
-                  <td style={{ padding: 12, fontSize: 12, color: '#64748b', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: '12px', fontSize: '13px', color: '#1e293b', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {l.referer || '—'}
                   </td>
                 </tr>

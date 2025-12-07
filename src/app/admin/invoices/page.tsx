@@ -139,64 +139,65 @@ export default function AdminInvoices() {
   );
 
   return (
-    <div style={{ maxWidth: 1200, margin: '2rem auto', padding: 24, color: '#f9fafb' }}>
-      <h1>Fakturaanalyser (Admin)</h1>
+    <div style={{ maxWidth: 1200, margin: '2rem auto', padding: 24, background: 'white', minHeight: '100vh' }}>
+      <h1 style={{ color: '#1e293b', marginBottom: 8, fontSize: '28px', fontWeight: 'bold' }}>Fakturaanalyser (Admin)</h1>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
         <input
           placeholder="Sök (session, agent eller text)"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{ flex: 1, padding: 8, border: '1px solid #4b5563', background: '#111827', color: '#f9fafb', borderRadius: 6 }}
+          style={{ flex: 1, padding: '10px 12px', border: '1px solid #cbd5e1', background: 'white', color: '#1e293b', borderRadius: 6, fontSize: '14px' }}
         />
-        <button onClick={fetchLogs} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #4b5563', background: '#1f2937', color: '#f9fafb' }}>Uppdatera</button>
+        <button onClick={fetchLogs} style={{ padding: '10px 16px', borderRadius: 6, border: '1px solid #cbd5e1', background: 'white', color: '#1e293b', fontWeight: '500', cursor: 'pointer', fontSize: '14px' }}>Uppdatera</button>
       </div>
-      {loading && <p>Laddar...</p>}
-      {!loading && filtered.length === 0 && <p>Inga loggar.</p>}
+      {loading && <p style={{ color: '#64748b' }}>Laddar...</p>}
+      {!loading && filtered.length === 0 && <p style={{ color: '#64748b' }}>Inga loggar.</p>}
 
       {!loading && filtered.length > 0 && (
-        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#f9fafb' }}>
-          <thead>
-            <tr style={{ background: '#111827' }}>
-              <th style={{ padding: 8, border: '1px solid #374151' }}>Datum</th>
-              <th style={{ padding: 8, border: '1px solid #374151' }}>Session</th>
-              <th style={{ padding: 8, border: '1px solid #374151' }}>Fil</th>
-              <th style={{ padding: 8, border: '1px solid #374151' }}>Agent</th>
-              <th style={{ padding: 8, border: '1px solid #374151' }}>Korrekt?</th>
-              <th style={{ padding: 8, border: '1px solid #374151' }}>Anteckning</th>
-              <th style={{ padding: 8, border: '1px solid #374151' }}>Åtgärder</th>
-              <th style={{ padding: 8, border: '1px solid #374151' }}>Bild</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(log => (
-              <>
-                <tr key={log.id}>
-                  <td style={{ padding: 8, border: '1px solid #374151' }}>{new Date(log.created_at).toLocaleString()}</td>
-                  <td style={{ padding: 8, border: '1px solid #374151', fontSize: 12, maxWidth: 200, wordBreak: 'break-all' }} title={log.session_id || ''}>{log.session_id}</td>
-                  <td style={{ padding: 8, border: '1px solid #374151', fontSize: 12, maxWidth: 150 }} title={`${log.file_mime} ${typeof log.file_size === 'number' ? `• ${(log.file_size/1024).toFixed(0)} KB` : ''}`}>
-                    {log.file_mime} {typeof log.file_size === 'number' ? `• ${(log.file_size/1024).toFixed(0)} KB` : ''}
-                  </td>
-                  <td style={{ padding: 8, border: '1px solid #374151', fontSize: 12, maxWidth: 300, wordBreak: 'break-all' }} title={log.user_agent || ''}>{log.user_agent}</td>
-                  <td style={{ padding: 8, border: '1px solid #374151' }}>
-                    {log.is_correct === true && '✅'}
-                    {log.is_correct === false && '❌'}
-                    {log.is_correct === null && '—'}
-                  </td>
-                  <td style={{ padding: 8, border: '1px solid #374151', maxWidth: 300, wordBreak: 'break-word' }} title={log.correction_notes || ''}>
-                    {log.correction_notes || ''}
-                  </td>
-                  <td style={{ padding: 8, border: '1px solid #374151' }}>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      <button onClick={() => setCorrect(log.id, true)} style={{ padding: '4px 8px', background: '#1f2937', color: '#f9fafb', border: '1px solid #4b5563' }}>Markera ✅</button>
-                      <button onClick={() => setCorrect(log.id, false)} style={{ padding: '4px 8px', background: '#1f2937', color: '#f9fafb', border: '1px solid #4b5563' }}>Markera ❌</button>
-                      <button onClick={() => editNotes(log.id)} style={{ padding: '4px 8px', background: '#1f2937', color: '#f9fafb', border: '1px solid #4b5563' }}>Anteckning</button>
-                      <button onClick={() => setExpanded(expanded === log.id ? null : log.id)} style={{ padding: '4px 8px', background: '#1f2937', color: '#f9fafb', border: '1px solid #4b5563' }}>{expanded === log.id ? 'Dölj' : 'Visa'}</button>
-                    </div>
-                  </td>
-                  <td style={{ padding: 8, border: '1px solid #374151' }}>
-                    {log.consent ? (
-                      <button
-                        onClick={async () => {
+        <div style={{ overflowX: 'auto', marginBottom: 24 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px', minWidth: '1200px' }}>
+            <thead>
+              <tr style={{ background: '#1e293b' }}>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Datum</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Session</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Fil</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Agent</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'center', color: 'white', fontWeight: '600' }}>Korrekt?</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Anteckning</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Åtgärder</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Bild</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((log, index) => (
+                <>
+                  <tr key={log.id} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
+                    <td style={{ padding: '12px', color: '#1e293b' }}>{new Date(log.created_at).toLocaleString()}</td>
+                    <td style={{ padding: '12px', color: '#1e293b', fontSize: '13px', maxWidth: 200, wordBreak: 'break-all', fontFamily: 'monospace' }} title={log.session_id || ''}>{log.session_id}</td>
+                    <td style={{ padding: '12px', color: '#1e293b', fontSize: '13px', maxWidth: 150 }} title={`${log.file_mime} ${typeof log.file_size === 'number' ? `• ${(log.file_size/1024).toFixed(0)} KB` : ''}`}>
+                      {log.file_mime} {typeof log.file_size === 'number' ? `• ${(log.file_size/1024).toFixed(0)} KB` : ''}
+                    </td>
+                    <td style={{ padding: '12px', color: '#1e293b', fontSize: '13px', maxWidth: 300, wordBreak: 'break-all' }} title={log.user_agent || ''}>{log.user_agent}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#1e293b', fontSize: '18px' }}>
+                      {log.is_correct === true && '✅'}
+                      {log.is_correct === false && '❌'}
+                      {log.is_correct === null && '—'}
+                    </td>
+                    <td style={{ padding: '12px', color: '#1e293b', maxWidth: 300, wordBreak: 'break-word' }} title={log.correction_notes || ''}>
+                      {log.correction_notes || ''}
+                    </td>
+                    <td style={{ padding: '12px', color: '#1e293b' }}>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        <button onClick={() => setCorrect(log.id, true)} style={{ padding: '6px 12px', background: 'white', color: '#1e293b', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}>Markera ✅</button>
+                        <button onClick={() => setCorrect(log.id, false)} style={{ padding: '6px 12px', background: 'white', color: '#1e293b', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}>Markera ❌</button>
+                        <button onClick={() => editNotes(log.id)} style={{ padding: '6px 12px', background: 'white', color: '#1e293b', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}>Anteckning</button>
+                        <button onClick={() => setExpanded(expanded === log.id ? null : log.id)} style={{ padding: '6px 12px', background: 'white', color: '#1e293b', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}>{expanded === log.id ? 'Dölj' : 'Visa'}</button>
+                      </div>
+                    </td>
+                    <td style={{ padding: '12px', color: '#1e293b' }}>
+                      {log.consent ? (
+                        <button
+                          onClick={async () => {
                           try {
                             const res = await fetch(`/api/invoice-ocr/file-url?invoiceId=${log.id}`);
                             const data = await res.json();
@@ -291,28 +292,29 @@ export default function AdminInvoices() {
                             alert('Kunde inte hämta bildlänk: ' + (err instanceof Error ? err.message : 'Okänt fel'));
                           }
                         }}
-                        style={{ padding: '4px 8px', background: '#1f2937', color: '#f9fafb', border: '1px solid #4b5563' }}
-                        title="Öppna förhandsvisning i nytt fönster"
-                      >
-                        Visa bild
-                      </button>
-                    ) : (
-                      <span style={{ color: '#9ca3af', fontSize: 12 }}>Inget samtycke</span>
-                    )}
-                  </td>
-                </tr>
-                {expanded === log.id && (
-                  <tr>
-                    <td colSpan={7} style={{ background: '#111827', padding: 16, border: '1px solid #374151' }}>
-                      <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 8 }}>SHA256: {log.image_sha256}</div>
-                      <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{log.gpt_answer}</div>
+                          style={{ padding: '6px 12px', background: 'white', color: '#1e293b', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}
+                          title="Öppna förhandsvisning i nytt fönster"
+                        >
+                          Visa bild
+                        </button>
+                      ) : (
+                        <span style={{ color: '#64748b', fontSize: '13px' }}>Inget samtycke</span>
+                      )}
                     </td>
                   </tr>
-                )}
+                  {expanded === log.id && (
+                    <tr style={{ background: '#f8fafc' }}>
+                      <td colSpan={8} style={{ padding: '16px', border: '1px solid #e5e7eb' }}>
+                        <div style={{ fontSize: '13px', color: '#64748b', marginBottom: 8, fontFamily: 'monospace' }}>SHA256: {log.image_sha256}</div>
+                        <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6, color: '#1e293b', fontSize: '14px' }}>{log.gpt_answer}</div>
+                      </td>
+                    </tr>
+                  )}
               </>
             ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

@@ -82,8 +82,8 @@ export default function FunnelAdmin() {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: 1000, margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '1rem' }}>Funnel-översikt</h1>
+    <div style={{ padding: '2rem', maxWidth: 1000, margin: '0 auto', background: 'white', minHeight: '100vh' }}>
+      <h1 style={{ marginBottom: '1rem', color: '#1e293b', fontSize: '28px', fontWeight: 'bold' }}>Funnel-översikt</h1>
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ marginRight: '1rem', fontWeight: 'bold' }}>Tidsperiod:</label>
         <select
@@ -101,36 +101,36 @@ export default function FunnelAdmin() {
       </div>
 
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-          <div style={{ background: 'white', padding: '1.25rem', border: '1px solid #eee', borderRadius: 8 }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Besök på sidan</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>{stats.pageViews}</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+          <div style={{ background: '#f8fafc', padding: '1.5rem', border: '2px solid #e2e8f0', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Besök på sidan</h3>
+            <p style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>{stats.pageViews}</p>
           </div>
 
-          <div style={{ background: 'white', padding: '1.25rem', border: '1px solid #eee', borderRadius: 8 }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>AI‑analyser</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#8b5cf6' }}>{stats.aiAnalyses}</p>
+          <div style={{ background: '#f8fafc', padding: '1.5rem', border: '2px solid #e2e8f0', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>AI‑analyser</h3>
+            <p style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>{stats.aiAnalyses}</p>
           </div>
 
-          <div style={{ background: 'white', padding: '1.25rem', border: '1px solid #eee', borderRadius: 8 }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Kontraktsklick (med AI)</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: 'var(--secondary)' }}>{stats.contractClicksWithAi}</p>
+          <div style={{ background: '#f8fafc', padding: '1.5rem', border: '2px solid #e2e8f0', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Kontraktsklick (med AI)</h3>
+            <p style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>{stats.contractClicksWithAi}</p>
           </div>
 
-          <div style={{ background: 'white', padding: '1.25rem', border: '1px solid #eee', borderRadius: 8 }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Kontraktsklick (utan AI)</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#ef4444' }}>{stats.contractClicksWithoutAi}</p>
+          <div style={{ background: '#f8fafc', padding: '1.5rem', border: '2px solid #e2e8f0', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Kontraktsklick (utan AI)</h3>
+            <p style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>{stats.contractClicksWithoutAi}</p>
           </div>
         </div>
       )}
 
-      <div style={{ marginTop: '1.5rem', background: 'white', borderRadius: 8, border: '1px solid #eee', padding: '1rem' }}>
-        <h2 style={{ marginTop: 0 }}>Definitioner</h2>
-        <ul>
-          <li>Besök: Antal page views på <code>/jamfor-elpriser</code>.</li>
-          <li>AI‑analyser: Antal analyser körda (rader i <code>invoice_ocr</code>).</li>
-          <li>Kontraktsklick med AI: Klick där <code>log_id</code> finns.</li>
-          <li>Kontraktsklick utan AI: Klick där <code>log_id</code> saknas.</li>
+      <div style={{ marginTop: '1.5rem', background: '#f8fafc', borderRadius: 8, border: '2px solid #e2e8f0', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <h2 style={{ marginTop: 0, color: '#1e293b', fontSize: '20px', fontWeight: '600', marginBottom: '12px' }}>Definitioner</h2>
+        <ul style={{ margin: 0, paddingLeft: '20px', color: '#1e293b', lineHeight: '1.8' }}>
+          <li>Besök: Antal page views på <code style={{ background: '#e5e7eb', padding: '2px 6px', borderRadius: '4px', fontSize: '13px' }}>/jamfor-elpriser</code>.</li>
+          <li>AI‑analyser: Antal analyser körda (rader i <code style={{ background: '#e5e7eb', padding: '2px 6px', borderRadius: '4px', fontSize: '13px' }}>invoice_ocr</code>).</li>
+          <li>Kontraktsklick med AI: Klick där <code style={{ background: '#e5e7eb', padding: '2px 6px', borderRadius: '4px', fontSize: '13px' }}>log_id</code> finns.</li>
+          <li>Kontraktsklick utan AI: Klick där <code style={{ background: '#e5e7eb', padding: '2px 6px', borderRadius: '4px', fontSize: '13px' }}>log_id</code> saknas.</li>
         </ul>
       </div>
     </div>

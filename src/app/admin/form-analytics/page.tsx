@@ -278,9 +278,9 @@ export default function AdminFormAnalytics() {
   }
 
   return (
-    <div style={{ maxWidth: 1200, margin: '2rem auto', padding: 24 }}>
-      <h1>Formulärstatistik</h1>
-      <p style={{ color: '#64748b', marginTop: 4, marginBottom: 12 }}>
+    <div style={{ maxWidth: 1200, margin: '2rem auto', padding: 24, background: 'white', minHeight: '100vh' }}>
+      <h1 style={{ color: '#1e293b', marginBottom: 8 }}>Formulärstatistik</h1>
+      <p style={{ color: '#64748b', marginTop: 4, marginBottom: 12, fontSize: '16px' }}>
         Statistik över alla formulärinlämningar på hemsidan
       </p>
 
@@ -329,37 +329,37 @@ export default function AdminFormAnalytics() {
         <>
           {/* Summary Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
-            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <h3 style={{ margin: '0 0 8px 0', color: '#64748b', fontSize: '0.875rem' }}>Totalt antal</h3>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1e293b' }}>{analytics.totalSubmissions}</div>
+            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8, border: '2px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <h3 style={{ margin: '0 0 8px 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Totalt antal</h3>
+              <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>{analytics.totalSubmissions}</div>
             </div>
-            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <h3 style={{ margin: '0 0 8px 0', color: '#64748b', fontSize: '0.875rem' }}>Nyhetsbrev</h3>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1e293b' }}>{analytics.newsletterSubscriptions}</div>
+            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8, border: '2px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <h3 style={{ margin: '0 0 8px 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Nyhetsbrev</h3>
+              <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>{analytics.newsletterSubscriptions}</div>
             </div>
-            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <h3 style={{ margin: '0 0 8px 0', color: '#64748b', fontSize: '0.875rem' }}>Konvertering</h3>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1e293b' }}>{analytics.conversionRate.toFixed(1)}%</div>
+            <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8, border: '2px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <h3 style={{ margin: '0 0 8px 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Konvertering</h3>
+              <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>{analytics.conversionRate.toFixed(1)}%</div>
             </div>
           </div>
 
           {/* Form Types */}
           <div style={{ marginBottom: 24 }}>
-            <h2>Formulärtyper</h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <h2 style={{ color: '#1e293b', marginBottom: 12, fontSize: '20px', fontWeight: '600' }}>Formulärtyper</h2>
+            <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px' }}>
               <thead>
-                <tr style={{ background: '#f3f4f6' }}>
-                  <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'left' }}>Formulär</th>
-                  <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'right' }}>Antal</th>
-                  <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'right' }}>Procent</th>
+                <tr style={{ background: '#1e293b' }}>
+                  <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Formulär</th>
+                  <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>Antal</th>
+                  <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>Procent</th>
                 </tr>
               </thead>
               <tbody>
                 {analytics.submissionsByForm.map((item, index) => (
-                  <tr key={index}>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{item.form}</td>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'right' }}>{item.count}</td>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'right' }}>
+                  <tr key={index} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc' }}>
+                    <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b', fontWeight: '500' }}>{item.form}</td>
+                    <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{item.count}</td>
+                    <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>
                       {((item.count / analytics.totalSubmissions) * 100).toFixed(1)}%
                     </td>
                   </tr>
@@ -372,18 +372,18 @@ export default function AdminFormAnalytics() {
           {analytics.submissionsByDay.length > 0 && (
             <div style={{ marginBottom: 24 }}>
               <h2>Daglig trend</h2>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px' }}>
                 <thead>
-                  <tr style={{ background: '#f3f4f6' }}>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'left' }}>Datum</th>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'right' }}>Antal</th>
+                  <tr style={{ background: '#1e293b' }}>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Datum</th>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>Antal</th>
                   </tr>
                 </thead>
                 <tbody>
                   {analytics.submissionsByDay.slice(-14).map((item, index) => (
-                    <tr key={index}>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{item.date}</td>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'right' }}>{item.count}</td>
+                    <tr key={index} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc' }}>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b', fontWeight: '500' }}>{item.date}</td>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{item.count}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -394,19 +394,19 @@ export default function AdminFormAnalytics() {
           {/* Top Referrals */}
           {analytics.submissionsByRef.length > 0 && (
             <div style={{ marginBottom: 24 }}>
-              <h2>Topp 10 referenser</h2>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <h2 style={{ color: '#1e293b', marginBottom: 12, fontSize: '20px', fontWeight: '600' }}>Topp 10 referenser</h2>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px' }}>
                 <thead>
-                  <tr style={{ background: '#f3f4f6' }}>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'left' }}>Referens</th>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'right' }}>Antal</th>
+                  <tr style={{ background: '#1e293b' }}>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Referens</th>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>Antal</th>
                   </tr>
                 </thead>
                 <tbody>
                   {analytics.submissionsByRef.map((item, index) => (
-                    <tr key={index}>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{item.ref}</td>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'right' }}>{item.count}</td>
+                    <tr key={index} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc' }}>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b', fontWeight: '500' }}>{item.ref}</td>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{item.count}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -417,19 +417,19 @@ export default function AdminFormAnalytics() {
           {/* Top Campaigns */}
           {analytics.submissionsByCampaign.length > 0 && (
             <div style={{ marginBottom: 24 }}>
-              <h2>Topp 10 kampanjer</h2>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <h2 style={{ color: '#1e293b', marginBottom: 12, fontSize: '20px', fontWeight: '600' }}>Topp 10 kampanjer</h2>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px' }}>
                 <thead>
-                  <tr style={{ background: '#f3f4f6' }}>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'left' }}>Kampanj</th>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'right' }}>Antal</th>
+                  <tr style={{ background: '#1e293b' }}>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Kampanj</th>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>Antal</th>
                   </tr>
                 </thead>
                 <tbody>
                   {analytics.submissionsByCampaign.map((item, index) => (
-                    <tr key={index}>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{item.campaign}</td>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'right' }}>{item.count}</td>
+                    <tr key={index} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc' }}>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b', fontWeight: '500' }}>{item.campaign}</td>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{item.count}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -439,35 +439,37 @@ export default function AdminFormAnalytics() {
 
           {/* Recent Submissions */}
           <div>
-            <h2>Senaste inlämningar</h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#f3f4f6' }}>
-                  <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'left' }}>Datum</th>
-                  <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'left' }}>Namn</th>
-                  <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'left' }}>E-post</th>
-                  <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'left' }}>Telefon</th>
-                  <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'left' }}>Referens</th>
-                  <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'center' }}>Nyhetsbrev</th>
-                </tr>
-              </thead>
-              <tbody>
-                {contacts.slice(0, 20).map((contact, index) => (
-                  <tr key={index}>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>
-                      {new Date(contact.created_at).toLocaleDateString('sv-SE')}
-                    </td>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{contact.name || '-'}</td>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{contact.email}</td>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{contact.phone || '-'}</td>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{contact.ref || '-'}</td>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'center' }}>
-                      {contact.subscribe_newsletter ? '✅' : '❌'}
-                    </td>
+            <h2 style={{ color: '#1e293b', marginBottom: 12, fontSize: '20px', fontWeight: '600' }}>Senaste inlämningar</h2>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px', minWidth: '800px' }}>
+                <thead>
+                  <tr style={{ background: '#1e293b' }}>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Datum</th>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Namn</th>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>E-post</th>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Telefon</th>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Referens</th>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'center', color: 'white', fontWeight: '600' }}>Nyhetsbrev</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {contacts.slice(0, 20).map((contact, index) => (
+                    <tr key={index} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc' }}>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b' }}>
+                        {new Date(contact.created_at).toLocaleDateString('sv-SE')}
+                      </td>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b', fontWeight: '500' }}>{contact.name || '-'}</td>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b' }}>{contact.email}</td>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b' }}>{contact.phone || '-'}</td>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b' }}>{contact.ref || '-'}</td>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'center', color: '#1e293b', fontSize: '18px' }}>
+                        {contact.subscribe_newsletter ? '✅' : '❌'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       )}

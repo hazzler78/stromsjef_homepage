@@ -133,60 +133,62 @@ export default function AdminBannerClicks() {
   };
 
   return (
-    <div style={{ maxWidth: 1200, margin: '2rem auto', padding: 24 }}>
-      <h1>Bannerklick (Admin)</h1>
-      <p style={{ color: '#64748b', marginTop: 4, marginBottom: 12 }}>
+    <div style={{ maxWidth: 1200, margin: '2rem auto', padding: 24, background: 'white', minHeight: '100vh' }}>
+      <h1 style={{ color: '#1e293b', marginBottom: 8 }}>Bannerklick (Admin)</h1>
+      <p style={{ color: '#64748b', marginTop: 4, marginBottom: 12, fontSize: '16px' }}>
         CTR = klick / visningar per variant (senaste hämtningen)
       </p>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <label style={{ fontSize: 12, color: '#64748b' }}>Från</label>
-          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }} />
-          <label style={{ fontSize: 12, color: '#64748b' }}>Till</label>
-          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }} />
+          <label style={{ fontSize: 14, color: '#64748b', fontWeight: '500' }}>Från</label>
+          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '14px', color: '#1e293b' }} />
+          <label style={{ fontSize: 14, color: '#64748b', fontWeight: '500' }}>Till</label>
+          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '14px', color: '#1e293b' }} />
         </div>
         <input
           placeholder="Sök (session, agent, href, variant)"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{ flex: 1, minWidth: 240, padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }}
+          style={{ flex: 1, minWidth: 240, padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '14px', color: '#1e293b' }}
         />
-        <button onClick={fetchLogs} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #cbd5e1' }}>Uppdatera</button>
+        <button onClick={fetchLogs} style={{ padding: '10px 16px', borderRadius: 6, border: '1px solid #cbd5e1', background: 'white', color: '#1e293b', fontWeight: '500', cursor: 'pointer', fontSize: '14px' }}>Uppdatera</button>
       </div>
-      {loading && <p>Laddar...</p>}
-      {!loading && filtered.length === 0 && <p>Inga klickloggar.</p>}
+      {loading && <p style={{ color: '#64748b' }}>Laddar...</p>}
+      {!loading && filtered.length === 0 && <p style={{ color: '#64748b' }}>Inga klickloggar.</p>}
 
       {!loading && filtered.length > 0 && (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: '#f3f4f6' }}>
-              <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Datum</th>
-              <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Variant</th>
-              <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Session</th>
-              <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Href</th>
-              <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Referer</th>
-              <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Agent</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((l) => (
-              <tr key={l.id}>
-                <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{new Date(l.created_at).toLocaleString()}</td>
-                <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{l.variant}</td>
-                <td style={{ padding: 8, border: '1px solid #e5e7eb', fontSize: 12 }}>{l.session_id}</td>
-                <td style={{ padding: 8, border: '1px solid #e5e7eb', fontSize: 12, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={l.href || ''}>{l.href}</td>
-                <td style={{ padding: 8, border: '1px solid #e5e7eb', fontSize: 12, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={l.referer || ''}>{l.referer}</td>
-                <td style={{ padding: 8, border: '1px solid #e5e7eb', fontSize: 12 }}>{l.user_agent}</td>
+        <div style={{ overflowX: 'auto', marginBottom: 24 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px', minWidth: '800px' }}>
+            <thead>
+              <tr style={{ background: '#1e293b' }}>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Datum</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Variant</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Session</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Href</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Referer</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Agent</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.map((l, index) => (
+                <tr key={l.id} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc' }}>
+                  <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b' }}>{new Date(l.created_at).toLocaleString()}</td>
+                  <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b', fontWeight: '600' }}>{l.variant}</td>
+                  <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontSize: '13px', color: '#1e293b' }}>{l.session_id}</td>
+                  <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontSize: '13px', maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1e293b' }} title={l.href || ''}>{l.href}</td>
+                  <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontSize: '13px', maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1e293b' }} title={l.referer || ''}>{l.referer}</td>
+                  <td style={{ padding: '12px', border: '1px solid #e5e7eb', fontSize: '13px', color: '#1e293b' }}>{l.user_agent}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* Översikt och CTR per variant (filtrerat intervall) */}
       {!loading && (
         <div style={{ marginTop: 24 }}>
-          <h2>CTR per variant</h2>
+          <h2 style={{ color: '#1e293b', marginBottom: 12, fontSize: '20px', fontWeight: '600' }}>CTR per variant</h2>
           {/* Snabböversikt */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 12 }}>
             {['A','B'].map(v => {
@@ -194,10 +196,10 @@ export default function AdminBannerClicks() {
               const vImps = filteredImpressions.filter(i => i.variant === v).length;
               const ctrNum = vImps > 0 ? (vClicks / vImps) : 0;
               return (
-                <div key={v} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12 }}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>Variant {v}</div>
-                  <div style={{ fontSize: 22, fontWeight: 700 }}>{vImps > 0 ? (ctrNum * 100).toFixed(1) + '%' : '—'}</div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{vClicks} klick • {vImps} visningar</div>
+                <div key={v} style={{ border: '2px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#f8fafc', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                  <div style={{ fontSize: 13, color: '#64748b', fontWeight: '600', marginBottom: 4 }}>Variant {v}</div>
+                  <div style={{ fontSize: '2rem', fontWeight: 700, color: '#1e293b' }}>{vImps > 0 ? (ctrNum * 100).toFixed(1) + '%' : '—'}</div>
+                  <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{vClicks} klick • {vImps} visningar</div>
                 </div>
               );
             })}
@@ -212,37 +214,37 @@ export default function AdminBannerClicks() {
               const lift = aCtr && bCtr ? ((bCtr - aCtr) / aCtr) * 100 : 0;
               const label = lift === 0 ? '—' : `${lift > 0 ? '+' : ''}${lift.toFixed(1)}% B vs A`;
               return (
-                <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12 }}>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>Relativ skillnad</div>
-                  <div style={{ fontSize: 22, fontWeight: 700 }}>{(aImps > 0 || bImps > 0) ? label : '—'}</div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>B jämfört med A</div>
+                <div style={{ border: '2px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#f8fafc', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                  <div style={{ fontSize: 13, color: '#64748b', fontWeight: '600', marginBottom: 4 }}>Relativ skillnad</div>
+                  <div style={{ fontSize: '2rem', fontWeight: 700, color: '#1e293b' }}>{(aImps > 0 || bImps > 0) ? label : '—'}</div>
+                  <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>B jämfört med A</div>
                 </div>
               );
             })()}
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px' }}>
             <thead>
-              <tr style={{ background: '#f3f4f6' }}>
-                <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Variant</th>
-                <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Visningar</th>
-                <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Klick</th>
-                <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>CTR</th>
+              <tr style={{ background: '#1e293b' }}>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Variant</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>Visningar</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>Klick</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>CTR</th>
               </tr>
             </thead>
             <tbody>
-              {['A','B'].map(v => {
+              {['A','B'].map((v, index) => {
                 const vClicks = filtered.filter(l => l.variant === v).length;
                 const vImps = filteredImpressions.filter(i => i.variant === v).length;
                 const ctr = vImps > 0 ? `${((vClicks / vImps) * 100).toFixed(1)}%` : '—';
                 return (
-                  <tr key={v}>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>
-                      <div><strong>{v}</strong></div>
-                      <div style={{ fontSize: '0.8em', color: '#666' }}>{variantNames[v as keyof typeof variantNames]}</div>
+                  <tr key={v} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc' }}>
+                    <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b' }}>
+                      <div style={{ fontWeight: '600', marginBottom: 4 }}>{v}</div>
+                      <div style={{ fontSize: '0.85em', color: '#64748b' }}>{variantNames[v as keyof typeof variantNames]}</div>
                     </td>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{vImps}</td>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{vClicks}</td>
-                    <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{ctr}</td>
+                    <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{vImps}</td>
+                    <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{vClicks}</td>
+                    <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{ctr}</td>
                   </tr>
                 );
               })}
@@ -254,7 +256,7 @@ export default function AdminBannerClicks() {
       {/* Nedbrytning: Referer-domän */}
       {!loading && filtered.length > 0 && (
         <div style={{ marginTop: 24 }}>
-          <h2>Nedbrytning per källa (referer-domän)</h2>
+          <h2 style={{ color: '#1e293b', marginBottom: 12, fontSize: '20px', fontWeight: '600' }}>Nedbrytning per källa (referer-domän)</h2>
           {(() => {
             const domainOf = (url?: string | null) => {
               if (!url) return '(okänd)';
@@ -287,22 +289,22 @@ export default function AdminBannerClicks() {
               return { domain, clicks: c.clicks, impressions: imp.imps, ctr };
             }).sort((a, b) => b.clicks - a.clicks).slice(0, 12);
             return (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px' }}>
                 <thead>
-                  <tr style={{ background: '#f3f4f6' }}>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Domän</th>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Visningar</th>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Klick</th>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>CTR</th>
+                  <tr style={{ background: '#1e293b' }}>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Domän</th>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>Visningar</th>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>Klick</th>
+                    <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>CTR</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {entries.map(r => (
-                    <tr key={r.domain}>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{r.domain}</td>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{r.impressions}</td>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{r.clicks}</td>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{r.impressions > 0 ? ((r.ctr * 100).toFixed(1) + '%') : '—'}</td>
+                  {entries.map((r, index) => (
+                    <tr key={r.domain} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc' }}>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', color: '#1e293b', fontWeight: '500' }}>{r.domain}</td>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{r.impressions}</td>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{r.clicks}</td>
+                      <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{r.impressions > 0 ? ((r.ctr * 100).toFixed(1) + '%') : '—'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -315,7 +317,7 @@ export default function AdminBannerClicks() {
       {/* Nedbrytning: Destination (href) */}
       {!loading && filtered.length > 0 && (
         <div style={{ marginTop: 24 }}>
-          <h2>Nedbrytning per destination (href)</h2>
+          <h2 style={{ color: '#1e293b', marginBottom: 12, fontSize: '20px', fontWeight: '600' }}>Nedbrytning per destination (href)</h2>
           {(() => {
             const byHref = filtered.reduce<Record<string, { clicks: number }>>((acc, l) => {
               const key = l.href || '(okänd)';
@@ -335,24 +337,26 @@ export default function AdminBannerClicks() {
               ctr: (impByHref['(banner)'] || 0) > 0 ? v.clicks / (impByHref['(banner)'] || 1) : 0
             })).sort((a, b) => b.clicks - a.clicks).slice(0, 12);
             return (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: '#f3f4f6' }}>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Href</th>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>Klick</th>
-                    <th style={{ padding: 8, border: '1px solid #e5e7eb' }}>CTR (global)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map(r => (
-                    <tr key={r.href}>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb', maxWidth: 520, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={r.href}>{r.href}</td>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{r.clicks}</td>
-                      <td style={{ padding: 8, border: '1px solid #e5e7eb' }}>{(r.ctr * 100).toFixed(1)}%</td>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px' }}>
+                  <thead>
+                    <tr style={{ background: '#1e293b' }}>
+                      <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Href</th>
+                      <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>Klick</th>
+                      <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>CTR (global)</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {rows.map((r, index) => (
+                      <tr key={r.href} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc' }}>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', maxWidth: 520, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1e293b' }} title={r.href}>{r.href}</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{r.clicks}</td>
+                        <td style={{ padding: '12px', border: '1px solid #e5e7eb', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>{(r.ctr * 100).toFixed(1)}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             );
           })()}
         </div>

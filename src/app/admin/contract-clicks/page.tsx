@@ -184,8 +184,8 @@ export default function ContractClicksAdmin() {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '1rem', color: '#333' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', background: 'white', minHeight: '100vh' }}>
+      <h1 style={{ marginBottom: '1rem', color: '#1e293b', fontSize: '28px', fontWeight: 'bold' }}>
         Kontraktsklick-statistik
       </h1>
       
@@ -250,114 +250,114 @@ export default function ContractClicksAdmin() {
           marginBottom: '2rem' 
         }}>
           <div style={{ 
-            background: 'white', 
+            background: '#f8fafc', 
             padding: '1.5rem', 
             borderRadius: '8px', 
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            border: '1px solid #e0e0e0'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '2px solid #e2e8f0'
           }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Totalt klick</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Totalt klick</h3>
+            <p style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>
               {stats.totalClicks}
             </p>
           </div>
 
           <div style={{ 
-            background: 'white', 
+            background: '#f8fafc', 
             padding: '1.5rem', 
             borderRadius: '8px', 
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            border: '1px solid #e0e0e0'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '2px solid #e2e8f0'
           }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Rörligt avtal</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: 'var(--secondary)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Rörligt avtal</h3>
+            <p style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>
               {stats.rorligtClicks}
             </p>
           </div>
 
           <div style={{ 
-            background: 'white', 
+            background: '#f8fafc', 
             padding: '1.5rem', 
             borderRadius: '8px', 
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            border: '1px solid #e0e0e0'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '2px solid #e2e8f0'
           }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Fastpris</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Fastpris</h3>
+            <p style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>
               {stats.fastprisClicks}
             </p>
           </div>
 
           <div style={{ 
-            background: 'white', 
+            background: '#f8fafc', 
             padding: '1.5rem', 
             borderRadius: '8px', 
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            border: '1px solid #e0e0e0'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '2px solid #e2e8f0'
           }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Med AI-analys</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#8b5cf6' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Med AI-analys</h3>
+            <p style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>
               {stats.withAiAnalysis}
             </p>
           </div>
 
           <div style={{ 
-            background: 'white', 
+            background: '#f8fafc', 
             padding: '1.5rem', 
             borderRadius: '8px', 
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            border: '1px solid #e0e0e0'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '2px solid #e2e8f0'
           }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Total besparing</h3>
-            <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#f59e0b' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Total besparing</h3>
+            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#1e293b' }}>
               {formatCurrency(stats.totalSavings)}
             </p>
-            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#666' }}>
+            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>
               {stats.totalSavings > 0 ? `${(clicks || []).filter(c => c.savings_amount && c.savings_amount > 0).length} poster med besparingsdata` : 'Inga besparingsdata än'}
             </p>
           </div>
 
           <div style={{ 
-            background: 'white', 
+            background: '#f8fafc', 
             padding: '1.5rem', 
             borderRadius: '8px', 
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            border: '1px solid #e0e0e0'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '2px solid #e2e8f0'
           }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>AI-analyser totalt</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#6366f1' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>AI-analyser totalt</h3>
+            <p style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>
               {stats.totalAiAnalyses}
             </p>
           </div>
 
           <div style={{ 
-            background: 'white', 
+            background: '#f8fafc', 
             padding: '1.5rem', 
             borderRadius: '8px', 
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            border: '1px solid #e0e0e0'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '2px solid #e2e8f0'
           }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Konverteringsgrad</h3>
-            <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#ef4444' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Konverteringsgrad</h3>
+            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#1e293b' }}>
               {stats.conversionRate.toFixed(1)}%
             </p>
-            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#666' }}>
+            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>
               AI-analys → Kontraktsklick
             </p>
           </div>
 
           <div style={{ 
-            background: 'white', 
+            background: '#f8fafc', 
             padding: '1.5rem', 
             borderRadius: '8px', 
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            border: '1px solid #e0e0e0'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '2px solid #e2e8f0'
           }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Kvalitet på klick</h3>
-            <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--secondary)' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#64748b', fontSize: '0.875rem', fontWeight: '600' }}>Kvalitet på klick</h3>
+            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#1e293b' }}>
               {stats.clickThroughRate.toFixed(1)}%
             </p>
-            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#666' }}>
+            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>
               Klick med AI-analys
             </p>
           </div>
@@ -382,45 +382,45 @@ export default function ContractClicksAdmin() {
         </h2>
         
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px' }}>
             <thead>
-              <tr style={{ background: '#f8f9fa' }}>
-                <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid #e0e0e0' }}>Datum</th>
-                <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid #e0e0e0' }}>Kontraktstyp</th>
-                <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid #e0e0e0' }}>AI-analys</th>
-                <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid #e0e0e0' }}>Besparing</th>
-                <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid #e0e0e0' }}>Källa</th>
-                <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '1px solid #e0e0e0' }}>Session ID</th>
+              <tr style={{ background: '#1e293b' }}>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Datum</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Kontraktstyp</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>AI-analys</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'right', color: 'white', fontWeight: '600' }}>Besparing</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Källa</th>
+                <th style={{ padding: '12px', border: '1px solid #334155', textAlign: 'left', color: 'white', fontWeight: '600' }}>Session ID</th>
               </tr>
             </thead>
             <tbody>
-              {clicks.map((click) => (
-                <tr key={click.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                  <td style={{ padding: '1rem' }}>{formatDate(click.created_at)}</td>
-                  <td style={{ padding: '1rem' }}>
+              {clicks.map((click, index) => (
+                <tr key={click.id} style={{ background: index % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
+                  <td style={{ padding: '12px', color: '#1e293b' }}>{formatDate(click.created_at)}</td>
+                  <td style={{ padding: '12px', color: '#1e293b' }}>
                     <span style={{
-                      padding: '0.25rem 0.5rem',
-                      borderRadius: '4px',
-                      fontSize: '0.875rem',
-                      fontWeight: 'bold',
+                      padding: '4px 12px',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      fontWeight: '600',
                       color: 'white',
-                      background: click.contract_type === 'rorligt' ? 'var(--secondary)' : 'var(--primary)'
+                      background: click.contract_type === 'rorligt' ? '#0066a7' : '#16a34a'
                     }}>
                       {click.contract_type === 'rorligt' ? 'Rörligt' : 'Fastpris'}
                     </span>
                   </td>
-                  <td style={{ padding: '1rem' }}>
+                  <td style={{ padding: '12px', color: '#1e293b' }}>
                     {click.log_id ? (
-                      <span style={{ color: '#8b5cf6', fontWeight: 'bold' }}>✓ Ja</span>
+                      <span style={{ color: '#16a34a', fontWeight: '600' }}>✓ Ja</span>
                     ) : (
-                      <span style={{ color: '#666' }}>Nej</span>
+                      <span style={{ color: '#64748b' }}>Nej</span>
                     )}
                   </td>
-                  <td style={{ padding: '1rem' }}>
+                  <td style={{ padding: '12px', textAlign: 'right', color: '#1e293b', fontWeight: '600' }}>
                     {click.savings_amount ? formatCurrency(click.savings_amount) : '-'}
                   </td>
-                  <td style={{ padding: '1rem' }}>{click.source}</td>
-                  <td style={{ padding: '1rem', fontFamily: 'monospace', fontSize: '0.875rem' }}>
+                  <td style={{ padding: '12px', color: '#1e293b' }}>{click.source}</td>
+                  <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '13px', color: '#1e293b' }}>
                     {click.session_id ? click.session_id.slice(0, 8) + '...' : '-'}
                   </td>
                 </tr>

@@ -59,6 +59,8 @@ Sätt följande variabler i Cloudflare Pages-projektet (Production och Preview):
 - `MAILERLITE_GROUP_ID`
 - `OPENAI_API_KEY`
 - `XAI_API_KEY`
+- `TIKTOK_ACCESS_TOKEN` - TikTok Events API access token (för server-side tracking)
+- `TIKTOK_TEST_EVENT_CODE` - TikTok test event code (valfritt, för testning)
 
 ### Cronersättning
 Tidigare Vercel-crons (`vercel.json`) ersätts av en Cloudflare Worker (`functions/cron-worker.ts`) som schemaläggs via `wrangler.toml` `triggers.crons`. Den pingar:
