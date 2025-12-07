@@ -123,15 +123,22 @@ export default function GrokChat() {
     console.log('showContactForm state:', showContactForm);
   }, [showContactForm]);
 
-  // Visa Bærum Energi-erbjudandet efter 2 sekunder när sidan laddas
+  // Visa Bærum Energi-erbjudandet efter 2 sekunder när sidan laddas första gången
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // Öppna chatten automatiskt och visa Bærum-meddelandet
-      setOpen(true);
-      setShowBaerumOffer(true);
-    }, 2000);
+    // Kontrollera om chatten redan har visats i denna session
+    const hasShownChat = sessionStorage.getItem('grokchat_shown');
+    
+    if (!hasShownChat) {
+      const timer = setTimeout(() => {
+        // Öppna chatten automatiskt och visa Bærum-meddelandet
+        setOpen(true);
+        setShowBaerumOffer(true);
+        // Markera att chatten har visats i denna session
+        sessionStorage.setItem('grokchat_shown', 'true');
+      }, 2000);
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    }
   }, []);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
