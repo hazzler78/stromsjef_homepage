@@ -88,11 +88,13 @@ export default function AdminChatPopup() {
 
     try {
       const supabase = getSupabase();
+      // Ta bort id från settings för att undvika dubbel definition
+      const { id, ...settingsWithoutId } = settings;
       const { error } = await supabase
         .from('chat_popup_settings')
         .upsert({
           id: 1,
-          ...settings,
+          ...settingsWithoutId,
           updated_at: new Date().toISOString(),
         }, {
           onConflict: 'id'
