@@ -116,6 +116,15 @@ export default function GrokChat() {
   const [showCalculator, setShowCalculator] = useState(false);
   const [calculatorSubmitted, setCalculatorSubmitted] = useState(false);
   const [showBaerumOffer, setShowBaerumOffer] = useState(false);
+  const [popupSettings, setPopupSettings] = useState<{
+    active: boolean;
+    title: string;
+    button_text: string;
+    button_url: string;
+    dismiss_text: string;
+    delay_seconds: number;
+    show_once_per_session: boolean;
+  } | null>(null);
 
   
   // Debug: Log when showContactForm changes
@@ -123,23 +132,45 @@ export default function GrokChat() {
     console.log('showContactForm state:', showContactForm);
   }, [showContactForm]);
 
-  // Visa Bærum Energi-erbjudandet efter 2 sekunder när sidan laddas första gången
+  // Hämta popup-inställningar från API
   useEffect(() => {
-    // Kontrollera om chatten redan har visats i denna session
-    const hasShownChat = sessionStorage.getItem('grokchat_shown');
+    const fetchPopupSettings = async () => {
+      try {
+        const response = await fetch('/api/chat-popup');
+        const data = await response.json();
+        if (data.settings && data.settings.active) {
+          setPopupSettings(data.settings);
+        }
+      } catch (error) {
+        console.error('Kunde inte hämta popup-inställningar:', error);
+      }
+    };
+    fetchPopupSettings();
+  }, []);
+
+  // Visa popup efter fördröjning när sidan laddas första gången
+  useEffect(() => {
+    if (!popupSettings || !popupSettings.active) return;
+
+    // Kontrollera om popupen redan har visats i denna session
+    const sessionKey = popupSettings.show_once_per_session ? 'grokchat_popup_shown' : null;
+    const hasShownPopup = sessionKey ? sessionStorage.getItem(sessionKey) : false;
     
-    if (!hasShownChat) {
+    if (!hasShownPopup) {
+      const delay = (popupSettings.delay_seconds || 2) * 1000;
       const timer = setTimeout(() => {
-        // Öppna chatten automatiskt och visa Bærum-meddelandet
+        // Öppna chatten automatiskt och visa popupen
         setOpen(true);
         setShowBaerumOffer(true);
-        // Markera att chatten har visats i denna session
-        sessionStorage.setItem('grokchat_shown', 'true');
-      }, 2000);
+        // Markera att popupen har visats i denna session
+        if (sessionKey) {
+          sessionStorage.setItem(sessionKey, 'true');
+        }
+      }, delay);
 
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [popupSettings]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const prevOpenRef = useRef(false);
@@ -349,6 +380,7 @@ export default function GrokChat() {
     setStartHereSubmitted(false);
     setShowCalculator(false);
     setCalculatorSubmitted(false);
+    setShowBaerumOffer(false);
   };
 
   // Funktion för att hantera Start här knapp
@@ -786,7 +818,7 @@ export default function GrokChat() {
                 </div>
               </div>
             )}
-            {showBaerumOffer && (
+            {showBaerumOffer && popupSettings && (
               <div style={{
                 marginBottom: 18,
                 display: 'flex',
@@ -809,19 +841,18 @@ export default function GrokChat() {
                     Elge
                   </div>
                   <div style={{ marginBottom: 12 }}>
-                    <strong>Hei! Vil du ha 99 øre fastpris i dag?</strong>
+                    <strong>{popupSettings.title}</strong>
                   </div>
                   <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
                     <a
-                      href="https://baerumenergi.no/privat/fastpris-1-ar/?utm_source=stromsjef.no"
+                      href={popupSettings.button_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => {
                         // Spåra klicket
-                        const baerumUrl = 'https://baerumenergi.no/privat/fastpris-1-ar/?utm_source=stromsjef.no';
                         const payload = JSON.stringify({
-                          buttonType: 'baerum_energi',
-                          href: baerumUrl,
+                          buttonType: 'chat_popup',
+                          href: popupSettings.button_url,
                           sessionId: sessionId,
                           source: 'grokchat'
                         });
@@ -864,7 +895,7 @@ export default function GrokChat() {
                         e.currentTarget.style.boxShadow = 'var(--glass-shadow-light)';
                       }}
                     >
-                      Trykk her →
+                      {popupSettings.button_text}
                     </a>
                     <button
                       onClick={() => setShowBaerumOffer(false)}
@@ -882,7 +913,7 @@ export default function GrokChat() {
                         WebkitBackdropFilter: 'var(--glass-blur)',
                       }}
                     >
-                      Nei takk
+                      {popupSettings.dismiss_text}
                     </button>
                   </div>
                 </div>

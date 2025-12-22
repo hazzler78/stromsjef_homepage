@@ -132,6 +132,14 @@ const adminSections = [
     icon: "🌱",
     color: "bg-lime-500",
     category: "tools"
+  },
+  {
+    title: "Chat Popup",
+    description: "Hantera Elge popup-meddelandet som visas när chatten öppnas",
+    href: "/admin/chat-popup",
+    icon: "💬",
+    color: "bg-blue-500",
+    category: "content"
   }
 ];
 
