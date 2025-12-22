@@ -82,8 +82,10 @@ export default function AdminChatPopup() {
           
           if (insertError) {
             // Om insert misslyckas (t.ex. pga RLS), visa default-inställningar ändå
-            console.warn('Kunde inte skapa default-inställning:', insertError);
+            // så att användaren kan spara dem manuellt
+            console.warn('Kunde inte skapa default-inställning automatiskt:', insertError);
             setSettings(defaultSettings);
+            setError('Kunde inte skapa default-inställning automatiskt. Vänligen spara inställningarna manuellt genom att klicka på "Spara inställningar".');
           } else {
             // Om insert lyckades, hämta den skapade raden
             const { data: insertedData } = await supabase

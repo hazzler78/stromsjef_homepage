@@ -32,7 +32,9 @@ CREATE POLICY "Allow authenticated update" ON chat_popup_settings
   FOR UPDATE
   USING (true);
 
-CREATE POLICY "Allow authenticated insert" ON chat_popup_settings
+-- Tillåt alla att skapa (för att admin-panel ska kunna skapa default-inställning)
+-- Admin-autentisering hanteras i frontend
+CREATE POLICY "Allow public insert" ON chat_popup_settings
   FOR INSERT
   WITH CHECK (true);
 
