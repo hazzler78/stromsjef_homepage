@@ -53,7 +53,7 @@ export default function AdminChatPopup() {
         .single();
 
       if (error) {
-        // Om ingen inställning finns, skapa en default
+        // Om ingen inställning finns, skapa en default i databasen
         if (error.code === 'PGRST116') {
           const defaultSettings: ChatPopupSettings = {
             id: 1,
@@ -65,7 +65,39 @@ export default function AdminChatPopup() {
             delay_seconds: 2,
             show_once_per_session: true,
           };
-          setSettings(defaultSettings);
+          
+          // Försök skapa default-inställningen i databasen
+          const { error: insertError } = await supabase
+            .from('chat_popup_settings')
+            .insert({
+              id: 1,
+              active: defaultSettings.active,
+              title: defaultSettings.title,
+              button_text: defaultSettings.button_text,
+              button_url: defaultSettings.button_url,
+              dismiss_text: defaultSettings.dismiss_text,
+              delay_seconds: defaultSettings.delay_seconds,
+              show_once_per_session: defaultSettings.show_once_per_session,
+            });
+          
+          if (insertError) {
+            // Om insert misslyckas (t.ex. pga RLS), visa default-inställningar ändå
+            console.warn('Kunde inte skapa default-inställning:', insertError);
+            setSettings(defaultSettings);
+          } else {
+            // Om insert lyckades, hämta den skapade raden
+            const { data: insertedData } = await supabase
+              .from('chat_popup_settings')
+              .select('*')
+              .eq('id', 1)
+              .single();
+            
+            if (insertedData) {
+              setSettings(insertedData as ChatPopupSettings);
+            } else {
+              setSettings(defaultSettings);
+            }
+          }
         } else {
           setError('Kunde inte hämta inställningar: ' + error.message);
         }
