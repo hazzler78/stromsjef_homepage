@@ -140,6 +140,14 @@ const adminSections = [
     icon: "💬",
     color: "bg-blue-500",
     category: "content"
+  },
+  {
+    title: "Postnummer-sökningar",
+    description: "Översikt över alla postnummer-sökningar för marknadsföringsanalys",
+    href: "/admin/postnummer-sokningar",
+    icon: "📍",
+    color: "bg-rose-500",
+    category: "analytics"
   }
 ];
 

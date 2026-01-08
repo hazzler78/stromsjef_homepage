@@ -127,6 +127,27 @@ interface DbPlanRow {
   recommended?: boolean | null;
 }
 
+// Generera session ID
+function generateSessionId(): string {
+  if (typeof window === 'undefined') return '';
+  const stored = sessionStorage.getItem('postal_search_session_id');
+  if (stored) return stored;
+  const newId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+  sessionStorage.setItem('postal_search_session_id', newId);
+  return newId;
+}
+
+// Hämta UTM-parametrar från URL
+function getUtmParams() {
+  if (typeof window === 'undefined') return { utmSource: null, utmMedium: null, utmCampaign: null };
+  const params = new URLSearchParams(window.location.search);
+  return {
+    utmSource: params.get('utm_source'),
+    utmMedium: params.get('utm_medium'),
+    utmCampaign: params.get('utm_campaign'),
+  };
+}
+
 export default function StartaHar() {
   const [postalCode, setPostalCode] = useState('');
   const [zone, setZone] = useState<PriceZone | ''>('');
@@ -134,6 +155,8 @@ export default function StartaHar() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [plans, setPlans] = useState<ElectricityPlanWithBadge[]>([]);
+  const [sessionId] = useState(() => generateSessionId());
+  const [hasTrackedSearch, setHasTrackedSearch] = useState(false);
 
   const inferred = useMemo(() => (postalCode.trim().length >= 4 ? inferZoneFromPostalCode(postalCode) : undefined), [postalCode]);
 
@@ -230,12 +253,43 @@ export default function StartaHar() {
         })));
         
         setPlans(sorted);
+        
+        // Spåra sökningen för marknadsföring
+        if (!hasTrackedSearch && sorted.length > 0) {
+          const utm = getUtmParams();
+          const payload = {
+            postalCode: postalCode.trim() || null,
+            priceZone: z,
+            zoneSource: inferred && !zone ? 'postal_code' : zone ? 'manual' : 'inferred',
+            pagePath: '/starta-har',
+            sessionId,
+            utmSource: utm.utmSource,
+            utmMedium: utm.utmMedium,
+            utmCampaign: utm.utmCampaign,
+            plansShown: sorted.length,
+            clickedPlan: false,
+            clickedSupplier: null,
+          };
+          
+          // Använd sendBeacon för bättre tillförlitlighet
+          if (navigator.sendBeacon) {
+            const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+            navigator.sendBeacon('/api/events/postal-code-search', blob);
+          } else {
+            fetch('/api/events/postal-code-search', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            }).catch(() => {});
+          }
+          setHasTrackedSearch(true);
+        }
       })
       .then(() => setLoading(false), (e: unknown) => {
         setError(String(e));
         setLoading(false);
       });
-  }, [effectiveZone]);
+  }, [effectiveZone, postalCode, zone, inferred, hasTrackedSearch, sessionId]);
 
   const filteredPlans = plans;
 
@@ -361,6 +415,33 @@ export default function StartaHar() {
                     disableScrollEffect={true}
                     disableHoverEffect={true}
                     onClick={() => {
+                      // Spåra klick på avtal
+                      const utm = getUtmParams();
+                      const payload = {
+                        postalCode: postalCode.trim() || null,
+                        priceZone: effectiveZone,
+                        zoneSource: inferred && !zone ? 'postal_code' : zone ? 'manual' : 'inferred',
+                        pagePath: '/starta-har',
+                        sessionId,
+                        utmSource: utm.utmSource,
+                        utmMedium: utm.utmMedium,
+                        utmCampaign: utm.utmCampaign,
+                        plansShown: plans.length,
+                        clickedPlan: true,
+                        clickedSupplier: plan.supplierName,
+                      };
+                      
+                      if (navigator.sendBeacon) {
+                        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+                        navigator.sendBeacon('/api/events/postal-code-search', blob);
+                      } else {
+                        fetch('/api/events/postal-code-search', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(payload)
+                        }).catch(() => {});
+                      }
+                      
                       if (plan.affiliateLink) {
                         window.open(plan.affiliateLink, '_blank');
                       }
