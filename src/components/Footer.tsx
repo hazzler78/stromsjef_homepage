@@ -152,7 +152,7 @@ export default function Footer() {
         </FooterGrid>
 
         <BottomBar>
-          <p>© 2025 Strømsjef.no. Alle rettigheter forbeholdt.</p>
+          <p>© 2026 Strømsjef.no. Alle rettigheter forbeholdt.</p>
         </BottomBar>
       </div>
     </FooterWrapper>
