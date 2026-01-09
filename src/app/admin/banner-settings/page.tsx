@@ -71,11 +71,12 @@ export default function AdminBannerSettings() {
           };
           
           // Försök skapa default-inställningen i databasen
+          const { id, ...settingsWithoutId } = defaultSettings;
           const { error: insertError } = await supabase
             .from('banner_settings')
             .insert({
               id: 1,
-              ...defaultSettings,
+              ...settingsWithoutId,
             });
           
           if (insertError) {
