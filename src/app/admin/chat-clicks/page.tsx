@@ -117,14 +117,29 @@ export default function AdminChatClicks() {
     return acc;
   }, {});
 
-  // Sortera dagar och visa alla (eller senaste 30 dagar om inget filter)
-  const allDays = Object.entries(byDay)
-    .sort((a, b) => a[0].localeCompare(b[0]));
+  // Om inget datumfilter, skapa lista med senaste 30 dagarna från idag
+  let daysToShow: [string, number][];
   
-  // Om inget datumfilter, visa senaste 30 dagarna
-  const daysToShow = dateFrom || dateTo 
-    ? allDays 
-    : allDays.slice(-30);
+  if (dateFrom || dateTo) {
+    // Om filter finns, visa alla dagar i filtrerat intervall
+    const allDays = Object.entries(byDay)
+      .sort((a, b) => a[0].localeCompare(b[0]));
+    daysToShow = allDays;
+  } else {
+    // Skapa lista med senaste 30 dagarna från idag bakåt
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const days: [string, number][] = [];
+    
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      days.push([dateStr, byDay[dateStr] || 0]);
+    }
+    
+    daysToShow = days;
+  }
   
   const maxClicks = Math.max(...daysToShow.map(([, count]) => count), 1);
 
@@ -158,10 +173,12 @@ export default function AdminChatClicks() {
             Klick per dag {dateFrom || dateTo ? '(filtrerat)' : '(senaste 30 dagarna)'}
           </h3>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '300px', paddingBottom: '20px', borderBottom: '2px solid #e2e8f0', marginBottom: '20px' }}>
-            {daysToShow.map(([date, count]) => {
+            {daysToShow.map(([date, count], index) => {
               const heightPercent = (count / maxClicks) * 100;
               const dateObj = new Date(date);
               const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+              const isFirstOrLast = index === 0 || index === daysToShow.length - 1;
+              const isFirstOfMonth = dateObj.getDate() === 1;
               
               return (
                 <div key={date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', position: 'relative' }}>
@@ -193,16 +210,21 @@ export default function AdminChatClicks() {
                     fontSize: '11px', 
                     color: '#64748b', 
                     fontWeight: '500',
-                    writingMode: daysToShow.length > 14 ? 'vertical-rl' : 'horizontal-tb',
-                    textOrientation: daysToShow.length > 14 ? 'mixed' : 'mixed',
-                    transform: daysToShow.length > 14 ? 'rotate(180deg)' : 'none',
-                    maxWidth: daysToShow.length > 14 ? '20px' : 'none',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
+                    textAlign: 'center',
+                    lineHeight: '1.2'
                   }}>
                     {daysToShow.length <= 14 
                       ? dateObj.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })
-                      : dateObj.getDate()
+                      : (
+                        <>
+                          <div>{dateObj.getDate()}</div>
+                          {(isFirstOrLast || isFirstOfMonth) && (
+                            <div style={{ fontSize: '9px', opacity: 0.7 }}>
+                              {dateObj.toLocaleDateString('sv-SE', { month: 'short' })}
+                            </div>
+                          )}
+                        </>
+                      )
                     }
                   </div>
                 </div>
