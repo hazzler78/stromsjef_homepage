@@ -71,27 +71,37 @@ export default function AdminPlans() {
         .from('electricity_plans')
         .select('*');
       if (error) throw error;
-      // Sort in JavaScript to handle nulls properly and respect sort_order
+      // Sort in JavaScript to handle nulls properly and respect recommended/featured first
       const sorted = (data as Plan[]).sort((a, b) => {
-        // 1) Sort order first (nulls last - items without sort_order go to bottom)
+        // 1) Recommended first (true before false)
+        if (a.recommended !== b.recommended) {
+          return a.recommended ? -1 : 1;
+        }
+        
+        // 2) Featured second (true before false)
+        if (a.featured !== b.featured) {
+          return a.featured ? -1 : 1;
+        }
+        
+        // 3) Sort order third (nulls last - items without sort_order go to bottom)
         const sortA = a.sort_order ?? Number.POSITIVE_INFINITY;
         const sortB = b.sort_order ?? Number.POSITIVE_INFINITY;
         if (sortA !== sortB) return sortA - sortB;
         
-        // 2) Price zone (for items with same sort_order or both null)
+        // 4) Price zone (for items with same sort_order or both null)
         const zoneDiff = a.price_zone.localeCompare(b.price_zone);
         if (zoneDiff !== 0) return zoneDiff;
         
-        // 3) Binding time
+        // 5) Binding time
         const bindDiff = (a.binding_time || 0) - (b.binding_time || 0);
         if (bindDiff !== 0) return bindDiff;
         
-        // 4) Price per kWh
+        // 6) Price per kWh
         const priceA = a.price_per_kwh || Number.POSITIVE_INFINITY;
         const priceB = b.price_per_kwh || Number.POSITIVE_INFINITY;
         if (priceA !== priceB) return priceA - priceB;
         
-        // 5) Supplier name as stable fallback
+        // 7) Supplier name as stable fallback
         return a.supplier_name.localeCompare(b.supplier_name);
       });
       setItems(sorted);
