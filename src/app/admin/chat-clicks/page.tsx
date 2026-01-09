@@ -24,6 +24,7 @@ export default function AdminChatClicks() {
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
+  const [showTable, setShowTable] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -116,9 +117,16 @@ export default function AdminChatClicks() {
     return acc;
   }, {});
 
-  const dailyStats = Object.entries(byDay)
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .slice(0, 7);
+  // Sortera dagar och visa alla (eller senaste 30 dagar om inget filter)
+  const allDays = Object.entries(byDay)
+    .sort((a, b) => a[0].localeCompare(b[0]));
+  
+  // Om inget datumfilter, visa senaste 30 dagarna
+  const daysToShow = dateFrom || dateTo 
+    ? allDays 
+    : allDays.slice(-30);
+  
+  const maxClicks = Math.max(...daysToShow.map(([, count]) => count), 1);
 
   return (
     <div style={{ maxWidth: 1200, margin: '2rem auto', padding: 24, background: 'white', minHeight: '100vh' }}>
@@ -143,17 +151,72 @@ export default function AdminChatClicks() {
         </div>
       </div>
 
-      {/* Daglig statistik */}
-      {dailyStats.length > 0 && (
-        <div style={{ background: '#f8fafc', padding: 20, borderRadius: 8, border: '2px solid #e2e8f0', marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '600', color: '#1e293b' }}>Senaste 7 dagarna</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {dailyStats.map(([date, count]) => (
-              <div key={date} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0' }}>
-                <span style={{ fontSize: '14px', color: '#1e293b', fontWeight: '500' }}>{new Date(date).toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
-                <span style={{ fontWeight: '600', color: '#0066a7', fontSize: '16px' }}>{count} klick</span>
-              </div>
-            ))}
+      {/* Graf för daglig statistik */}
+      {daysToShow.length > 0 && (
+        <div style={{ background: '#f8fafc', padding: 24, borderRadius: 12, border: '2px solid #e2e8f0', marginBottom: 24, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600', color: '#1e293b' }}>
+            Klick per dag {dateFrom || dateTo ? '(filtrerat)' : '(senaste 30 dagarna)'}
+          </h3>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '300px', paddingBottom: '20px', borderBottom: '2px solid #e2e8f0', marginBottom: '20px' }}>
+            {daysToShow.map(([date, count]) => {
+              const heightPercent = (count / maxClicks) * 100;
+              const dateObj = new Date(date);
+              const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+              
+              return (
+                <div key={date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', position: 'relative' }}>
+                  <div 
+                    style={{ 
+                      width: '100%',
+                      background: isWeekend 
+                        ? 'linear-gradient(to top, #8b5cf6, #a78bfa)' 
+                        : 'linear-gradient(to top, #0066a7, #0284c7)',
+                      height: `${heightPercent}%`,
+                      minHeight: count > 0 ? '4px' : '0',
+                      borderRadius: '4px 4px 0 0',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      position: 'relative',
+                      boxShadow: count > 0 ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
+                    }}
+                    title={`${dateObj.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })}: ${count} klick`}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scaleY(1.05)';
+                      e.currentTarget.style.opacity = '0.9';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scaleY(1)';
+                      e.currentTarget.style.opacity = '1';
+                    }}
+                  />
+                  <div style={{ 
+                    fontSize: '11px', 
+                    color: '#64748b', 
+                    fontWeight: '500',
+                    writingMode: daysToShow.length > 14 ? 'vertical-rl' : 'horizontal-tb',
+                    textOrientation: daysToShow.length > 14 ? 'mixed' : 'mixed',
+                    transform: daysToShow.length > 14 ? 'rotate(180deg)' : 'none',
+                    maxWidth: daysToShow.length > 14 ? '20px' : 'none',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>
+                    {daysToShow.length <= 14 
+                      ? dateObj.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })
+                      : dateObj.getDate()
+                    }
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', color: '#64748b' }}>
+            <div>
+              <span style={{ fontWeight: '600', color: '#1e293b' }}>Totalt: {daysToShow.reduce((sum, [, count]) => sum + count, 0)} klick</span>
+              {' '} över {daysToShow.length} dagar
+            </div>
+            <div>
+              Max: <span style={{ fontWeight: '600', color: '#0066a7' }}>{maxClicks}</span> klick/dag
+            </div>
           </div>
         </div>
       )}
@@ -176,7 +239,29 @@ export default function AdminChatClicks() {
       {loading && <p style={{ color: '#64748b' }}>Laddar...</p>}
       {!loading && filtered.length === 0 && <p style={{ color: '#64748b' }}>Inga klickloggar.</p>}
 
+      {/* Toggle för att visa/dölja tabellen */}
       {!loading && filtered.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <button 
+            onClick={() => setShowTable(!showTable)}
+            style={{ 
+              padding: '10px 20px', 
+              borderRadius: 8, 
+              border: '1px solid #cbd5e1', 
+              background: showTable ? '#0066a7' : 'white', 
+              color: showTable ? 'white' : '#1e293b', 
+              fontWeight: '600', 
+              cursor: 'pointer',
+              fontSize: '14px',
+              transition: 'all 0.2s'
+            }}
+          >
+            {showTable ? '▼ Dölj detaljerad lista' : '▶ Visa detaljerad lista'}
+          </button>
+        </div>
+      )}
+
+      {!loading && filtered.length > 0 && showTable && (
         <div style={{ overflowX: 'auto', marginBottom: 24 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '14px', minWidth: '1000px' }}>
             <thead>
