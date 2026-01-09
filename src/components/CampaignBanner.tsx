@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Image from "next/image";
+import { createClient } from '@supabase/supabase-js';
 
 const Banner = styled.div<{ $isCollapsed: boolean }>`
   width: 100%;
@@ -55,9 +56,77 @@ const CollapsedText = styled.div`
   flex-wrap: wrap;
 `;
 
+interface BannerSettings {
+  active: boolean;
+  variant_a_expanded_text: string;
+  variant_b_expanded_text: string;
+  variant_a_collapsed_text: string;
+  variant_b_collapsed_text: string;
+  highlight_text: string;
+  link_url: string;
+  link_text_expanded: string;
+  link_text_collapsed: string;
+}
+
+const getSupabase = () =>
+  createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+  );
+
 export default function CampaignBanner() {
   const [variant, setVariant] = useState<'A' | 'B'>('A');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [settings, setSettings] = useState<BannerSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch banner settings from database
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const supabase = getSupabase();
+        const { data, error } = await supabase
+          .from('banner_settings')
+          .select('*')
+          .eq('id', 1)
+          .single();
+
+        if (!error && data) {
+          setSettings(data as BannerSettings);
+        } else {
+          // Fallback to default settings if database fetch fails
+          setSettings({
+            active: true,
+            variant_a_expanded_text: 'Vår beste deal akkurat nå: {highlight} – anbefales sterkt!',
+            variant_b_expanded_text: 'Vår beste deal akkurat nå: {highlight} – anbefales sterkt!',
+            variant_a_collapsed_text: '{highlight} – anbefales sterkt!',
+            variant_b_collapsed_text: '{highlight} – anbefales sterkt!',
+            highlight_text: 'Fastpris 99 øre/kWh',
+            link_url: 'https://baerumenergi.no/privat/fastpris-1-ar/?utm_source=stromsjef.no',
+            link_text_expanded: 'Se avtale →',
+            link_text_collapsed: 'Se avtale',
+          });
+        }
+      } catch (err) {
+        // Fallback to default settings on error
+        setSettings({
+          active: true,
+          variant_a_expanded_text: 'Vår beste deal akkurat nå: {highlight} – anbefales sterkt!',
+          variant_b_expanded_text: 'Vår beste deal akkurat nå: {highlight} – anbefales sterkt!',
+          variant_a_collapsed_text: '{highlight} – anbefales sterkt!',
+          variant_b_collapsed_text: '{highlight} – anbefales sterkt!',
+          highlight_text: 'Fastpris 99 øre/kWh',
+          link_url: 'https://baerumenergi.no/privat/fastpris-1-ar/?utm_source=stromsjef.no',
+          link_text_expanded: 'Se avtale →',
+          link_text_collapsed: 'Se avtale',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
 
   useEffect(() => {
     try {
@@ -115,12 +184,26 @@ export default function CampaignBanner() {
     } catch {}
   }, [variant]);
 
-  const href = 'https://baerumenergi.no/privat/fastpris-1-ar/?utm_source=stromsjef.no';
+  // Helper function to render text with highlight replacement
+  const renderText = (text: string, highlightText: string) => {
+    const parts = text.split('{highlight}');
+    return (
+      <>
+        {parts.map((part, index) => (
+          <React.Fragment key={index}>
+            {part}
+            {index < parts.length - 1 && <Highlight>{highlightText}</Highlight>}
+          </React.Fragment>
+        ))}
+      </>
+    );
+  };
 
   const handleClick = () => {
+    if (!settings) return;
     try {
       const sessionId = (typeof window !== 'undefined') ? (window.localStorage.getItem('invoice_session_id') || '') : '';
-      const payload = JSON.stringify({ variant, href, sessionId });
+      const payload = JSON.stringify({ variant, href: settings.link_url, sessionId });
       const url = '/api/events/banner-click';
       if (navigator.sendBeacon) {
         const blob = new Blob([payload], { type: 'application/json' });
@@ -131,33 +214,35 @@ export default function CampaignBanner() {
     } catch {}
   };
 
-  // Expanded text variants
-  const textA = (
-    <>
-      Vår beste deal akkurat nå: <Highlight>Fastpris 99 øre/kWh</Highlight> – anbefales sterkt!
-    </>
-  );
+  // Don't render if loading, inactive, or no settings
+  if (loading || !settings || !settings.active) {
+    return null;
+  }
 
-  const textB = (
-    <>
-      Vår beste deal akkurat nå: <Highlight>Fastpris 99 øre/kWh</Highlight> – anbefales sterkt!
-    </>
-  );
+  const href = settings.link_url;
+
+  // Expanded text variants
+  const textA = renderText(settings.variant_a_expanded_text, settings.highlight_text);
+  const textB = renderText(settings.variant_b_expanded_text, settings.highlight_text);
 
   // Collapsed text variants
   const collapsedTextA = (
     <CollapsedText>
       <Image src="/favicon.svg" alt="Strømsjef" width={16} height={16} style={{ verticalAlign: 'middle' }} />
-      <Highlight>Fastpris 99 øre/kWh</Highlight> – anbefales sterkt!
-      <StyledLink href={href} onClick={handleClick} target="_blank" rel="noopener noreferrer">Se avtale</StyledLink>
+      {renderText(settings.variant_a_collapsed_text, settings.highlight_text)}
+      <StyledLink href={href} onClick={handleClick} target="_blank" rel="noopener noreferrer">
+        {settings.link_text_collapsed}
+      </StyledLink>
     </CollapsedText>
   );
 
   const collapsedTextB = (
     <CollapsedText>
       <Image src="/favicon.svg" alt="Strømsjef" width={16} height={16} style={{ verticalAlign: 'middle' }} />
-      <Highlight>Fastpris 99 øre/kWh</Highlight> – anbefales sterkt!
-      <StyledLink href={href} onClick={handleClick} target="_blank" rel="noopener noreferrer">Se avtale</StyledLink>
+      {renderText(settings.variant_b_collapsed_text, settings.highlight_text)}
+      <StyledLink href={href} onClick={handleClick} target="_blank" rel="noopener noreferrer">
+        {settings.link_text_collapsed}
+      </StyledLink>
     </CollapsedText>
   );
 
@@ -170,7 +255,9 @@ export default function CampaignBanner() {
           <Image src="/favicon.svg" alt="Strømsjef" width={20} height={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
           {variant === 'A' ? textA : textB}
           <br />
-          <StyledLink href={href} onClick={handleClick} target="_blank" rel="noopener noreferrer">Se avtale →</StyledLink>
+          <StyledLink href={href} onClick={handleClick} target="_blank" rel="noopener noreferrer">
+            {settings.link_text_expanded}
+          </StyledLink>
         </>
       )}
     </Banner>

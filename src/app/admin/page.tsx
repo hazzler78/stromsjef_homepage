@@ -30,6 +30,14 @@ const adminSections = [
     category: "analytics"
   },
   {
+    title: "Banner Inställningar",
+    description: "Hantera banner-texten högst upp på sidan och aktivera/deaktivera den",
+    href: "/admin/banner-settings",
+    icon: "📢",
+    color: "bg-green-600",
+    category: "content"
+  },
+  {
     title: "Invoices",
     description: "Hantera fakturor och OCR-analyser",
     href: "/admin/invoices",
