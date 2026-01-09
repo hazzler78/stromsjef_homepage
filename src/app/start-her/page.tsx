@@ -236,23 +236,33 @@ export default function StartHer() {
           sortOrder: r.sort_order != null ? Number(r.sort_order) : undefined,
           priceBadge: r.price_badge || undefined,
         }));
-        // Sort by sort_order first (nulls last), then binding time, price, and supplier name
+        // Sort by recommended/featured first, then sort_order, then binding time, price, and supplier name
         setPlans(mapped.sort((a, b) => {
-          // 1) Sort order first (nulls last - items without sort_order go to bottom)
+          // 1) Recommended first (true before false)
+          if (a.recommended !== b.recommended) {
+            return a.recommended ? -1 : 1;
+          }
+          
+          // 2) Featured second (true before false)
+          if (a.featured !== b.featured) {
+            return a.featured ? -1 : 1;
+          }
+          
+          // 3) Sort order third (nulls last - items without sort_order go to bottom)
           const sortA = a.sortOrder ?? Number.POSITIVE_INFINITY;
           const sortB = b.sortOrder ?? Number.POSITIVE_INFINITY;
           if (sortA !== sortB) return sortA - sortB;
           
-          // 2) Binding time
+          // 4) Binding time
           const bindDiff = (Number.isFinite(a.bindingTime) ? a.bindingTime : 0) - (Number.isFinite(b.bindingTime) ? b.bindingTime : 0);
           if (bindDiff !== 0) return bindDiff;
           
-          // 3) Price per kWh
+          // 5) Price per kWh
           const priceA = Number.isFinite(a.pricePerKwh) ? a.pricePerKwh : Number.POSITIVE_INFINITY;
           const priceB = Number.isFinite(b.pricePerKwh) ? b.pricePerKwh : Number.POSITIVE_INFINITY;
           if (priceA !== priceB) return priceA - priceB;
           
-          // 4) Supplier name as stable fallback
+          // 6) Supplier name as stable fallback
           return a.supplierName.localeCompare(b.supplierName);
         }));
         

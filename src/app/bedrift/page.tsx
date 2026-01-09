@@ -117,21 +117,31 @@ export default function Bedrift() {
           return;
         }
         const safe = (data || []).slice().sort((a, b) => {
-          // Sort by sort_order first (nulls last)
+          // 1) Recommended first (true before false)
+          if (a.recommended !== b.recommended) {
+            return a.recommended ? -1 : 1;
+          }
+          
+          // 2) Featured second (true before false)
+          if (a.featured !== b.featured) {
+            return a.featured ? -1 : 1;
+          }
+          
+          // 3) Sort by sort_order third (nulls last)
           const sortA = a.sort_order ?? Number.POSITIVE_INFINITY;
           const sortB = b.sort_order ?? Number.POSITIVE_INFINITY;
           if (sortA !== sortB) return sortA - sortB;
           
-          // Then by binding time
+          // 4) Then by binding time
           const bindDiff = (Number.isFinite(a.binding_time) ? a.binding_time : 0) - (Number.isFinite(b.binding_time) ? b.binding_time : 0);
           if (bindDiff !== 0) return bindDiff;
           
-          // Then by price
+          // 5) Then by price
           const priceA = Number.isFinite(a.price_per_kwh) ? a.price_per_kwh : Number.POSITIVE_INFINITY;
           const priceB = Number.isFinite(b.price_per_kwh) ? b.price_per_kwh : Number.POSITIVE_INFINITY;
           if (priceA !== priceB) return priceA - priceB;
           
-          // Finally by supplier name
+          // 6) Finally by supplier name
           return a.supplier_name.localeCompare(b.supplier_name);
         });
         setPlans(safe);
