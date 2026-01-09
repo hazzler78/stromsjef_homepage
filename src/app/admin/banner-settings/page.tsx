@@ -365,7 +365,7 @@ export default function AdminBannerSettings() {
             }}
           />
           <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
-            Använd {`{highlight}`} för att infoga highlight-texten. T.ex: "Vår beste deal: {highlight} – anbefales!"
+            Använd {`{highlight}`} för att infoga highlight-texten. T.ex: &quot;Vår beste deal: {`{highlight}`} – anbefales!&quot;
           </p>
         </div>
 
@@ -419,7 +419,7 @@ export default function AdminBannerSettings() {
             }}
           />
           <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
-            Använd {`{highlight}`} för att infoga highlight-texten. T.ex: "Vår beste deal: {highlight} – anbefales!"
+            Använd {`{highlight}`} för att infoga highlight-texten. T.ex: &quot;Vår beste deal: {`{highlight}`} – anbefales!&quot;
           </p>
         </div>
 

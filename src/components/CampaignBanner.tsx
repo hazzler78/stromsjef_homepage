@@ -107,7 +107,7 @@ export default function CampaignBanner() {
             link_text_collapsed: 'Se avtale',
           });
         }
-      } catch (err) {
+      } catch {
         // Fallback to default settings on error
         setSettings({
           active: true,
