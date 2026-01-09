@@ -71,7 +71,8 @@ export default function AdminBannerSettings() {
           };
           
           // Försök skapa default-inställningen i databasen
-          const { id: _, ...settingsWithoutId } = defaultSettings;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id, ...settingsWithoutId } = defaultSettings;
           const { error: insertError } = await supabase
             .from('banner_settings')
             .insert({
