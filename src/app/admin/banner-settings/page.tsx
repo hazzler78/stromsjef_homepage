@@ -71,7 +71,7 @@ export default function AdminBannerSettings() {
           };
           
           // Försök skapa default-inställningen i databasen
-          const { id, ...settingsWithoutId } = defaultSettings;
+          const { id: _, ...settingsWithoutId } = defaultSettings;
           const { error: insertError } = await supabase
             .from('banner_settings')
             .insert({
