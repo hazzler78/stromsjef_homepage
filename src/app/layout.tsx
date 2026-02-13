@@ -70,14 +70,14 @@ export default function RootLayout({
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         {/* Fallbacks for wider browser support */}
         <link rel="icon" sizes="any" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/cheap-logo.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <script type="application/ld+json" suppressHydrationWarning>{`
           {
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "Strømsjef",
             "url": "https://stromsjef.no",
-            "logo": "https://stromsjef.no/cheap-logo.png",
+            "logo": "https://stromsjef.no/og-image.png",
             "description": "Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis.",
             "contactPoint": [{
               "@type": "ContactPoint",
