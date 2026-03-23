@@ -11,6 +11,9 @@ interface GlassButtonProps {
   disableScrollEffect?: boolean;
   disableHoverEffect?: boolean;
   as?: ElementType;
+  href?: string;
+  target?: string;
+  rel?: string;
 }
 
 export default function GlassButton({ 
@@ -24,6 +27,9 @@ export default function GlassButton({
   disableScrollEffect = false,
   disableHoverEffect = false,
   as = 'button',
+  href,
+  target,
+  rel,
 }: GlassButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -131,11 +137,17 @@ export default function GlassButton({
     }
   };
 
+  const anchorProps =
+    as === 'a'
+      ? { href, target, rel }
+      : {};
+
   return (
     <Element
       ref={as === 'button' ? buttonRef : undefined}
       onClick={onClick}
       disabled={as === 'button' ? disabled : undefined}
+      {...anchorProps}
       className={`glass-button ${className}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

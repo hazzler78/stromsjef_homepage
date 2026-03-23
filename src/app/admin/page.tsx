@@ -70,6 +70,14 @@ const adminSections = [
     category: "analytics"
   },
   {
+    title: "Otovo-partner",
+    description: "Klick på Otovo-länkar på startsidan (tilbud + Care)",
+    href: "/admin/otovo-clicks",
+    icon: "☀️",
+    color: "bg-amber-500",
+    category: "analytics"
+  },
+  {
     title: "AI Kunskapsbas",
     description: "Hantera AI-chattens kunskap, kampanjer och leverantörer",
     href: "/admin/knowledge",
