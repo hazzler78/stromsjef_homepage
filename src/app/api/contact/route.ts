@@ -246,9 +246,34 @@ export async function POST(request: NextRequest) {
   }
 } 
 
-// Simple GET to verify Telegram env on the running deployment
-export async function GET() {
+// GET endpoint is safe by default and never sends Telegram unless explicitly authorized.
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const runTest = searchParams.get('runTest') === '1';
+    const token = searchParams.get('token');
+    const expectedToken = sanitizeEnv(process.env.CONTACT_TEST_TOKEN);
+
+    // Default behavior: health/info only, no side effects.
+    if (!runTest) {
+      return NextResponse.json(
+        {
+          ok: true,
+          testEnabled: !!expectedToken,
+          message: 'Contact API reachable. Add runTest=1 and token to trigger Telegram test.',
+        },
+        { status: 200 }
+      );
+    }
+
+    if (!expectedToken) {
+      return NextResponse.json({ ok: false, error: 'CONTACT_TEST_TOKEN missing' }, { status: 403 });
+    }
+
+    if (!token || token !== expectedToken) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized test request' }, { status: 403 });
+    }
+
     const botSet = !!TELEGRAM_BOT_TOKEN;
     const idsCount = TELEGRAM_CHAT_IDS.length;
 
