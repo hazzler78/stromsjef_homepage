@@ -1,54 +1,61 @@
-# Elchef.se
+# Stromsjef.no
 
-Elchef är en svensk tjänst för att jämföra och byta elavtal – enkelt, tryggt och kostnadsfritt. Hitta marknadens bästa elavtal för just dina behov och byt direkt online.
+Stromsjef.no er en norsk tjeneste for å sammenligne og bytte strømavtale – enkelt, trygt og kostnadsfritt. Finn strømavtaler som passer deg, og bytt direkte på nett.
 
-## Funktioner
-- Jämför elpriser i realtid baserat på postnummer
-- Byt elavtal direkt via tjänsten
-- Få expertråd och svar på vanliga frågor
-- GDPR- och cookie-kompatibel
-- Mobilvänlig design med bottennavigering
-- Flera informationssidor (Om oss, Företag, Kontakt, Blogg, m.fl.)
+## Funksjoner
 
-## Installation & utveckling
+- Sammenlign strømpriser med utgangspunkt i blant annet postnummer og forbruk
+- Bytt strømavtale via tjenesten
+- Veiledning, vanlige spørsmål og AI-assistent (Elge) om strømmarkedet
+- Personvern- og cookie-støtte (blant annet Cookiebot)
+- Responsiv layout med tydelig navigasjon
+- Informasjonssider (om oss, bedrift, kontakt, vilkår, personvern m.m.)
+
+## Installasjon og utvikling
 
 ```bash
 npm install
 npm run dev
 ```
 
-Öppna [http://localhost:3000](http://localhost:3000) i din webbläsare.
+Åpne [http://localhost:3000](http://localhost:3000) i nettleseren.
 
-## Bygg & deploy
+## Bygg og deploy
 
 ### Cloudflare Pages (Next.js on Pages)
 
-För produktion på Cloudflare Pages med `@cloudflare/next-on-pages`:
+For produksjon på Cloudflare Pages med `@cloudflare/next-on-pages`:
 
-1) Installera beroenden
+1) Installer avhengigheter
+
 ```bash
 npm install
 ```
 
-2) Bygg för Cloudflare
+2) Bygg for Cloudflare
+
 ```bash
 npm run cf:build
 ```
 
-3) Lokal preview
+3) Lokal forhåndsvisning
+
 ```bash
 npm run cf:preview
 ```
 
-4) Deploy till Pages
+4) Deploy til Pages
+
 ```bash
 npm run cf:deploy
 ```
 
-Konfigurationen styrs via `wrangler.toml` (ange `account_id`, projektets namn under `[pages]`, samt miljövariabler under `[vars]`).
+Konfigurasjonen styres via `wrangler.toml` (angi `account_id`, prosjektnavn under `[pages]` og miljøvariabler under `[vars]`).
 
-### Miljövariabler
-Sätt följande variabler i Cloudflare Pages-projektet (Production och Preview):
+### Miljøvariabler
+
+Sett følgende variabler i Cloudflare Pages-prosjektet (Production og Preview):
+
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_URL`
@@ -59,32 +66,35 @@ Sätt följande variabler i Cloudflare Pages-projektet (Production och Preview):
 - `MAILERLITE_GROUP_ID`
 - `OPENAI_API_KEY`
 - `XAI_API_KEY`
-- `TIKTOK_ACCESS_TOKEN` - TikTok Events API access token (för server-side tracking)
-- `TIKTOK_TEST_EVENT_CODE` - TikTok test event code (valfritt, för testning)
+- `TIKTOK_ACCESS_TOKEN` – TikTok Events API access token (for server-side sporing)
+- `TIKTOK_TEST_EVENT_CODE` – valgfri testkode for TikTok-events
 
-### Cronersättning
-Tidigare Vercel-crons (`vercel.json`) ersätts av en Cloudflare Worker (`functions/cron-worker.ts`) som schemaläggs via `wrangler.toml` `triggers.crons`. Den pingar:
+### Cron-jobs
+
+Tidligere Vercel-crons (`vercel.json`) er erstattet av Cloudflare Workers (se `functions/`) som planlegges via `triggers.crons` i `wrangler.toml`. De kan blant annet kalle:
+
 - `/api/reminders/send`
 - `/api/update-prices`
 
-Sätt `CRON_TARGET_BASE_URL` i Pages miljövariabler till din publik URL (t.ex. `https://www.elchef.se`).
+Sett `CRON_TARGET_BASE_URL` i Pages-miljøvariabler til den offentlige URL-en, for eksempel `https://www.stromsjef.no`.
 
 ## Preview-deploy
 
-Denna notering är tillagd för att trigga en Vercel preview-deploy för branchen `preview-form`.
+Denne registreringen finnes historisk for å trigge preview-deploy på en egen gren (se `preview-form` i repo-historikk).
 
-## Teknikstack
+## Tekniske valg
+
 - [Next.js](https://nextjs.org/) (App Router)
 - [React](https://react.dev/)
 - [styled-components](https://styled-components.com/)
-- [TypeScript]
+- TypeScript
 - Hosting: Cloudflare Pages
 
 ## Kontakt
-- E-post: info@elchef.se
-- Telefon: 073-686 23 60
-- [elchef.se](https://elchef.se)
+
+- E-post: [post@stromsjef.no](mailto:post@stromsjef.no)
+- Nettside: [stromsjef.no](https://stromsjef.no)
 
 ---
 
-*Denna README är en grund – fyll gärna på med mer info om API, Grok AI, bidrag, licens m.m. vid behov.*
+_Denne README kan utvides med mer om API-er, Grok/XAI-chat, bidrag og lisens ved behov._
