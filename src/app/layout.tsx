@@ -79,13 +79,6 @@ export default function RootLayout({
             "url": "https://stromsjef.no",
             "logo": "https://stromsjef.no/og-image.png",
             "description": "Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis.",
-            "contactPoint": [{
-              "@type": "ContactPoint",
-              "telephone": "+46-73-686-23-60",
-              "contactType": "customer service",
-              "areaServed": "NO",
-              "availableLanguage": ["Norwegian", "English"]
-            }],
             "sameAs": [
               "https://www.facebook.com/profile.php?id=100070591942605",
               "https://www.instagram.com/stromsjef.no/",

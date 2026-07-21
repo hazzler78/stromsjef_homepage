@@ -125,7 +125,7 @@ export default function Footer() {
             <ul>
               <li><Link href={withDefaultCtaUtm('/start-her', 'footer', 'services-byt')}>Bytt strømavtale</Link></li>
               <li><Link href={withDefaultCtaUtm('/jamfor-elpriser', 'footer', 'services-jamfor')}>Sammenlign strømpriser</Link></li>
-              <li><Link href={withDefaultCtaUtm('/foretag', 'footer', 'services-foretag')}>Bedrift</Link></li>
+              <li><Link href={withDefaultCtaUtm('/bedrift', 'footer', 'services-bedrift')}>Bedrift</Link></li>
             </ul>
           </FooterColumn>
 
