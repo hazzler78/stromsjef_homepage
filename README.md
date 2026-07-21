@@ -76,7 +76,7 @@ Tidligere Vercel-crons (`vercel.json`) er erstattet av Cloudflare Workers (se `f
 - `/api/reminders/send`
 - `/api/update-prices`
 
-Sett `CRON_TARGET_BASE_URL` i Pages-miljøvariabler til den offentlige URL-en, for eksempel `https://www.stromsjef.no`.
+Sett `CRON_TARGET_BASE_URL` i Pages-miljøvariabler til den offentlige URL-en, for eksempel `https://stromsjef.no`.
 
 ## Preview-deploy
 

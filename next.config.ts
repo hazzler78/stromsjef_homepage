@@ -3,6 +3,18 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   async redirects() {
     return [
+      // Prefer apex host (matches canonical URLs in metadata/sitemap)
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "www.stromsjef.no",
+          },
+        ],
+        destination: "https://stromsjef.no/:path*",
+        permanent: true,
+      },
       {
         source: "/:path*",
         has: [
@@ -11,7 +23,33 @@ const nextConfig: NextConfig = {
             value: "elchef.se",
           },
         ],
-        destination: "https://www.stromsjef.no/:path*",
+        destination: "https://stromsjef.no/:path*",
+        permanent: true,
+      },
+      // Norwegian marketing URL aliases (avoid 404s in GSC/campaigns)
+      {
+        source: "/sammenlign-strømpriser",
+        destination: "/jamfor-elpriser",
+        permanent: true,
+      },
+      {
+        source: "/sammenlign-strompriser",
+        destination: "/jamfor-elpriser",
+        permanent: true,
+      },
+      {
+        source: "/bytt-strømavtale",
+        destination: "/byt-elavtal",
+        permanent: true,
+      },
+      {
+        source: "/bytt-stromavtale",
+        destination: "/byt-elavtal",
+        permanent: true,
+      },
+      {
+        source: "/foretag",
+        destination: "/bedrift",
         permanent: true,
       },
       // Svenska till norska redirects

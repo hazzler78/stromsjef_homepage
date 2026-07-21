@@ -2,7 +2,7 @@
 // Runs at 00:05 every day to fetch latest prices after they're updated
 
 export async function scheduled(controller: any, env: any, ctx: any) {
-  const base = (env && env.CRON_TARGET_BASE_URL) || 'https://www.stromsjef.no';
+  const base = (env && env.CRON_TARGET_BASE_URL) || 'https://stromsjef.no';
   
   console.log('🌙 Running midnight price update...');
   
