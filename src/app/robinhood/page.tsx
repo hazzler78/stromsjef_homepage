@@ -33,6 +33,9 @@ export default function RobinhoodPage() {
       }
     } catch { /* ignore */ }
 
+    const incoming = new URLSearchParams(window.location.search);
+    const utmContent = incoming.get('utm_content') || null;
+
     const trackClick = () => {
       try {
         const payload = JSON.stringify({
@@ -41,6 +44,8 @@ export default function RobinhoodPage() {
           utmSource: DEFAULT_UTM.utm_source,
           utmMedium: DEFAULT_UTM.utm_medium,
           utmCampaign: DEFAULT_UTM.utm_campaign,
+          utmContent,
+          referrer: document.referrer || '',
         });
         const url = '/api/events/page-view';
         if (navigator.sendBeacon) {
@@ -57,7 +62,6 @@ export default function RobinhoodPage() {
     };
 
     // Bygg mål-URL: /jamfor-elpriser med Hampus-UTM (behold eventuelle innkommende parametre)
-    const incoming = new URLSearchParams(window.location.search);
     const dest = new URL('/jamfor-elpriser', window.location.origin);
     for (const [key, value] of Object.entries(DEFAULT_UTM)) {
       dest.searchParams.set(key, value);

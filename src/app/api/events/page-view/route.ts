@@ -1,6 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// Kjente bots og crawlers
+const BOT_USER_AGENTS = [
+  'googlebot',
+  'bingbot',
+  'slurp', // Yahoo
+  'duckduckbot',
+  'baiduspider',
+  'yandexbot',
+  'sogou',
+  'exabot',
+  'facebot',
+  'ia_archiver',
+  'gptbot',
+  'perplexitybot',
+  'anthropic-ai',
+  'claude-web',
+  'chatgpt-user',
+  'facebookexternalhit',
+  'twitterbot',
+  'linkedinbot',
+  'whatsapp',
+  'telegrambot',
+  'discordbot',
+  'slackbot',
+  'applebot',
+  'petalbot',
+  'ahrefsbot',
+  'semrushbot',
+  'mj12bot',
+  'dotbot',
+  'megaindex',
+  'blexbot',
+  'crawler',
+  'spider',
+  'scraper'
+];
+
+function isBot(userAgent: string): boolean {
+  if (!userAgent) return false;
+  const ua = userAgent.toLowerCase();
+  return BOT_USER_AGENTS.some(bot => ua.includes(bot));
+}
+
+function isPreviewDeployment(referer: string): boolean {
+  if (!referer) return false;
+  return referer.includes('preview') || referer.includes('localhost') || referer.includes('127.0.0.1');
+}
+
+function resolvePagePath(path: unknown, referer: string): string | null {
+  if (typeof path === 'string' && path.trim().length > 0) {
+    return path.trim();
+  }
+  if (referer) {
+    try {
+      const u = new URL(referer);
+      if (u.hostname.includes('stromsjef') || u.hostname.includes('elchef')) {
+        return u.pathname || '/';
+      }
+    } catch {
+      /* no-op */
+    }
+  }
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const SUPABASE_URL = process.env.SUPABASE_URL as string;
@@ -15,20 +80,44 @@ export async function POST(req: NextRequest) {
     const referer = req.headers.get('referer') || '';
 
     const body = await req.json().catch(() => ({}));
-    const { path, sessionId, utmSource, utmMedium, utmCampaign } = body || {};
+    const {
+      path,
+      sessionId,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      utmContent,
+      referrer: clientReferrer,
+    } = body || {};
+
+    // Bruk document.referrer fra klient (hvor brukeren faktisk kom fra)
+    const effectiveReferrer = typeof clientReferrer === 'string' && clientReferrer
+      ? clientReferrer
+      : referer;
+
+    const bot = isBot(ua);
+    const isPreview = isPreviewDeployment(effectiveReferrer);
+
+    const effectivePath = resolvePagePath(path, effectiveReferrer);
+    if (!effectivePath) {
+      return NextResponse.json({ ok: true, skipped: 'missing_path' });
+    }
 
     const { error } = await supabase.from('page_views').insert({
-      path: typeof path === 'string' ? path : null,
+      path: effectivePath,
       session_id: typeof sessionId === 'string' ? sessionId : null,
       utm_source: typeof utmSource === 'string' ? utmSource : null,
       utm_medium: typeof utmMedium === 'string' ? utmMedium : null,
       utm_campaign: typeof utmCampaign === 'string' ? utmCampaign : null,
+      utm_content: typeof utmContent === 'string' ? utmContent : null,
       user_agent: ua,
-      referer
+      referer: effectiveReferrer,
+      is_bot: bot,
+      is_preview: isPreview
     });
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, is_bot: bot, is_preview: isPreview });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : 'Okänt fel';
     return NextResponse.json({ error: message }, { status: 500 });
@@ -36,5 +125,3 @@ export async function POST(req: NextRequest) {
 }
 
 export const runtime = 'edge';
-
-
