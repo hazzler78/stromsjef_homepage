@@ -90,21 +90,67 @@ export default function JamforElpriser() {
     } catch {}
   }, []);
 
-  // Spåra sidvisning - tillfälligt inaktiverat för att undvika 500-fel
-  // useEffect(() => {
-  //   try {
-  //     if (typeof window === 'undefined') return;
-  //     const sid = sessionIdRef.current || localStorage.getItem('invoiceSessionId') || '';
-  //     const payload = JSON.stringify({ path: '/jamfor-elpriser', sessionId: sid });
-  //     const url = '/api/events/page-view';
-  //     if (navigator.sendBeacon) {
-  //       const blob = new Blob([payload], { type: 'application/json' });
-  //       navigator.sendBeacon(url, blob);
-  //     } else {
-  //       fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload }).catch(() => {});
-  //     }
-  //   } catch {}
-  // }, []);
+  // Spåra sidvisning (aktiverat 2026-09-26 efter att is_bot/is_preview/utm_content
+  // lagts till i norska page_views). Utan detta mäts ingen trafik till /jamfor-elpriser.
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return;
+
+      const sid =
+        sessionIdRef.current || localStorage.getItem('invoiceSessionId') || '';
+
+      // First touch: behåll landningens UTM så CTA längre in i tratten behåller källan
+      const FIRST_TOUCH_KEY = 'elchef_utm_first_touch_v1';
+      let stored: Record<string, string> = {};
+      try {
+        stored = JSON.parse(localStorage.getItem(FIRST_TOUCH_KEY) || '{}');
+      } catch {
+        stored = {};
+      }
+
+      const qs = new URLSearchParams(window.location.search);
+      const fromUrl: Record<string, string> = {
+        utm_source: qs.get('utm_source') || '',
+        utm_medium: qs.get('utm_medium') || '',
+        utm_campaign: qs.get('utm_campaign') || '',
+        utm_content: qs.get('utm_content') || '',
+      };
+
+      if (!stored.utm_source && fromUrl.utm_source) {
+        try {
+          localStorage.setItem(
+            FIRST_TOUCH_KEY,
+            JSON.stringify({ ...stored, ...fromUrl })
+          );
+        } catch {}
+      }
+
+      const pick = (k: string) => fromUrl[k] || stored[k] || undefined;
+
+      const payload = JSON.stringify({
+        path: '/jamfor-elpriser',
+        sessionId: sid,
+        utmSource: pick('utm_source'),
+        utmMedium: pick('utm_medium'),
+        utmCampaign: pick('utm_campaign'),
+        utmContent: pick('utm_content'),
+        referrer: typeof document.referrer === 'string' ? document.referrer : '',
+      });
+
+      const url = '/api/events/page-view';
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+        }).catch(() => {});
+      }
+    } catch {
+      /* sporing skal aldri forstyrre UX */
+    }
+  }, []);
 
   // Funktion för att spåra kontraktsklick från AI-användare
   const trackContractClick = (contractType: 'rorligt' | 'fastpris' | 'start-her') => {
