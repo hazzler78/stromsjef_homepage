@@ -74,6 +74,18 @@ export default function OmOss() {
         <p>
           Vårt mål er å gi deg kontrollen tilbake. Du skal slippe å legge timer på å lete selv. Vi viser bare frem avtaler som er verdt å vurdere – med tydelige vilkår og priser du faktisk forstår.
         </p>
+        <p>
+          <b>Hvem driver siden</b>
+        </p>
+        <p>
+          Stromsjef.no drives av VKNG LTD, organisasjonsnummer HE477501. Det er samme selskap som Elchef. E-post: post@stromsjef.no.
+        </p>
+        <p>
+          <b>Hvordan vi tjener penger</b>
+        </p>
+        <p>
+          Du betaler ikke oss, og du får ingen faktura fra oss. Når du tegner en strømavtale via en lenke på siden, betaler strømleverandøren oss en formidlingsprovisjon. Prisen du ser er leverandørens pris, med påslag og månedsgebyr slik avtalen er oppgitt.
+        </p>
         <Quote>
           Du trenger ikke å forstå hele strømmarkedet – det er vår jobb.<br />
           Du trenger bare å ta en beslutning: å bli Strømsjef i ditt eget hjem.

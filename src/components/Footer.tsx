@@ -133,6 +133,7 @@ export default function Footer() {
             <h3>Informasjon</h3>
             <ul>
               <li><Link href={withDefaultCtaUtm('/om-oss', 'footer', 'info-om-oss')}>Om oss</Link></li>
+              <li><Link href={withDefaultCtaUtm('/fastpris-og-norgespris', 'footer', 'info-norgespris')}>Fastpris og Norgespris</Link></li>
               <li><Link href={withDefaultCtaUtm('/vanlige-sporsmal', 'footer', 'info-faq')}>Vanlige spørsmål</Link></li>
               <li><Link href={withDefaultCtaUtm('/kontakt', 'footer', 'info-kontakt')}>Kontakt</Link></li>
               <li><Link href={withDefaultCtaUtm('/media', 'footer', 'info-media')}>Media</Link></li>

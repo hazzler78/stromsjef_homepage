@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import { 
   generateKnowledgeSummary 
 } from '@/lib/knowledgeBase';
+import { inferZoneFromPostalCode, PriceZone } from '@/lib/electricity';
+import { NORGESPRIS_FASTPRIS_GUIDE } from '@/lib/norgespris-fastpris';
 
 const XAI_API_KEY = process.env.XAI_API_KEY;
 const XAI_API_URL = 'https://api.x.ai/v1/chat/completions';
@@ -255,7 +257,7 @@ Ja, 14 dagers angrerett i henhold til distansavtaleloven. Unntak: betalt forbruk
 
 ## SPESIFIKKE SPØRSMÅLSEKSEMPLER (følg nøyaktig - hold svarene korte)
 • "Hvilket selskap står bak stromsjef.no?" → Svar: "VKNG LTD."
-• "Hva er organisasjonsnummeret?" → Svar: "Jeg har ikke det her. Sjekk Brønnøysundregistrene eller bruk kontaktskjemaet."
+• "Hva er organisasjonsnummeret?" → Svar: "VKNG LTD, organisasjonsnummer HE477501. Samme selskap som Elchef. E-post post@stromsjef.no."
 • "Samarbeider dere med Elbyte?" → Svar: "stromsjef.no drives av VKNG LTD. Jeg har ingen opplysninger om samarbeid med Elbyte."
 • "Hvem er hovedmann/eier?" → Svar: "Sjekk Brønnøysundregistrene. Jeg kan ikke gi det her."
 
@@ -283,7 +285,35 @@ export async function POST(req: NextRequest) {
     }
     
     // Hämta användarens senaste meddelande för att hitta relevant kunskap
-    const userMessage = messages[messages.length - 1]?.content || '';
+    const userMessage = String(messages[messages.length - 1]?.content || '');
+    const postalOnly = userMessage.trim().match(/^\d{4}$/);
+    if (postalOnly) {
+      const zone = inferZoneFromPostalCode(postalOnly[0]);
+      const zoneNames: Record<string, string> = {
+        [PriceZone.NO1]: 'NO1, Øst-Norge',
+        [PriceZone.NO2]: 'NO2, Sør-Norge',
+        [PriceZone.NO3]: 'NO3, Midt-Norge',
+        [PriceZone.NO4]: 'NO4, Nord-Norge',
+        [PriceZone.NO5]: 'NO5, Vest-Norge',
+      };
+      const reply = zone
+        ? `Postnummer ${postalOnly[0]} hører til **${zoneNames[zone]}**. Avtalene for sonen ligger i [avtalevelgeren](/start-her). Jeg oppgir ikke en pris her.`
+        : `${postalOnly[0]} ser ikke ut som et norsk postnummer jeg kan plassere. Velg sone i [avtalevelgeren](/start-her).`;
+      const postalData = { choices: [{ message: { content: reply } }] };
+      if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+        try {
+          const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+          await supabase.from('chatlog').insert([{
+            session_id: sessionId || Date.now().toString(36),
+            user_agent: req.headers.get('user-agent') || 'unknown',
+            messages: [messages[messages.length - 1], { role: 'assistant', content: reply }],
+            ai_response: reply,
+            total_tokens: 0,
+          }]);
+        } catch {}
+      }
+      return NextResponse.json(postalData);
+    }
     
     // Hämta dynamisk kunskap från Supabase
     const dynamicKnowledge = await getDynamicKnowledge(userMessage);
@@ -333,6 +363,33 @@ export async function POST(req: NextRequest) {
       enhancedSystemPrompt += '\n\n## AKTUELL INFORMATION (från statisk kunskapsbas)\n';
       enhancedSystemPrompt += generateKnowledgeSummary();
     }
+
+    enhancedSystemPrompt += `\n\n## FASTPRIS OG NORGESPRIS (følg denne teksten, ikke motsi den)\n${NORGESPRIS_FASTPRIS_GUIDE}\n`;
+    enhancedSystemPrompt += `\n## SELSKAP\nVKNG LTD, organisasjonsnummer HE477501. Samme selskap som Elchef. Kunden betaler ikke Strømsjef. Strømleverandøren betaler en formidlingsprovisjon når noen tegner avtale via lenken vår. Mer på /om-oss.\n`;
+
+    let livePlans = '';
+    const plansUrl = SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const plansKey = SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (plansUrl && plansKey) {
+      try {
+        const supabase = createClient(plansUrl, plansKey);
+        const { data } = await supabase
+          .from('electricity_plans')
+          .select('supplier_name,plan_name,price_zone,price_per_kwh,monthly_fee,binding_time,price_badge')
+          .limit(80);
+        const lines = (data || []).map((row) => {
+          const r = row as Record<string, unknown>;
+          return `- ${r.supplier_name} · ${r.plan_name} · ${r.price_zone}: ${r.price_per_kwh} øre/kWh, ${r.monthly_fee} kr/mnd, binding ${r.binding_time} mnd${r.price_badge ? ` (${r.price_badge})` : ''}`;
+        });
+        livePlans = lines.join('\n');
+      } catch {}
+    }
+    if (livePlans) {
+      enhancedSystemPrompt += `\n## AKTUELLE AVTALER (eneste tillatte priskilde)\n${livePlans}\n`;
+    } else {
+      enhancedSystemPrompt += `\n## AKTUELLE AVTALER\nIngen live-liste ble hentet. Oppgi ingen øre-pris og ingen leverandørtilbud.\n`;
+    }
+    enhancedSystemPrompt += `\n## PRISREGLER SOM OVERSTYRER TIDLIGERE KAMPANJETEKST\n- Nevn en pris, et månedsgebyr eller et tilbud bare hvis det står i AKTUELLE AVTALER.\n- Hvis brukeren spør hva som er billigst, eller om et navngitt tilbud (for eksempel Bærum Energi 99 øre): finnes det ikke i listen, si at det ikke ligger der nå, og lenk til /start-her. Ikke gjett. Ikke si både at det finnes og at det ikke finnes.\n- Et postnummer alene er allerede besvart før denne prompten. Spør ikke om postnummer.\n`;
     
     // Lägg till system-prompt först (nu med dynamisk kunskap från Supabase)
     const fullMessages = [

@@ -25,72 +25,28 @@ export interface ElectricityPlan {
   sortOrder?: number;
 }
 
-// Norwegian postal code to electricity price zone mapping.
-// Based on official Norwegian fylke (county) to electricity zone mapping.
+// Norwegian postal code to bidding zone.
+// Ranges follow fylke, not a complete Bring register:
+// NO1 Østlandet (Oslo, Akershus, Østfold, Buskerud, Innlandet, Vestfold)
+// NO2 Sørlandet (Telemark, Agder, Rogaland)
+// NO3 Midt-Norge (Møre og Romsdal, Trøndelag)
+// NO4 Nord-Norge (Nordland, Troms, Finnmark)
+// NO5 Vestlandet (Vestland)
+// Reported misses: Tønsberg/Holmestrand (31xx, 3089) are NO1. Skien (37xx) is NO2.
 export function inferZoneFromPostalCode(postalCode: string): PriceZone | undefined {
   const code = postalCode.replace(/\s+/g, '');
-  // Accept 4-digit (NO) and 5-digit (SE) postal codes
-  if (!/^\d{4,5}$/.test(code)) return undefined;
+  if (!/^\d{4}$/.test(code)) return undefined;
 
-  const fullCode = parseInt(code, 10);
-  
-  // Official Norwegian fylke to electricity zone mapping:
-  // NO1: Øst-Norge (Oslo, Akershus, Østfold, Vestfold, Telemark, Buskerud, Oppland, Hedmark)
-  // NO2: Sør-Norge (Agder, Rogaland, Vest-Agder, Aust-Agder)  
-  // NO3: Midt-Norge (Trøndelag, Møre og Romsdal, Sør-Trøndelag, Nord-Trøndelag)
-  // NO4: Nord-Norge (Nordland, Troms, Finnmark)
-  // NO5: Vest-Norge (Hordaland, Sogn og Fjordane, Rogaland delar)
-  
-  // NO1: Øst-Norge (0000-1999 + specific areas)
-  if (fullCode >= 0 && fullCode <= 1999) return PriceZone.NO1;
-  
-  // NO2: Sør-Norge (2000-2999 + Rogaland areas)
-  if (fullCode >= 2000 && fullCode <= 2999) return PriceZone.NO2;
-  
-  // Special handling for 3xxx range
-  if (fullCode >= 3000 && fullCode <= 3999) {
-    // Vestfold og Telemark fylke (NO2) - includes Tønsberg (3114)
-    if (fullCode >= 3100 && fullCode <= 3199) return PriceZone.NO2; // Vestfold area
-    if (fullCode >= 3200 && fullCode <= 3299) return PriceZone.NO2; // Telemark area
-    if (fullCode >= 3300 && fullCode <= 3399) return PriceZone.NO2; // Telemark area
-    
-    // Buskerud fylke (NO1) - specific postal codes
-    if (fullCode >= 3500 && fullCode <= 3599) return PriceZone.NO1;
-    
-    // Default to NO5 for other 3xxx areas
-    return PriceZone.NO5;
-  }
-  
-  // Special handling for 4xxx range  
-  if (fullCode >= 4000 && fullCode <= 4999) {
-    // Rogaland fylke (NO2) - Stavanger, Sandnes, Haugesund areas
-    if (fullCode >= 4000 && fullCode <= 4299) return PriceZone.NO2;
-    
-    // Hordaland fylke (NO5) - Bergen area (if any 4xxx postcodes exist)
-    // Note: Bergen is primarily in 5xxx range, but checking for completeness
-    
-    // Default to NO5 for other 4xxx areas
-    return PriceZone.NO5;
-  }
-  
-  // Special handling for 5xxx-6xxx range
-  if (fullCode >= 5000 && fullCode <= 6999) {
-    // Hordaland fylke (NO5) - includes Bergen area (5000-5099)
-    if (fullCode >= 5000 && fullCode <= 5099) return PriceZone.NO5; // Bergen area
-    
-    // Special case: 5419 is in NO2
-    if (fullCode === 5419) return PriceZone.NO2;
-    
-    // Møre og Romsdal fylke (NO5) - includes Ålesund, Molde, Kristiansund (6000-6999)
-    if (fullCode >= 6000 && fullCode <= 6999) return PriceZone.NO5; // Møre og Romsdal area
-    
-    // Trøndelag fylke (NO3) - Trondheim area (5100-5999)
-    return PriceZone.NO3;
-  }
-  
-  // NO4: Nord-Norge (7000-9999)
-  if (fullCode >= 7000 && fullCode <= 9999) return PriceZone.NO4;
-  
+  const n = parseInt(code, 10);
+
+  if (n >= 0 && n <= 3649) return PriceZone.NO1;
+  if (n >= 3650 && n <= 4999) return PriceZone.NO2;
+  if (n >= 5000 && n <= 5999) return PriceZone.NO5;
+  if (n >= 6000 && n <= 6699) return PriceZone.NO3;
+  if (n >= 6700 && n <= 6999) return PriceZone.NO5;
+  if (n >= 7000 && n <= 7999) return PriceZone.NO3;
+  if (n >= 8000 && n <= 9999) return PriceZone.NO4;
+
   return undefined;
 }
 

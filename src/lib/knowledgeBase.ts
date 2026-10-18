@@ -45,11 +45,11 @@ Norge är indelat i fem huvudsakliga prisområden (NO1–NO5). Gränserna styrs 
 #### Översikt
 | Prisområde | Region/Område | Exempelkommuner | Exempelpostnr |
 |---|---|---|---|
-| NO1 – Øst‑Norge | Oslo/Østlandet | Oslo, Akershus, Østfold, Vestfold og Telemark (delar), Innlandet (delar), Viken (delar) | 0010, 2000, 1600 |
-| NO2 – Sør‑Norge | Sørlandet | Agder (Aust/Vest), delar av Vestfold og Telemark | 4600, 4800, 4880 |
-| NO3 – Midt‑Norge | Midt‑Norge | Trøndelag, Møre og Romsdal | 7000, 6000, 7600 |
-| NO4 – Nord‑Norge | Nord‑Norge | Nordland, Troms og Finnmark | 8000, 9000, 9700 |
-| NO5 – Vest‑Norge | Vestlandet | Rogaland, Vestland (Hordaland + Sogn og Fjordane), delar av Viken/Innlandet | 4000, 5000, 6800 |
+| NO1 – Øst‑Norge | Oslo, Akershus, Østfold, Buskerud, Innlandet, Vestfold | Oslo, Tønsberg, Holmestrand (3089) | 0150, 3089, 3114 |
+| NO2 – Sør‑Norge | Telemark, Agder, Rogaland | Skien, Kristiansand, Stavanger | 3724, 4600, 4000 |
+| NO3 – Midt‑Norge | Møre og Romsdal, Trøndelag | Ålesund, Trondheim | 6000, 7010 |
+| NO4 – Nord‑Norge | Nordland, Troms, Finnmark | Bodø, Tromsø | 8000, 9000 |
+| NO5 – Vest‑Norge | Vestland | Bergen, Sogndal | 5003, 6856 |
 
 #### Hur du får en fullständig lista
 1. Ladda ner postnummerregister från Bring.no

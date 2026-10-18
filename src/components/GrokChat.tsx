@@ -949,7 +949,7 @@ export default function GrokChat() {
               }}
               disabled={loading || contactFormSubmitted || startHereSubmitted || calculatorSubmitted}
               maxLength={500}
-              autoFocus
+              autoFocus={false}
             />
             <button 
               type="submit" 
