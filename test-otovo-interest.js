@@ -54,13 +54,13 @@ async function sendOtovoInterest(data, options) {
   if (!apiToken) {
     return { status: 'skipped', reason: 'OTOVO_API_TOKEN not configured' };
   }
-  if (!utmSource?.trim()) {
-    return { status: 'skipped', reason: 'OTOVO_UTM_SOURCE not configured' };
-  }
+  const OTOVO_UTM_DEFAULT_NO = 'Strømsjef_no_PV';
+  const source = utmSource?.trim() || OTOVO_UTM_DEFAULT_NO;
+  const campaign = utmCampaign?.trim() || OTOVO_UTM_DEFAULT_NO;
 
   const body = buildOtovoInterestPayload(data, {
-    source: utmSource.trim(),
-    campaign: utmCampaign,
+    source,
+    campaign,
   });
 
   const headers = {
@@ -177,20 +177,39 @@ async function testSendMockedSuccess() {
   console.log('✓ sendOtovoInterest (mocked success)');
 }
 
-async function testSendSkipsWithoutSource() {
+async function testSendUsesDefaultUtmWhenOmitted() {
+  const calls = [];
+  const mockFetch = async (url) => {
+    if (url.endsWith('/validate_data')) {
+      calls.push(url);
+      return { ok: true, json: async () => ({ is_valid: true }) };
+    }
+    return { ok: true, json: async () => ({}) };
+  };
+
+  const result = await sendOtovoInterest(
+    { email: 'a@b.no', name: 'Test' },
+    { apiToken: 'x', apiBaseUrl: 'https://mock.otovo.test', fetchImpl: mockFetch }
+  );
+  assert.strictEqual(result.status, 'success');
+  console.log('✓ sendOtovoInterest uses Strømsjef_no_PV UTM defaults');
+}
+
+async function testSendSkipsWithoutToken() {
   const result = await sendOtovoInterest(
     { email: 'a@b.no' },
-    { apiToken: 'x', apiBaseUrl: 'https://mock.otovo.test', utmCampaign: 'Strømsjef_no_PV' }
+    { apiBaseUrl: 'https://mock.otovo.test' }
   );
   assert.strictEqual(result.status, 'skipped');
-  console.log('✓ sendOtovoInterest skips without UTM source');
+  console.log('✓ sendOtovoInterest skips without API token');
 }
 
 async function run() {
   testParseConsumption();
   testBuildPayload();
   await testSendMockedSuccess();
-  await testSendSkipsWithoutSource();
+  await testSendUsesDefaultUtmWhenOmitted();
+  await testSendSkipsWithoutToken();
   console.log('\nAll Otovo tests passed.');
 }
 

@@ -8,7 +8,7 @@ import {
   isValidNorwegianStreetAddress,
   normalizeNorwegianPhone,
 } from '@/lib/norwegian-lead-validation';
-import { sendOtovoInterest } from '@/lib/otovo-interest';
+import { OTOVO_UTM_DEFAULT_NO, sendOtovoInterest } from '@/lib/otovo-interest';
 
 // Raw values first; sanitize below to avoid common dashboard quoting issues
 const RAW_MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
@@ -27,8 +27,8 @@ function sanitizeEnv(value: string | undefined): string | undefined {
 
 const OTOVO_API_BASE_URL = sanitizeEnv(process.env.OTOVO_API_BASE_URL) ?? 'https://api.otovo.com';
 const OTOVO_API_TOKEN = sanitizeEnv(process.env.OTOVO_API_TOKEN);
-const OTOVO_UTM_SOURCE = sanitizeEnv(process.env.OTOVO_UTM_SOURCE);
-const OTOVO_UTM_CAMPAIGN = sanitizeEnv(process.env.OTOVO_UTM_CAMPAIGN) ?? 'Strømsjef_no_PV';
+const OTOVO_UTM_SOURCE = sanitizeEnv(process.env.OTOVO_UTM_SOURCE) ?? OTOVO_UTM_DEFAULT_NO;
+const OTOVO_UTM_CAMPAIGN = sanitizeEnv(process.env.OTOVO_UTM_CAMPAIGN) ?? OTOVO_UTM_DEFAULT_NO;
 
 // Sanitized MailerLite config
 const MAILERLITE_API_KEY = sanitizeEnv(RAW_MAILERLITE_API_KEY);

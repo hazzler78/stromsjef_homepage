@@ -1,5 +1,8 @@
 import type { ContactFormData } from '@/lib/types';
 
+/** Otovo-assigned UTM source and campaign for Strømsjef.no (Norway). */
+export const OTOVO_UTM_DEFAULT_NO = 'Strømsjef_no_PV';
+
 export type OtovoInterestInput = ContactFormData & {
   ref?: string;
   campaignCode?: string;
@@ -73,13 +76,12 @@ export async function sendOtovoInterest(
   if (!apiToken) {
     return { status: 'skipped', reason: 'OTOVO_API_TOKEN not configured' };
   }
-  if (!utmSource?.trim()) {
-    return { status: 'skipped', reason: 'OTOVO_UTM_SOURCE not configured' };
-  }
+  const source = utmSource?.trim() || OTOVO_UTM_DEFAULT_NO;
+  const campaign = utmCampaign?.trim() || OTOVO_UTM_DEFAULT_NO;
 
   const body = buildOtovoInterestPayload(data, {
-    source: utmSource.trim(),
-    campaign: utmCampaign,
+    source,
+    campaign,
   });
 
   const headers = {
