@@ -6,7 +6,7 @@ import GlassButton from './GlassButton';
 
 const OTOVO_LOGO_SRC = '/NO%20%20Otovo%20care%20launch%20.png';
 
-const HREF_QUOTE = 'https://www.otovo.no/?utm_source=Str%C3%B8msjef_no_P';
+const HREF_QUOTE = 'https://www.otovo.no/?utm_source=Str%C3%B8msjef_no_PV';
 const HREF_CARE = 'https://www.otovo.no/partner/Stromsjef_care/';
 
 function trackOtovoClick(buttonType: 'otovo_quote' | 'otovo_care', href: string) {

@@ -1,5 +1,6 @@
 import Hero from '@/components/Hero';
 import OtovoPartnerPromo from '@/components/OtovoPartnerPromo';
+import SolarQuoteFormNo from '@/components/SolarQuoteFormNo';
 import TrustpilotCarousel from '@/components/TrustpilotCarousel';
 import ContactForm from '@/components/ContactForm';
 import FAQ from '@/components/FAQ';
@@ -10,6 +11,7 @@ export default function Home() {
     <main>
       <Hero />
       <OtovoPartnerPromo />
+      <SolarQuoteFormNo />
       <div className="container" style={{ textAlign: 'center', marginTop: '1rem' }}>
         <h2 style={{ color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.1)', marginBottom: '1.5rem' }}>Hva våre strømsjefer sier</h2>
       </div>
