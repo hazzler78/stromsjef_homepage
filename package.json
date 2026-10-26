@@ -10,7 +10,8 @@
     "cf:preview": "wrangler pages dev .vercel/output",
     "cf:deploy": "wrangler pages deploy .vercel/output",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:otovo": "node test-otovo-interest.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.3",

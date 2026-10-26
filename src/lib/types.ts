@@ -53,6 +53,16 @@ export interface ContactFormData {
   phone?: string;
   subscribeNewsletter: boolean;
   message?: string;
+  /** Poststed (Otovo/sol-skjema) */
+  city?: string;
+  /** Gateadresse */
+  address?: string;
+  /** Norsk postnummer (4 siffer) */
+  postalCode?: string;
+  /** Årsforbruk som fri tekst (f.eks. «10 000 kWh/år») */
+  consumption?: string;
+  /** Bruker har samtykket til deling med Otovo (sol-skjema) */
+  otovoConsent?: boolean;
   contractType?: '12_months' | '24_months' | '36_months' | 'variable';
   contractStartDate?: string;
 }

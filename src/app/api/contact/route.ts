@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ContactFormData } from '@/lib/types';
 import { createClient } from '@supabase/supabase-js';
+import {
+  formatNorwegianPhoneDisplay,
+  isValidNorwegianPostalCode,
+  isValidNorwegianPoststed,
+  isValidNorwegianStreetAddress,
+  normalizeNorwegianPhone,
+} from '@/lib/norwegian-lead-validation';
+import { sendOtovoInterest } from '@/lib/otovo-interest';
 
 // Raw values first; sanitize below to avoid common dashboard quoting issues
 const RAW_MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
@@ -16,6 +24,11 @@ function sanitizeEnv(value: string | undefined): string | undefined {
   // Strip surrounding quotes if present (common misconfiguration in dashboards)
   return trimmed.replace(/^"|"$/g, '');
 }
+
+const OTOVO_API_BASE_URL = sanitizeEnv(process.env.OTOVO_API_BASE_URL) ?? 'https://api.otovo.com';
+const OTOVO_API_TOKEN = sanitizeEnv(process.env.OTOVO_API_TOKEN);
+const OTOVO_UTM_SOURCE = sanitizeEnv(process.env.OTOVO_UTM_SOURCE);
+const OTOVO_UTM_CAMPAIGN = sanitizeEnv(process.env.OTOVO_UTM_CAMPAIGN) ?? 'Strømsjef_no_PV';
 
 // Sanitized MailerLite config
 const MAILERLITE_API_KEY = sanitizeEnv(RAW_MAILERLITE_API_KEY);
@@ -37,12 +50,39 @@ function getSupabaseClient() {
   return createClient(url, key);
 }
 
-async function sendTelegramNotification(data: ContactFormData) {
+function validateSolarLead(
+  data: ContactFormData & { formType?: string }
+): string | null {
+  if (!data.otovoConsent) {
+    return 'Samtykke til deling med Otovo er påkrevd.';
+  }
+  if (!data.name?.trim()) return 'Navn er påkrevd.';
+  if (!data.phone?.trim()) return 'Telefon er påkrevd.';
+  const phoneNational = normalizeNorwegianPhone(data.phone);
+  if (!phoneNational) return 'Ugyldig norsk mobilnummer.';
+  if (!data.postalCode || !isValidNorwegianPostalCode(data.postalCode)) {
+    return 'Ugyldig postnummer.';
+  }
+  if (!data.city?.trim() || !isValidNorwegianPoststed(data.city)) {
+    return 'Ugyldig poststed.';
+  }
+  if (!data.address?.trim() || !isValidNorwegianStreetAddress(data.address)) {
+    return 'Ugyldig gateadresse.';
+  }
+  data.phone = formatNorwegianPhoneDisplay(phoneNational);
+  return null;
+}
+
+async function sendTelegramNotification(
+  data: ContactFormData & { formType?: string },
+  contactId: number | null,
+  otovoNote?: string
+) {
   if (!TELEGRAM_BOT_TOKEN) {
     console.warn('TELEGRAM_BOT_TOKEN not configured');
     return;
   }
-  
+
   if (TELEGRAM_CHAT_IDS.length === 0) {
     console.warn('TELEGRAM_CHAT_IDS not configured - notifications will not be sent');
     return;
@@ -52,11 +92,11 @@ async function sendTelegramNotification(data: ContactFormData) {
   let pendingId = null;
   try {
     const pendingReminderData = {
-      customer_name: data.name || 'Okänd',
+      customer_name: data.name || 'Ukjent',
       email: data.email,
       phone: data.phone || null,
       message: data.message || null,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     };
 
     const supabase = getSupabaseClient();
@@ -75,16 +115,20 @@ async function sendTelegramNotification(data: ContactFormData) {
     console.warn('Database error for pending reminder, but continuing with notification:', error);
   }
 
+  const formType = data.formType || 'contact';
+  const formLabel =
+    formType === 'sol_laddbox' ? '☀️ *Solceller (Otovo-lead)*' : '🔔 *Ny kontaktförfrågan*';
+
   const message = `
-🔔 *Ny kontaktförfrågan*
+${formLabel}
 
-${data.name ? `🙍‍♂️ *Namn:* ${data.name}\n` : ''}📧 *E-post:* ${data.email}
-${data.phone ? `📞 *Telefon:* ${data.phone}\n` : ''}📰 *Nyhetsbrev:* ${data.subscribeNewsletter ? 'Ja' : 'Nej'}
-${data.message ? `\n📝 *Meddelande:* ${data.message}` : ''}
+${data.name ? `🙍‍♂️ *Navn:* ${data.name}\n` : ''}📧 *E-post:* ${data.email}
+${data.phone ? `📞 *Telefon:* ${data.phone}\n` : ''}${data.postalCode ? `📮 *Postnummer:* ${data.postalCode}\n` : ''}${data.city ? `🏙️ *Poststed:* ${data.city}\n` : ''}${data.address ? `📍 *Adresse:* ${data.address}\n` : ''}${formType !== 'sol_laddbox' ? `📰 *Nyhetsbrev:* ${data.subscribeNewsletter ? 'Ja' : 'Nei'}\n` : ''}${data.message ? `\n📝 *Melding:* ${data.message}` : ''}${otovoNote ? `\n\n⚠️ *Otovo:* ${otovoNote}` : ''}
 
-⏰ *Tidpunkt:* ${new Date().toLocaleString('sv-SE')}
-🌐 *Källa:* Elchef.se kontaktformulär
-${pendingId ? `\n🆔 *ID:* ${pendingId}\n\n💡 *Svara på detta meddelande* eller skriv t.ex. "12m #${pendingId}" för att koppla rätt kund.\n*Exempel:* "12m" eller "12m cheap" eller "12m fastavtal" (vi ringer kunden om 11 månader)\n_Du kan även ange startdatum:_ "12m 2025-02-15 cheap" eller "12m 2025-02-15 #${pendingId} fastavtal"` : ''}
+⏰ *Tidspunkt:* ${new Date().toLocaleString('nb-NO')}
+🌐 *Kilde:* Stromsjef.no kontaktskjema
+${contactId ? `\n🆔 *Kontakt-ID (contacts):* ${contactId}` : ''}
+${pendingId ? `\n\n💡 *Svara på detta meddelande* eller skriv t.ex. "12m #${pendingId}" for å koble riktig kunde.\n*Eksempel:* "12m" eller "12m cheap" eller "12m fastavtal" (vi ringer kunden om 11 måneder)\n_Du kan også angi startdato:_ "12m 2025-02-15 cheap" eller "12m 2025-02-15 #${pendingId} fastavtal"` : ''}
 `;
 
   // Send to all configured chat IDs
@@ -113,7 +157,6 @@ ${pendingId ? `\n🆔 *ID:* ${pendingId}\n\n💡 *Svara på detta meddelande* el
     }
   });
 
-  // Wait for all notifications to be sent
   const results = await Promise.all(sendPromises);
   const successCount = results.filter(Boolean).length;
   console.log(`Telegram notifications sent: ${successCount}/${TELEGRAM_CHAT_IDS.length} successful`);
@@ -129,10 +172,9 @@ async function addToMailerlite(email: string) {
     email: email,
     status: 'active',
   };
-  
-  // Använd strängen direkt för att undvika JavaScript precision-problem med stora heltal
+
   if (MAILERLITE_GROUP_ID && MAILERLITE_GROUP_ID.trim().length > 0) {
-    body.groups = [MAILERLITE_GROUP_ID]; // Använd strängen direkt - MailerLite accepterar detta
+    body.groups = [MAILERLITE_GROUP_ID];
     console.log(`[MailerLite] Attempting to add subscriber to group ID: ${MAILERLITE_GROUP_ID} (as string to avoid precision loss)`);
   } else {
     console.log('[MailerLite] No valid MAILERLITE_GROUP_ID found, subscriber will be added to "All subscribers"');
@@ -158,15 +200,14 @@ async function addToMailerlite(email: string) {
         statusText: response.statusText,
         errorData: JSON.stringify(errorData, null, 2),
         attemptedGroupId: MAILERLITE_GROUP_ID,
-        rawGroupId: MAILERLITE_GROUP_ID
+        rawGroupId: MAILERLITE_GROUP_ID,
       });
-      
-      // Logga specifikt om det är ett grupp-ID-fel
+
       const groupsError = errorData?.errors?.['groups.0'] || errorData?.errors?.groups?.[0];
       if (groupsError && (groupsError.includes('invalid') || groupsError.includes('not found'))) {
         console.error(`[MailerLite] Group ID validation failed. Attempted ID: ${MAILERLITE_GROUP_ID}, Error: ${JSON.stringify(groupsError)}`);
       }
-      
+
       return false;
     }
 
@@ -177,66 +218,120 @@ async function addToMailerlite(email: string) {
   }
 }
 
+async function flagOtovoSyncFailure(contactId: number, data: ContactFormData, reason: string) {
+  try {
+    const supabase = getSupabaseClient();
+    const flagLine = `[Otovo-synk feilet ${new Date().toISOString()}] ${reason}`;
+    const updatedMessage = [data.message?.trim(), flagLine].filter(Boolean).join('\n\n');
+    await supabase.from('contacts').update({ message: updatedMessage }).eq('id', contactId);
+  } catch (error) {
+    console.error('Could not flag Otovo sync failure on contact row:', error);
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const data: ContactFormData & { ref?: string; campaignCode?: string; formType?: string } = await request.json();
-    
-    // Debug logging for Telegram configuration
+    const data: ContactFormData & { ref?: string; campaignCode?: string; formType?: string } =
+      await request.json();
+
     console.log('Telegram configuration check:');
     console.log('- TELEGRAM_BOT_TOKEN:', TELEGRAM_BOT_TOKEN ? 'Set' : 'Not set');
     console.log('- TELEGRAM_CHAT_IDS:', TELEGRAM_CHAT_IDS.length > 0 ? `Set (${TELEGRAM_CHAT_IDS.length} IDs)` : 'Not set');
 
-    // Validera e-postadress
     if (!data.email || !data.email.includes('@')) {
-      return NextResponse.json(
-        { error: 'Ogiltig e-postadress' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Ugyldig e-postadresse' }, { status: 400 });
     }
 
-    // Determine form type based on data or ref
     let formType = data.formType || 'contact';
     if (data.ref?.includes('chat')) formType = 'chat';
     if (data.ref?.includes('newsletter')) formType = 'newsletter';
     if (data.ref?.includes('affiliate')) formType = 'affiliate';
     if (data.ref?.includes('partner')) formType = 'partner';
+    if (data.formType === 'sol_laddbox') formType = 'sol_laddbox';
 
-    // Skapa pending-reminder och skicka Telegram-notifiering (med ID)
-    await sendTelegramNotification(data);
+    if (formType === 'sol_laddbox') {
+      const solarError = validateSolarLead(data);
+      if (solarError) {
+        return NextResponse.json({ error: solarError }, { status: 400 });
+      }
+    }
 
-    // Store contact with enhanced tracking
+    let contactId: number | null = null;
     try {
       const supabase = getSupabaseClient();
-      await supabase.from('contacts').insert([{
-          name: data.name || null,
-          email: data.email,
-          phone: data.phone || null,
-          message: data.message || null,
-          ref: data.ref || null,
-          campaign_code: data.campaignCode || null,
-          subscribe_newsletter: !!data.subscribeNewsletter,
-          form_type: formType,
-          created_at: new Date().toISOString(),
-        }]);
+      const { data: contactRow, error } = await supabase
+        .from('contacts')
+        .insert([
+          {
+            name: data.name || null,
+            email: data.email,
+            phone: data.phone || null,
+            message: data.message || null,
+            ref: data.ref || null,
+            campaign_code: data.campaignCode || null,
+            subscribe_newsletter: !!data.subscribeNewsletter,
+            form_type: formType,
+            city: data.city?.trim() || null,
+            address: data.address?.trim() || null,
+            created_at: new Date().toISOString(),
+          },
+        ])
+        .select('id')
+        .single();
+
+      if (!error && contactRow) {
+        contactId = contactRow.id as number;
+      } else if (error) {
+        console.warn('Failed to store contact with ref (optional):', error);
+      }
     } catch (e) {
       console.warn('Failed to store contact with ref (optional):', e);
     }
 
-    // Lägg till i Mailerlite om användaren vill prenumerera
+    let otovoSync: 'success' | 'failed' | 'skipped' = 'skipped';
+    let otovoNote: string | undefined;
+
+    if (formType === 'sol_laddbox') {
+      const otovoResult = await sendOtovoInterest(data, {
+        apiToken: OTOVO_API_TOKEN,
+        apiBaseUrl: OTOVO_API_BASE_URL,
+        utmSource: OTOVO_UTM_SOURCE,
+        utmCampaign: OTOVO_UTM_CAMPAIGN,
+      });
+
+      if (otovoResult.status === 'success') {
+        otovoSync = 'success';
+        console.log('Otovo interest created successfully for contact', contactId);
+      } else if (otovoResult.status === 'skipped') {
+        otovoSync = 'skipped';
+        console.warn('Otovo lead skipped:', otovoResult.reason);
+        otovoNote = `ikke sendt (${otovoResult.reason})`;
+      } else {
+        otovoSync = 'failed';
+        console.error('Otovo lead failed:', otovoResult.stage, otovoResult.reason);
+        otovoNote = `synk feilet (${otovoResult.stage}): ${otovoResult.reason}`;
+        if (contactId) {
+          await flagOtovoSyncFailure(contactId, data, otovoResult.reason);
+        }
+      }
+    }
+
+    await sendTelegramNotification({ ...data, formType }, contactId, otovoNote);
+
     let newsletterSuccess = true;
     if (data.subscribeNewsletter) {
       newsletterSuccess = await addToMailerlite(data.email);
     }
 
     return NextResponse.json(
-      { 
-        success: true, 
+      {
+        success: true,
         message: 'Kontaktförfrågan skickad',
-        newsletterSubscribed: data.subscribeNewsletter && newsletterSuccess
+        newsletterSubscribed: data.subscribeNewsletter && newsletterSuccess,
+        otovoSync,
       },
       { status: 200 }
     );
-
   } catch (error) {
     console.error('Contact form submission error:', error);
     return NextResponse.json(
@@ -244,7 +339,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
 
 // GET endpoint is safe by default and never sends Telegram unless explicitly authorized.
 export async function GET(request: NextRequest) {
@@ -254,7 +349,6 @@ export async function GET(request: NextRequest) {
     const token = searchParams.get('token');
     const expectedToken = sanitizeEnv(process.env.CONTACT_TEST_TOKEN);
 
-    // Default behavior: health/info only, no side effects.
     if (!runTest) {
       return NextResponse.json(
         {
@@ -292,7 +386,7 @@ export async function GET(request: NextRequest) {
           const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, text: testText })
+            body: JSON.stringify({ chat_id: chatId, text: testText }),
           });
           return res.ok;
         } catch {
@@ -307,4 +401,4 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export const runtime = 'edge'; 
+export const runtime = 'edge';
