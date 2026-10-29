@@ -73,6 +73,17 @@ const Logo = styled.img`
   object-fit: contain;
 `;
 
+function formatOre(value: unknown): string {
+  const n = typeof value === 'number'
+    ? value
+    : typeof value === 'string'
+      ? Number(value.replace(',', '.'))
+      : Number.NaN;
+  if (!Number.isFinite(n)) return '';
+  const text = Number.isInteger(n) ? String(n) : String(n).replace('.', ',');
+  return `${text} øre`;
+}
+
 type BusinessPlan = {
   id: string;
   supplier_name: string;
@@ -176,24 +187,29 @@ export default function Bedrift() {
                   )}
                 </div>
                 <div className="cta" style={{ display: 'grid', gap: 6, justifyItems: 'end' }}>
-                  {(plan.recommended || plan.price_badge) && (
-                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                      {plan.recommended && (
-                        <span style={{
-                          fontWeight: 800,
-                          color: '#0b3b2e',
-                          background: 'linear-gradient(135deg, #a7f3d0, #6ee7b7)',
-                          border: '1px solid rgba(16,185,129,0.4)',
-                          padding: '2px 8px',
-                          borderRadius: 9999,
-                          fontSize: '0.8rem'
-                        }}>Mest populær</span>
-                      )}
-                      {plan.price_badge && (
-                        <span style={{ fontWeight: 800, color: '#111827' }}>{plan.price_badge}</span>
-                      )}
-                    </div>
-                  )}
+                  {(() => {
+                    const priceLabel = (plan.price_badge || '').trim() || formatOre(plan.price_per_kwh);
+                    if (!plan.recommended && !priceLabel) return null;
+                    return (
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
+                        {plan.recommended && (
+                          <span style={{
+                            fontWeight: 800,
+                            color: '#0b3b2e',
+                            background: 'linear-gradient(135deg, #a7f3d0, #6ee7b7)',
+                            border: '1px solid rgba(16,185,129,0.4)',
+                            padding: '2px 8px',
+                            borderRadius: 9999,
+                            fontSize: '0.8rem',
+                            whiteSpace: 'nowrap'
+                          }}>Mest populær</span>
+                        )}
+                        {priceLabel && (
+                          <span style={{ fontWeight: 800, color: '#111827', whiteSpace: 'nowrap' }}>{priceLabel}</span>
+                        )}
+                      </div>
+                    );
+                  })()}
                   <GlassButton
                     variant="secondary"
                     size="sm"
