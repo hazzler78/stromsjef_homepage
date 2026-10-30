@@ -186,31 +186,26 @@ export default function Bedrift() {
                     <div style={{ fontSize: '0.85rem', color: 'var(--gray-500)', marginTop: 4 }}>{plan.guarantee_disclaimer}</div>
                   )}
                 </div>
-                <div className="cta" style={{ display: 'grid', gap: 6, justifyItems: 'end' }}>
-                  {(() => {
-                    const priceLabel = (plan.price_badge || '').trim() || formatOre(plan.price_per_kwh);
-                    if (!plan.recommended && !priceLabel) return null;
-                    return (
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
-                        {plan.recommended && (
-                          <span style={{
-                            fontWeight: 800,
-                            color: '#0b3b2e',
-                            background: 'linear-gradient(135deg, #a7f3d0, #6ee7b7)',
-                            border: '1px solid rgba(16,185,129,0.4)',
-                            padding: '2px 8px',
-                            borderRadius: 9999,
-                            fontSize: '0.8rem',
-                            whiteSpace: 'nowrap'
-                          }}>Mest populær</span>
-                        )}
-                        {priceLabel && (
-                          <span style={{ fontWeight: 800, color: '#111827', whiteSpace: 'nowrap' }}>{priceLabel}</span>
-                        )}
-                      </div>
-                    );
-                  })()}
-                  <GlassButton
+                <div className="cta" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
+                  {plan.recommended && (
+                    <span style={{
+                      fontWeight: 800,
+                      color: '#0b3b2e',
+                      background: 'linear-gradient(135deg, #a7f3d0, #6ee7b7)',
+                      border: '1px solid rgba(16,185,129,0.4)',
+                      padding: '2px 8px',
+                      borderRadius: 9999,
+                      fontSize: '0.8rem',
+                      whiteSpace: 'nowrap'
+                    }}>Mest populær</span>
+                  )}
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+                    {((plan.price_badge || '').trim() || formatOre(plan.price_per_kwh)) && (
+                      <span style={{ fontWeight: 800, color: '#111827', whiteSpace: 'nowrap' }}>
+                        {(plan.price_badge || '').trim() || formatOre(plan.price_per_kwh)}
+                      </span>
+                    )}
+                    <GlassButton
                     variant="secondary"
                     size="sm"
                     background="linear-gradient(135deg, var(--secondary), var(--primary))"
@@ -225,6 +220,7 @@ export default function Bedrift() {
                   >
                     Les mer
                   </GlassButton>
+                  </div>
                 </div>
               </PlanCard>
             ))}

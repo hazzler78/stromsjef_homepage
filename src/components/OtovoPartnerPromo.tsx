@@ -1,10 +1,9 @@
 "use client";
 
 import styled from 'styled-components';
-import Image from 'next/image';
 import GlassButton from './GlassButton';
 
-const OTOVO_LOGO_SRC = '/NO%20%20Otovo%20care%20launch%20.png';
+const OTOVO_LOGO_SRC = '/otovo-care.png';
 
 const HREF_QUOTE = 'https://www.otovo.no/?utm_source=Str%C3%B8msjef_no_PV';
 const HREF_CARE = 'https://www.otovo.no/partner/Stromsjef_care/';
@@ -153,15 +152,7 @@ export default function OtovoPartnerPromo() {
         <Card>
           <Inner>
             <LogoWrap>
-              <Image
-                src={OTOVO_LOGO_SRC}
-                alt="Otovo"
-                width={520}
-                height={200}
-                sizes="(max-width: 768px) 100vw, 260px"
-                style={{ width: '100%', height: 'auto' }}
-                priority={false}
-              />
+              <img src={OTOVO_LOGO_SRC} alt="Otovo Care" />
             </LogoWrap>
             <Copy>
               <h2 id="otovo-partner-heading">Solceller fra Otovo</h2>
