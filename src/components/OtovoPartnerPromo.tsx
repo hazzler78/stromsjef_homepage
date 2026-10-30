@@ -2,8 +2,7 @@
 
 import styled from 'styled-components';
 import GlassButton from './GlassButton';
-
-const OTOVO_LOGO_SRC = '/otovo-care.png';
+import otovoCare from '../../public/otovo-care.png';
 
 const HREF_QUOTE = 'https://www.otovo.no/?utm_source=Str%C3%B8msjef_no_PV';
 const HREF_CARE = 'https://www.otovo.no/partner/Stromsjef_care/';
@@ -152,7 +151,7 @@ export default function OtovoPartnerPromo() {
         <Card>
           <Inner>
             <LogoWrap>
-              <img src={OTOVO_LOGO_SRC} alt="Otovo Care" />
+              <img src={otovoCare.src} alt="Otovo Care" />
             </LogoWrap>
             <Copy>
               <h2 id="otovo-partner-heading">Solceller fra Otovo</h2>
