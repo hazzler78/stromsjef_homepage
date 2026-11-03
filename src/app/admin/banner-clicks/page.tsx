@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { adminFetch, storeAdminPassword } from '@/lib/adminClient';
 
 const ADMIN_PASSWORD = "grodan2025";
 
@@ -40,26 +40,18 @@ export default function AdminBannerClicks() {
     }
   }, []);
 
-  const getSupabase = () =>
-    createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
-    );
-
   const fetchLogs = async () => {
     setLoading(true);
-    const supabase = getSupabase();
-    const { data, error } = await supabase
-      .from('banner_clicks')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (!error && data) setLogs(data as BannerClick[]);
-    const imp = await supabase
-      .from('banner_impressions')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (!imp.error && imp.data) setImpressions(imp.data as BannerImpression[]);
-    setLoading(false);
+    try {
+      const res = await adminFetch('/api/admin/banner-analytics', { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        setLogs((json.clicks || []) as BannerClick[]);
+        setImpressions((json.impressions || []) as BannerImpression[]);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -72,6 +64,7 @@ export default function AdminBannerClicks() {
     if (input === ADMIN_PASSWORD) {
       setAuthed(true);
       sessionStorage.setItem('admin_authed', 'true');
+      storeAdminPassword(input);
       setError('');
     } else {
       setError('Fel lösenord!');

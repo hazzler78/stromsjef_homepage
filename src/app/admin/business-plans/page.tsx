@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { createClient } from '@supabase/supabase-js';
 import { getSupplierLogoUrl } from '@/lib/electricity';
+import { adminFetch } from '@/lib/adminClient';
 
 type PriceZone = 'ALL' | 'NO1' | 'NO2' | 'NO3' | 'NO4' | 'NO5';
 
@@ -28,11 +28,6 @@ type Plan = {
   created_at?: string;
   updated_at?: string;
 };
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
-const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string | undefined;
-const getSupabase = () => createClient(SUPABASE_URL as string, SUPABASE_ANON as string);
-
 
 const Container = styled.div`
   max-width: 1100px;
@@ -66,11 +61,13 @@ export default function AdminBusinessPlans() {
     setLoading(true);
     setError(null);
     try {
-      const supabase = getSupabase();
-      const { data, error } = await supabase
-        .from('business_electricity_plans')
-        .select('*');
-      if (error) throw error;
+      const res = await adminFetch('/api/admin/business-electricity-plans', { cache: 'no-store' });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Kunde inte hämta avtal');
+      }
+      const json = await res.json();
+      const data = json.items as Plan[];
       // Sort in JavaScript to handle nulls properly
       const sorted = (data as Plan[]).sort((a, b) => {
         const sortA = a.sort_order ?? Number.POSITIVE_INFINITY;
@@ -128,18 +125,19 @@ export default function AdminBusinessPlans() {
     setSaving(true);
     setError(null);
     try {
-      const supabase = getSupabase();
       const row = {
         ...plan,
         id: plan.id.trim(),
       } as Plan;
       if (!row.id) throw new Error('ID krävs');
-      if (items.find(p => p.id === row.id)) {
-        const { error } = await supabase.from('business_electricity_plans').update(row).eq('id', row.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('business_electricity_plans').insert([row]);
-        if (error) throw error;
+      const res = await adminFetch('/api/admin/business-electricity-plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(row),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Kunde inte spara');
       }
       setEditing(null);
       await load();
@@ -152,19 +150,24 @@ export default function AdminBusinessPlans() {
 
   async function remove(id: string) {
     if (!confirm('Radera detta avtal?')) return;
-    const supabase = getSupabase();
-    const { error } = await supabase.from('business_electricity_plans').delete().eq('id', id);
-    if (error) {
-      setError(error.message);
+    const res = await adminFetch(`/api/admin/business-electricity-plans?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      setError(err.error || 'Kunde inte radera');
     } else {
       await load();
     }
   }
 
   async function toggleRecommend(id: string, value: boolean) {
-    const supabase = getSupabase();
-    const { error } = await supabase.from('business_electricity_plans').update({ recommended: value }).eq('id', id);
-    if (!error) await load();
+    const res = await adminFetch('/api/admin/business-electricity-plans', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, recommended: value }),
+    });
+    if (res.ok) await load();
   }
 
   if (!authed) {

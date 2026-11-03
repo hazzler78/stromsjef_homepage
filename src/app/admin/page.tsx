@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { storeAdminPassword } from '@/lib/adminClient';
 
 const ADMIN_PASSWORD = "grodan2025";
 
@@ -202,6 +203,7 @@ export default function AdminPage() {
     if (input === ADMIN_PASSWORD) {
       setAuthed(true);
       sessionStorage.setItem('admin_authed', 'true');
+      storeAdminPassword(input);
       setError('');
     } else {
       setError('Fel lösenord!');

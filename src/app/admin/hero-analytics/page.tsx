@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { adminFetch, storeAdminPassword } from '@/lib/adminClient';
 
 const ADMIN_PASSWORD = "grodan2025";
 
@@ -43,22 +43,16 @@ export default function AdminHeroAnalytics() {
 
   const fetchData = async () => {
     setLoading(true);
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
-    );
-    const imp = await supabase
-      .from('hero_impressions')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (!imp.error && imp.data) setImpressions(imp.data as HeroImpression[]);
-
-    const clk = await supabase
-      .from('hero_clicks')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (!clk.error && clk.data) setClicks(clk.data as HeroClick[]);
-    setLoading(false);
+    try {
+      const res = await adminFetch('/api/admin/hero-analytics', { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        setImpressions((json.impressions || []) as HeroImpression[]);
+        setClicks((json.clicks || []) as HeroClick[]);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -71,6 +65,7 @@ export default function AdminHeroAnalytics() {
     if (input === ADMIN_PASSWORD) {
       setAuthed(true);
       sessionStorage.setItem('admin_authed', 'true');
+      storeAdminPassword(input);
       setError('');
     } else {
       setError('Fel lösenord!');
