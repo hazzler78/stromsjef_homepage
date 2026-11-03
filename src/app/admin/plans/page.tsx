@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import styled from 'styled-components';
 import { getSupplierLogoUrl } from '@/lib/electricity';
+import { adminFetch, storeAdminPassword } from '@/lib/adminClient';
 
 type PriceZone = 'ALL' | 'NO1' | 'NO2' | 'NO3' | 'NO4' | 'NO5';
 
@@ -29,14 +29,6 @@ type Plan = {
   updated_at?: string;
 };
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
-const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string | undefined;
-
-const getSupabase = () =>
-  createClient(
-    SUPABASE_URL as string,
-    SUPABASE_ANON as string
-  );
 
 const ADMIN_PASSWORD = "grodan2025";
 
@@ -66,11 +58,13 @@ export default function AdminPlans() {
     setLoading(true);
     setError(null);
     try {
-      const supabase = getSupabase();
-      const { data, error } = await supabase
-        .from('electricity_plans')
-        .select('*');
-      if (error) throw error;
+      const res = await adminFetch('/api/admin/electricity-plans', { cache: 'no-store' });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Kunde inte hämta avtal');
+      }
+      const json = await res.json();
+      const data = json.items as Plan[];
       // Sort in JavaScript to handle nulls properly and respect recommended/featured first
       const sorted = (data as Plan[]).sort((a, b) => {
         // 1) Recommended first (true before false)
@@ -146,18 +140,19 @@ export default function AdminPlans() {
     setSaving(true);
     setError(null);
     try {
-      const supabase = getSupabase();
       const row = {
         ...plan,
         id: plan.id.trim(),
       } as Plan;
       if (!row.id) throw new Error('ID krävs');
-      if (items.find(p => p.id === row.id)) {
-        const { error } = await supabase.from('electricity_plans').update(row).eq('id', row.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('electricity_plans').insert([row]);
-        if (error) throw error;
+      const res = await adminFetch('/api/admin/electricity-plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(row),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Kunde inte spara');
       }
       setEditing(null);
       await load();
@@ -170,19 +165,24 @@ export default function AdminPlans() {
 
   async function remove(id: string) {
     if (!confirm('Radera detta avtal?')) return;
-    const supabase = getSupabase();
-    const { error } = await supabase.from('electricity_plans').delete().eq('id', id);
-    if (error) {
-      setError(error.message);
+    const res = await adminFetch(`/api/admin/electricity-plans?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      setError(err.error || 'Kunde inte radera');
     } else {
       await load();
     }
   }
 
   async function toggleRecommend(id: string, value: boolean) {
-    const supabase = getSupabase();
-    const { error } = await supabase.from('electricity_plans').update({ recommended: value }).eq('id', id);
-    if (!error) await load();
+    const res = await adminFetch('/api/admin/electricity-plans', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, recommended: value }),
+    });
+    if (res.ok) await load();
   }
 
   if (!authed) {
@@ -191,18 +191,24 @@ export default function AdminPlans() {
         <h1>Admin – Avtal</h1>
         <p>Ange adminlösenord:</p>
         <input type="password" placeholder="Lösenord" onKeyDown={(e) => {
-          if (e.key === 'Enter') setAuthed((e.target as HTMLInputElement).value === ADMIN_PASSWORD);
+          if (e.key === 'Enter') {
+            const val = (e.target as HTMLInputElement).value;
+            if (val === ADMIN_PASSWORD) {
+              storeAdminPassword(val);
+              sessionStorage.setItem('admin_authed', 'true');
+              setAuthed(true);
+            }
+          }
         }} />
         <button onClick={() => {
           const el = document.querySelector('input[type="password"]') as HTMLInputElement | null;
-          setAuthed((el?.value || '') === ADMIN_PASSWORD);
+          const val = el?.value || '';
+          if (val === ADMIN_PASSWORD) {
+            storeAdminPassword(val);
+            sessionStorage.setItem('admin_authed', 'true');
+            setAuthed(true);
+          }
         }}>Logga in</button>
-        {(!SUPABASE_URL || !SUPABASE_ANON) && (
-          <div style={{ marginTop: 12, color: '#b91c1c' }}>
-            Saknar Supabase-konfiguration. Lägg till i .env.local och starta om dev-servern:
-            <pre style={{ background: '#f8fafc', padding: 8, borderRadius: 6, marginTop: 8 }}>{`NEXT_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_URL\nNEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY`}</pre>
-          </div>
-        )}
       </Container>
     );
   }
