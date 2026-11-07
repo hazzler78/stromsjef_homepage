@@ -11,7 +11,8 @@
     "cf:deploy": "wrangler pages deploy .vercel/output",
     "start": "next start",
     "lint": "next lint",
-    "test:otovo": "node test-otovo-interest.js"
+    "test:otovo": "node test-otovo-interest.js",
+    "test:rls-pr7": "bash scripts/test-rls-pr7.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.3",
