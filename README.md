@@ -68,6 +68,7 @@ Sett følgende variabler i Cloudflare Pages-prosjektet (Production og Preview):
 - `XAI_API_KEY`
 - `TIKTOK_ACCESS_TOKEN` – TikTok Events API access token (for server-side sporing)
 - `TIKTOK_TEST_EVENT_CODE` – valgfri testkode for TikTok-events
+- `NEXT_PUBLIC_SOLAR_LEADS_ENABLED` – sett til `true` for å vise Otovo/solcelle-seksjoner på forsiden og tillate sol-leads via `/api/contact` (standard: av / ikke satt). Valgfritt server-alias: `SOLAR_LEADS_ENABLED=true`
 
 ### Cron-jobs
 
