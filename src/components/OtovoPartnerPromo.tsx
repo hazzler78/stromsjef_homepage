@@ -3,6 +3,7 @@
 import styled from 'styled-components';
 import GlassButton from './GlassButton';
 import otovoCare from '../../public/otovo-care.png';
+import { isSolarLeadsEnabledClient } from '@/lib/solar-leads-enabled';
 
 const HREF_QUOTE = 'https://www.otovo.no/?utm_source=Str%C3%B8msjef_no_PV';
 const HREF_CARE = 'https://www.otovo.no/partner/Stromsjef_care/';
@@ -145,6 +146,10 @@ const ButtonRow = styled.div`
 `;
 
 export default function OtovoPartnerPromo() {
+  if (!isSolarLeadsEnabledClient()) {
+    return null;
+  }
+
   return (
     <Section aria-labelledby="otovo-partner-heading">
       <div className="container">

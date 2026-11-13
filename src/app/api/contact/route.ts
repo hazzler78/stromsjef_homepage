@@ -9,6 +9,7 @@ import {
   normalizeNorwegianPhone,
 } from '@/lib/norwegian-lead-validation';
 import { OTOVO_UTM_DEFAULT_NO, sendOtovoInterest } from '@/lib/otovo-interest';
+import { isSolarLeadsEnabled } from '@/lib/solar-leads-enabled';
 
 // Raw values first; sanitize below to avoid common dashboard quoting issues
 const RAW_MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
@@ -248,6 +249,16 @@ export async function POST(request: NextRequest) {
     if (data.ref?.includes('affiliate')) formType = 'affiliate';
     if (data.ref?.includes('partner')) formType = 'partner';
     if (data.formType === 'sol_laddbox') formType = 'sol_laddbox';
+
+    if (formType === 'sol_laddbox' && !isSolarLeadsEnabled()) {
+      return NextResponse.json(
+        {
+          error:
+            'Innsending av solcelle-forespørsler er midlertidig deaktivert. Kontakt oss på vanlig kontaktskjema om du trenger hjelp.',
+        },
+        { status: 410 }
+      );
+    }
 
     if (formType === 'sol_laddbox') {
       const solarError = validateSolarLead(data);

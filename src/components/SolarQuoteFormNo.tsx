@@ -9,6 +9,7 @@ import {
   isValidNorwegianStreetAddress,
   normalizeNorwegianPhone,
 } from '@/lib/norwegian-lead-validation';
+import { isSolarLeadsEnabledClient } from '@/lib/solar-leads-enabled';
 
 const Section = styled.section`
   background: linear-gradient(160deg, rgba(0, 106, 167, 0.15) 0%, rgba(254, 204, 0, 0.08) 100%);
@@ -321,6 +322,10 @@ export default function SolarQuoteFormNo() {
       [name]: type === 'checkbox' ? checked : value,
     }));
   };
+
+  if (!isSolarLeadsEnabledClient()) {
+    return null;
+  }
 
   return (
     <Section id="solceller">
