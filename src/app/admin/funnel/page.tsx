@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { isMissingTableError } from '@/lib/supabaseErrors';
 
 interface FunnelStats {
   pageViews: number;
@@ -13,6 +14,7 @@ export default function FunnelAdmin() {
   const [stats, setStats] = useState<FunnelStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [contractClicksUnavailable, setContractClicksUnavailable] = useState(false);
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | 'all'>('30d');
 
   useEffect(() => {
@@ -23,6 +25,7 @@ export default function FunnelAdmin() {
   const fetchStats = async () => {
     try {
       setLoading(true);
+      setContractClicksUnavailable(false);
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL as string,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
@@ -56,9 +59,18 @@ export default function FunnelAdmin() {
         .select('*');
       if (from) ccBase = ccBase.gte('created_at', from);
       const { data: ccData, error: ccErr } = await ccBase;
-      if (ccErr) throw ccErr;
-      const contractClicksWithAi = (ccData || []).filter(r => r.log_id !== null).length;
-      const contractClicksWithoutAi = (ccData || []).filter(r => r.log_id === null).length;
+      let contractClicksWithAi = 0;
+      let contractClicksWithoutAi = 0;
+      if (ccErr) {
+        if (isMissingTableError(ccErr)) {
+          setContractClicksUnavailable(true);
+        } else {
+          throw ccErr;
+        }
+      } else {
+        contractClicksWithAi = (ccData || []).filter(r => r.log_id !== null).length;
+        contractClicksWithoutAi = (ccData || []).filter(r => r.log_id === null).length;
+      }
 
       setStats({
         pageViews: pageViews || 0,
@@ -84,6 +96,12 @@ export default function FunnelAdmin() {
   return (
     <div style={{ padding: '2rem', maxWidth: 1000, margin: '0 auto', background: 'white', minHeight: '100vh' }}>
       <h1 style={{ marginBottom: '1rem', color: '#1e293b', fontSize: '28px', fontWeight: 'bold' }}>Funnel-översikt</h1>
+      {contractClicksUnavailable && (
+        <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: 12, borderRadius: 8, marginBottom: 16, color: '#92400e', fontSize: 14 }}>
+          Tabellen <code>contract_clicks</code> finnes ikke i databasen ennå. Kontraktsklick vises som 0 til migrasjon{' '}
+          <code>20261116120000_create_contract_clicks</code> er kjørt.
+        </div>
+      )}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ marginRight: '1rem', fontWeight: 'bold' }}>Tidsperiod:</label>
         <select

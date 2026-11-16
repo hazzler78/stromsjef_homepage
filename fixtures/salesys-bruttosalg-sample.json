@@ -1,0 +1,24 @@
+{
+  "dashboardId": "671b4e2f7936c320a601c078",
+  "filters": {
+    "after": "2026-11-15T23:00:00.000Z",
+    "before": "2026-11-16T22:59:59.999Z"
+  },
+  "tiles": [
+    {
+      "id": "tile-visitors",
+      "title": "Besök",
+      "value": 120
+    },
+    {
+      "id": "tile-brutto",
+      "title": "Bruttosalg",
+      "value": 7,
+      "subTiles": [
+        { "title": "Spotpris", "value": 4 },
+        { "title": "Fastpris 12 mnd", "value": 2 },
+        { "title": "Norgespris", "value": 1 }
+      ]
+    }
+  ]
+}

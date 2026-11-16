@@ -12,7 +12,8 @@
     "start": "next start",
     "lint": "next lint",
     "test:otovo": "node test-otovo-interest.js",
-    "test:rls-pr7": "bash scripts/test-rls-pr7.sh"
+    "test:rls-pr7": "bash scripts/test-rls-pr7.sh",
+    "test:salesys-parser": "node scripts/test-salesys-parser.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.3",
