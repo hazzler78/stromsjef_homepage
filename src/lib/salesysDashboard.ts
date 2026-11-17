@@ -40,6 +40,8 @@ const SALESYS_BASE = 'https://statistik.salesys.se';
 export type ParsedSalesysDay = {
   grossOrders: number;
   products: { product: string; orders: number }[];
+  foundBruttosalg: boolean;
+  tileNamesSample: string[];
 };
 
 function normalizeName(value: unknown): string {
@@ -49,7 +51,15 @@ function normalizeName(value: unknown): string {
 
 function isBruttosalgName(name: string): boolean {
   const n = normalizeName(name);
-  return n === 'bruttosalg' || n.includes('bruttosalg');
+  return (
+    n === 'bruttosalg' ||
+    n.includes('bruttosalg') ||
+    n.includes('brutto salg') ||
+    n.includes('bruttoförsäljning') ||
+    n === 'brutto' ||
+    n.includes('gross sales') ||
+    n.includes('gross order')
+  );
 }
 
 function readOrderCount(node: unknown): number | null {
@@ -110,6 +120,36 @@ function childNodes(node: unknown): unknown[] {
   return out;
 }
 
+/** Collect tile/widget names for safe diagnostics (no values). */
+export function collectSalesysTileNames(payload: unknown, max = 20): string[] {
+  const names: string[] = [];
+  const seen = new Set<string>();
+
+  const walk = (node: unknown): void => {
+    if (!node || typeof node !== 'object' || names.length >= max) return;
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item);
+      return;
+    }
+    const name = readName(node);
+    if (name) {
+      const key = name.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        names.push(name);
+      }
+    }
+    for (const child of childNodes(node)) walk(child);
+    const rec = node as Record<string, unknown>;
+    for (const value of Object.values(rec)) {
+      if (value && typeof value === 'object') walk(value);
+    }
+  };
+
+  walk(payload);
+  return names;
+}
+
 function findBruttosalgNode(payload: unknown): Record<string, unknown> | null {
   const walk = (node: unknown): Record<string, unknown> | null => {
     if (!node || typeof node !== 'object') return null;
@@ -159,6 +199,8 @@ export function parseSalesysBruttosalgResults(payload: unknown): ParsedSalesysDa
   return {
     grossOrders: grossOrders ?? 0,
     products,
+    foundBruttosalg: Boolean(bruttoNode),
+    tileNamesSample: collectSalesysTileNames(payload),
   };
 }
 

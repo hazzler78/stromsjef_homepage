@@ -16,9 +16,19 @@ export const CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 /** Max calendar days to backfill from SaleSys per HTTP request (Worker subrequest budget). */
 export const MAX_SALESYS_DAYS_PER_REQUEST = 5;
 
+export type SalesysSyncAttempt = {
+  date: string;
+  supplier: string;
+  foundBruttosalg: boolean;
+  parsedOrders: number;
+  saved: boolean;
+  errorCode?: string;
+};
+
 export type SalesysSyncResult = {
   daysSynced: string[];
   daysStillMissing: number;
+  attempts: SalesysSyncAttempt[];
 };
 
 type CacheRow = {
@@ -34,6 +44,32 @@ function isStale(fetchedAt: string | undefined, saleDate: string): boolean {
   const today = toStockholmDateString();
   const yesterday = addStockholmDays(today, -1);
   return saleDate === today || saleDate === yesterday;
+}
+
+function isRlsError(message: string): boolean {
+  const m = message.toLowerCase();
+  return m.includes('row-level security') || m.includes('rls');
+}
+
+async function upsertSalesRows(
+  supabase: SupabaseClient,
+  rows: Record<string, unknown>[]
+): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabase.from('salesys_daily_sales').upsert(rows, {
+    onConflict: 'sale_date,supplier,product',
+  });
+  if (!error) return { ok: true };
+  if (!isRlsError(error.message)) {
+    return { ok: false, error: error.message };
+  }
+
+  const { error: rpcError } = await supabase.rpc('admin_upsert_salesys_daily_sales', {
+    p_rows: rows,
+  });
+  if (rpcError) {
+    return { ok: false, error: `RLS fallback RPC: ${rpcError.message}` };
+  }
+  return { ok: true };
 }
 
 /**
@@ -90,7 +126,6 @@ export function pickDaysToSync(
 }
 
 export function countSubrequestsEstimate(daysToSync: number, supplierCount: number): number {
-  // 1 Cloudflare GraphQL + 1 cache read + 1 sales read + 1 funnel RPC + per day × suppliers × (SaleSys + upsert)
   const supplierOps = Math.max(1, supplierCount) * 2;
   return 4 + daysToSync * supplierOps;
 }
@@ -104,6 +139,7 @@ export async function syncSalesysDaysLimited(
 ): Promise<SalesysSyncResult> {
   const configs = getSalesysSupplierDashboards().filter((c) => c.enabled && c.dashboardId);
   const daysSynced: string[] = [];
+  const attempts: SalesysSyncAttempt[] = [];
 
   for (const saleDate of saleDates) {
     const { after, before } = stockholmDayIsoBounds(saleDate);
@@ -116,6 +152,14 @@ export async function syncSalesysDaysLimited(
         continue;
       }
 
+      const attempt: SalesysSyncAttempt = {
+        date: saleDate,
+        supplier: cfg.supplier,
+        foundBruttosalg: false,
+        parsedOrders: 0,
+        saved: false,
+      };
+
       try {
         const payload = await fetchSalesysDayResults(
           linkId,
@@ -124,40 +168,55 @@ export async function syncSalesysDaysLimited(
           before
         );
         const parsed = parseSalesysBruttosalgResults(payload);
+        attempt.foundBruttosalg = parsed.foundBruttosalg;
+        attempt.parsedOrders = parsed.grossOrders;
+
+        if (!parsed.foundBruttosalg) {
+          warnings.push(
+            `${cfg.label} ${saleDate}: fant ikke Bruttosalg i SaleSys-svar (flisnavn: ${parsed.tileNamesSample.slice(0, 5).join(', ') || 'ingen'})`
+          );
+          attempts.push(attempt);
+          continue;
+        }
+
+        const fetchedAt = new Date().toISOString();
         const rows = [
           {
             sale_date: saleDate,
             supplier: cfg.supplier,
             product: TOTAL_PRODUCT,
             orders: parsed.grossOrders,
-            fetched_at: new Date().toISOString(),
+            fetched_at: fetchedAt,
           },
           ...parsed.products.map((p) => ({
             sale_date: saleDate,
             supplier: cfg.supplier,
             product: p.product,
             orders: p.orders,
-            fetched_at: new Date().toISOString(),
+            fetched_at: fetchedAt,
           })),
         ];
 
-        const { error } = await supabase.from('salesys_daily_sales').upsert(rows, {
-          onConflict: 'sale_date,supplier,product',
-        });
-        if (error) {
-          warnings.push(`${cfg.label} ${saleDate}: ${error.message}`);
+        const result = await upsertSalesRows(supabase, rows);
+        if (result.error) {
+          attempt.errorCode = 'upsert_failed';
+          warnings.push(`${cfg.label} ${saleDate}: ${result.error}`);
         } else {
+          attempt.saved = true;
           anySupplier = true;
         }
       } catch (err) {
+        attempt.errorCode = 'fetch_failed';
         warnings.push(
           `${cfg.label} ${saleDate}: ${err instanceof Error ? err.message : String(err)}`
         );
       }
+
+      attempts.push(attempt);
     }
 
     if (anySupplier) daysSynced.push(saleDate);
   }
 
-  return { daysSynced, daysStillMissing: 0 };
+  return { daysSynced, daysStillMissing: 0, attempts };
 }

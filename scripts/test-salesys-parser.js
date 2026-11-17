@@ -114,13 +114,35 @@ function parseSalesysBruttosalgResults(payload) {
   return {
     grossOrders: grossOrders ?? 0,
     products,
+    foundBruttosalg: Boolean(findBruttosalgNode(payload)),
   };
+}
+
+function findBruttosalgNode(payload) {
+  function walk(node) {
+    if (!node || typeof node !== 'object') return null;
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        const found = walk(item);
+        if (found) return found;
+      }
+      return null;
+    }
+    if (isBruttosalgName(readName(node))) return node;
+    for (const child of childNodes(node)) {
+      const found = walk(child);
+      if (found) return found;
+    }
+    return null;
+  }
+  return walk(payload);
 }
 
 const fixturePath = path.join(__dirname, '../fixtures/salesys-bruttosalg-sample.json');
 const sample = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
 const parsed = parseSalesysBruttosalgResults(sample);
 
+assert.strictEqual(parsed.foundBruttosalg, true, 'found Bruttosalg');
 assert.strictEqual(parsed.grossOrders, 7, 'gross Bruttosalg');
 assert.strictEqual(parsed.products.length, 3, 'product breakdown count');
 assert.deepStrictEqual(
