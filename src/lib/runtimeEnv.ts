@@ -5,11 +5,18 @@ import {
 
 export type EnvSource = 'context' | 'process' | 'none';
 
+export type SupabaseKeyKind =
+  | 'service_role'
+  | 'secret_key'
+  | 'anon'
+  | 'publishable'
+  | 'unknown';
+
 export type EnvProbe = {
   hasValue: boolean;
   source: EnvSource;
   /** For Supabase API keys only — never expose the secret itself. */
-  jwtRole?: 'service_role' | 'anon' | 'unknown';
+  jwtRole?: SupabaseKeyKind;
 };
 
 function sanitizeEnv(value: string | undefined): string | undefined {
@@ -18,7 +25,7 @@ function sanitizeEnv(value: string | undefined): string | undefined {
   return trimmed.replace(/^"|"$/g, '');
 }
 
-/** Decode role claim from a Supabase JWT (no verification — diagnostics only). */
+/** Decode role claim from a legacy Supabase JWT (no verification — diagnostics only). */
 export function supabaseJwtRole(key: string | undefined): EnvProbe['jwtRole'] {
   if (!key) return 'unknown';
   const parts = key.split('.');
@@ -38,6 +45,24 @@ export function supabaseJwtRole(key: string | undefined): EnvProbe['jwtRole'] {
   }
 }
 
+/** Classify Supabase API keys (legacy JWT + new `sb_*` formats). */
+export function classifySupabaseApiKey(
+  key: string | undefined
+): SupabaseKeyKind {
+  if (!key) return 'unknown';
+  if (key.startsWith('sb_secret_')) return 'secret_key';
+  if (key.startsWith('sb_publishable_')) return 'publishable';
+  const jwtRole = supabaseJwtRole(key);
+  if (jwtRole === 'service_role' || jwtRole === 'anon') return jwtRole;
+  return 'unknown';
+}
+
+/** Elevated server keys acceptable for admin/worker clients. */
+export function isSupabaseServerKey(key: string): boolean {
+  const kind = classifySupabaseApiKey(key);
+  return kind === 'service_role' || kind === 'secret_key';
+}
+
 function readFromProcess(key: string): string | undefined {
   return sanitizeEnv(process.env[key]);
 }
@@ -55,7 +80,7 @@ function probeRuntimeEnvFrom(key: string, from: 'context' | 'process'): EnvProbe
     source: value ? from : 'none',
   };
   if (key.includes('SUPABASE') && key.includes('KEY')) {
-    probe.jwtRole = supabaseJwtRole(value);
+    probe.jwtRole = classifySupabaseApiKey(value);
   }
   return probe;
 }
@@ -71,7 +96,7 @@ export function probeRuntimeEnv(key: string): EnvProbe {
       : 'none';
   const probe: EnvProbe = { hasValue: Boolean(value), source };
   if (key.includes('SUPABASE') && key.includes('KEY')) {
-    probe.jwtRole = supabaseJwtRole(value);
+    probe.jwtRole = classifySupabaseApiKey(value);
   }
   return probe;
 }
@@ -98,9 +123,10 @@ export function readSupabaseServiceRoleKey(): string | undefined {
   ].filter((c) => c.key);
 
   for (const c of candidates) {
-    if (supabaseJwtRole(c.key) === 'service_role') return c.key;
+    const key = c.key;
+    if (key && isSupabaseServerKey(key)) return key;
   }
-  // Never fall back to anon/build-time keys — that causes RLS failures on writes.
+  // Never fall back to anon/publishable/build-time keys.
   return undefined;
 }
 
