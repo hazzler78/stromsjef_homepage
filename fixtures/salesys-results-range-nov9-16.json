@@ -1,0 +1,12 @@
+[
+  {
+    "readerId": "679234030719d33e3566dc6c",
+    "intervals": [{ "value": 68, "intervalStart": "1970-01-01T00:00:00.000Z" }],
+    "groupedId": "000000000000000000000000"
+  },
+  {
+    "readerId": "672384a07936c320a602fcf5",
+    "intervals": [{ "value": 68, "intervalStart": "1970-01-01T00:00:00.000Z" }],
+    "groupedId": "000000000000000000000000"
+  }
+]
