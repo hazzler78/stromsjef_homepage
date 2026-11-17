@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   adminFetch,
@@ -54,7 +54,16 @@ type ApiResponse = {
   };
   salesCaveat: string;
   warnings: string[];
+  backfill?: {
+    salesysDaysSyncedThisRequest: number;
+    salesysDaysQueuedThisRequest: number;
+    salesysDaysRemainingEstimate: number;
+    subrequestsEstimate: number;
+  };
 };
+
+const AUTO_SYNC_DELAY_MS = 3500;
+const MAX_AUTO_SYNC_ROUNDS = 80;
 
 function formatRatio(value: number | null): string {
   if (value === null || !Number.isFinite(value)) return '–';
@@ -118,8 +127,12 @@ export default function VisitorsPerSaleAdmin() {
   const [to, setTo] = useState(defaults.to);
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [backgroundSync, setBackgroundSync] = useState(false);
+  const [autoSyncExhausted, setAutoSyncExhausted] = useState(false);
   const [error, setError] = useState('');
   const [useMock, setUseMock] = useState(false);
+  const inFlightRef = useRef(false);
+  const autoRoundsRef = useRef(0);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -127,39 +140,79 @@ export default function VisitorsPerSaleAdmin() {
     }
   }, []);
 
-  const load = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const qs = new URLSearchParams({ from, to });
-      if (useMock) qs.set('mock', '1');
-      const res = await adminFetch(`/api/admin/visitors-per-sale?${qs}`, { cache: 'no-store' });
-      const json = await res.json().catch(() => ({}));
-      if (res.status === 401) {
-        clearAdminBrowserSession();
-        setAuthed(false);
-        setData(null);
-        setLoginError(
-          'Sesjonen mangler admin-passord for API. Logg inn på nytt (samme passord som /admin).'
-        );
-        return;
+  const load = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      if (inFlightRef.current) return;
+      inFlightRef.current = true;
+      const silent = Boolean(opts?.silent);
+      if (silent) {
+        setBackgroundSync(true);
+      } else {
+        setLoading(true);
+        autoRoundsRef.current = 0;
+        setAutoSyncExhausted(false);
       }
-      if (!res.ok) {
-        throw new Error(json.error || res.statusText);
+      setError('');
+      try {
+        const qs = new URLSearchParams({ from, to });
+        if (useMock) qs.set('mock', '1');
+        const res = await adminFetch(`/api/admin/visitors-per-sale?${qs}`, { cache: 'no-store' });
+        const json = await res.json().catch(() => ({}));
+        if (res.status === 401) {
+          clearAdminBrowserSession();
+          setAuthed(false);
+          setData(null);
+          setLoginError(
+            'Sesjonen mangler admin-passord for API. Logg inn på nytt (samme passord som /admin).'
+          );
+          return;
+        }
+        if (!res.ok) {
+          throw new Error(json.error || res.statusText);
+        }
+        setData(json as ApiResponse);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Kunne ikke hente data');
+        if (!silent) setData(null);
+      } finally {
+        inFlightRef.current = false;
+        if (silent) {
+          setBackgroundSync(false);
+        } else {
+          setLoading(false);
+        }
       }
-      setData(json as ApiResponse);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Kunne ikke hente data');
-      setData(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [from, to, useMock]
+  );
 
   useEffect(() => {
     if (authed) load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authed]);
+  }, [authed, load]);
+
+  const salesysRemaining = data?.backfill?.salesysDaysRemainingEstimate ?? 0;
+
+  useEffect(() => {
+    if (!authed || useMock || !data || salesysRemaining <= 0) return;
+    if (autoSyncExhausted) return;
+    if (inFlightRef.current) return;
+
+    const timer = window.setTimeout(() => {
+      if (autoRoundsRef.current >= MAX_AUTO_SYNC_ROUNDS) {
+        setAutoSyncExhausted(true);
+        return;
+      }
+      autoRoundsRef.current += 1;
+      void load({ silent: true });
+    }, AUTO_SYNC_DELAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [authed, useMock, data, salesysRemaining, autoSyncExhausted, load]);
+
+  useEffect(() => {
+    autoRoundsRef.current = 0;
+    setAutoSyncExhausted(false);
+  }, [from, to, useMock]);
 
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -239,11 +292,38 @@ export default function VisitorsPerSaleAdmin() {
         to={to}
         useMock={useMock}
         loading={loading}
+        backgroundSync={backgroundSync}
         onFrom={setFrom}
         onTo={setTo}
         onMock={setUseMock}
-        onApply={load}
+        onApply={() => load()}
       />
+
+      {(backgroundSync || salesysRemaining > 0) && !useMock && (
+        <SaleSysSyncBanner
+          remaining={salesysRemaining}
+          busy={backgroundSync}
+          syncedThisRound={data?.backfill?.salesysDaysSyncedThisRequest ?? 0}
+          queuedThisRound={data?.backfill?.salesysDaysQueuedThisRequest ?? 0}
+        />
+      )}
+
+      {autoSyncExhausted && salesysRemaining > 0 && (
+        <div
+          style={{
+            background: '#fffbeb',
+            border: '1px solid #fde68a',
+            color: '#92400e',
+            padding: 12,
+            borderRadius: 8,
+            marginBottom: 16,
+            fontSize: 14,
+          }}
+        >
+          Automatisk SaleSys-oppdatering stoppet etter mange forsøk — det gjenstår omtrent {salesysRemaining}{' '}
+          dag(er). Trykk <strong>Oppdater</strong> for å fortsette, eller smal inn datointervallet.
+        </div>
+      )}
 
       {error && (
         <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', padding: 12, borderRadius: 8, marginBottom: 16 }}>
@@ -272,7 +352,7 @@ export default function VisitorsPerSaleAdmin() {
             </div>
           )}
 
-          <VisitorsPerSaleKpis data={data} />
+          <VisitorsPerSaleKpis data={data} incomplete={salesysRemaining > 0 || backgroundSync} />
 
           <section style={{ marginTop: 24, border: '1px solid #e2e8f0', borderRadius: 8, padding: 16 }}>
             <h2 style={{ marginTop: 0, fontSize: 18 }}>Daglig oversikt</h2>
@@ -311,16 +391,53 @@ export default function VisitorsPerSaleAdmin() {
   );
 }
 
+function SaleSysSyncBanner(props: {
+  remaining: number;
+  busy: boolean;
+  syncedThisRound: number;
+  queuedThisRound: number;
+}) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        background: '#eff6ff',
+        border: '1px solid #93c5fd',
+        color: '#1e3a8a',
+        padding: 14,
+        borderRadius: 8,
+        marginBottom: 16,
+        fontSize: 14,
+        lineHeight: 1.5,
+      }}
+    >
+      <strong>Salgstall oppdateres automatisk</strong>
+      <p style={{ margin: '6px 0 0' }}>
+        {props.busy
+          ? 'Henter flere dager fra SaleSys …'
+          : `Neste automatiske runde om noen sekunder (${props.remaining} dag(er) gjenstår i cache).`}
+      </p>
+      <p style={{ margin: '6px 0 0', fontSize: 13, color: '#1d4ed8' }}>
+        Denne runden: {props.syncedThisRound} av {props.queuedThisRound} dag(er) synkronisert. Tallene
+        i tabellen og KPI-ene endres etter hvert — du trenger ikke trykke Oppdater.
+      </p>
+    </div>
+  );
+}
+
 function VisitorsPerSaleFilters(props: {
   from: string;
   to: string;
   useMock: boolean;
   loading: boolean;
+  backgroundSync: boolean;
   onFrom: (v: string) => void;
   onTo: (v: string) => void;
   onMock: (v: boolean) => void;
   onApply: () => void;
 }) {
+  const blocked = props.loading;
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'end', marginBottom: 20 }}>
       <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13 }}>
@@ -338,19 +455,34 @@ function VisitorsPerSaleFilters(props: {
       <button
         type="button"
         onClick={props.onApply}
-        disabled={props.loading}
-        style={{ padding: '10px 16px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: 8, fontWeight: 600, cursor: props.loading ? 'wait' : 'pointer' }}
+        disabled={blocked}
+        style={{
+          padding: '10px 16px',
+          background: 'var(--primary)',
+          color: 'white',
+          border: 'none',
+          borderRadius: 8,
+          fontWeight: 600,
+          cursor: blocked ? 'wait' : 'pointer',
+          opacity: blocked ? 0.7 : 1,
+        }}
       >
-        {props.loading ? 'Laster…' : 'Oppdater'}
+        {props.loading ? 'Laster…' : props.backgroundSync ? 'Oppdater (kjører i bakgrunnen)' : 'Oppdater'}
       </button>
     </div>
   );
 }
 
-function VisitorsPerSaleKpis({ data }: { data: ApiResponse }) {
+function VisitorsPerSaleKpis({ data, incomplete }: { data: ApiResponse; incomplete: boolean }) {
   const k = data.kpis;
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+  <>
+      {incomplete && (
+        <p style={{ fontSize: 13, color: '#1d4ed8', margin: '0 0 8px' }}>
+          KPI-ene nedan är preliminära tills SaleSys-cachen är färdig (uppdateras automatiskt).
+        </p>
+      )}
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, opacity: incomplete ? 0.92 : 1 }}>
       <KpiCard title="Besøkere per salg" value={formatRatio(k.visitorsPerSale)} sub={`${data.totals.visitors} besøk / ${data.totals.sales} salg`} />
       <KpiCard title="Start-her sesjoner per salg" value={formatRatio(k.startHerSessionsPerSale)} sub={`${data.totals.sessions} sesjoner`} />
       {k.supplier.map((s) => (
@@ -362,6 +494,7 @@ function VisitorsPerSaleKpis({ data }: { data: ApiResponse }) {
         />
       ))}
     </div>
+  </>
   );
 }
 
