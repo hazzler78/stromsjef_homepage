@@ -5,12 +5,12 @@
 
 const assert = require('assert');
 
-const MAX_SALESYS_DAYS_PER_REQUEST = 5;
+const MAX_SALESYS_DAYS_PER_REQUEST = 8;
 const WORKER_SUBREQUEST_SOFT_LIMIT = 45;
 
 function countSubrequestsEstimate(daysToSync, supplierCount) {
   const supplierOps = Math.max(1, supplierCount) * 2;
-  return 4 + daysToSync * supplierOps;
+  return 4 + supplierCount + daysToSync * supplierOps;
 }
 
 const worstCase = countSubrequestsEstimate(MAX_SALESYS_DAYS_PER_REQUEST, 2);
@@ -28,7 +28,7 @@ console.log(
     {
       maxDaysPerRequest: MAX_SALESYS_DAYS_PER_REQUEST,
       softLimit: WORKER_SUBREQUEST_SOFT_LIMIT,
-      worstCaseOneSupplier: countSubrequestsEstimate(5, 1),
+      worstCaseOneSupplier: countSubrequestsEstimate(8, 1),
       worstCaseTwoSuppliers: worstCase,
       typicalKildenOnly: typical,
     },

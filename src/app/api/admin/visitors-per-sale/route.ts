@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
 
   const { data: cacheRows, error: cacheErr } = await supabase
     .from('salesys_daily_sales')
-    .select('sale_date, supplier, fetched_at')
+    .select('sale_date, supplier, fetched_at, orders')
     .gte('sale_date', from)
     .lte('sale_date', to)
     .eq('product', TOTAL_PRODUCT);
