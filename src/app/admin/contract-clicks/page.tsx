@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { isMissingTableError } from '@/lib/supabaseErrors';
 
 
 interface ContractClick {
@@ -36,6 +37,7 @@ export default function ContractClicksAdmin() {
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | 'all'>('30d');
   const trackingStartDate = '2025-09-13'; // Start för AI-analys-spårning
   const [clearingTestData, setClearingTestData] = useState(false);
+  const [tableMissing, setTableMissing] = useState(false);
 
   useEffect(() => {
     fetchContractClicks();
@@ -73,6 +75,7 @@ export default function ContractClicksAdmin() {
   const fetchContractClicks = async () => {
     try {
       setLoading(true);
+      setTableMissing(false);
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL as string,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
@@ -100,7 +103,25 @@ export default function ContractClicksAdmin() {
 
       const { data: clicksData, error: clicksError } = await query;
 
-      if (clicksError) throw clicksError;
+      if (clicksError) {
+        if (isMissingTableError(clicksError)) {
+          setTableMissing(true);
+          setClicks([]);
+          setStats({
+            totalClicks: 0,
+            rorligtClicks: 0,
+            fastprisClicks: 0,
+            withAiAnalysis: 0,
+            totalSavings: 0,
+            averageSavings: 0,
+            conversionRate: 0,
+            totalAiAnalyses: 0,
+            clickThroughRate: 0,
+          });
+          return;
+        }
+        throw clicksError;
+      }
 
       setClicks(clicksData || []);
 
@@ -188,6 +209,13 @@ export default function ContractClicksAdmin() {
       <h1 style={{ marginBottom: '1rem', color: '#1e293b', fontSize: '28px', fontWeight: 'bold' }}>
         Kontraktsklick-statistik
       </h1>
+
+      {tableMissing && (
+        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: 16, borderRadius: 8, marginBottom: 24, color: '#991b1b' }}>
+          <strong>contract_clicks</strong> mangler i Supabase. Kjør migrasjon{' '}
+          <code>supabase/migrations/20261116120000_create_contract_clicks.sql</code> (eller tilsvarende i dashboard) for å aktivere sporning.
+        </div>
+      )}
       
       <div style={{ 
         background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)', 

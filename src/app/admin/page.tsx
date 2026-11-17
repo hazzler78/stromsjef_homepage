@@ -143,6 +143,14 @@ const adminSections = [
     category: "analytics"
   },
   {
+    title: "Besøkere per salg",
+    description: "Edge-besøk, /start-her-trakt og SaleSys-salg for annonsebudsjett",
+    href: "/admin/visitors-per-sale",
+    icon: "📉",
+    color: "bg-sky-600",
+    category: "analytics"
+  },
+  {
     title: "Seed Plans",
     description: "Verktyg för att fylla databasen med testdata för elavtal",
     href: "/admin/plans/seed",

@@ -1,0 +1,183 @@
+/**
+ * SaleSys public dashboard API (statistik.salesys.se).
+ * linkId stays server-side only — never import this from client components.
+ */
+
+export type SalesysSupplierConfig = {
+  supplier: string;
+  label: string;
+  dashboardId: string;
+  /** Env var name that holds the dashboard link id */
+  linkIdEnv: string;
+  enabled: boolean;
+};
+
+export const SALESYS_SUPPLIER_DASHBOARDS: SalesysSupplierConfig[] = [
+  {
+    supplier: 'kilden-kraft',
+    label: 'Kilden Kraft',
+    dashboardId:
+      process.env.SALESYS_DASHBOARD_ID_KILDEN_KRAFT?.trim() ||
+      '671b4e2f7936c320a601c078',
+    linkIdEnv: 'SALESYS_DASHBOARD_LINK_ID',
+    enabled: true,
+  },
+  {
+    supplier: 'elify-norge',
+    label: 'Elify Norge',
+    dashboardId: process.env.SALESYS_DASHBOARD_ID_ELIFY?.trim() || '',
+    linkIdEnv: 'SALESYS_DASHBOARD_LINK_ID_ELIFY',
+    enabled: Boolean(process.env.SALESYS_DASHBOARD_LINK_ID_ELIFY?.trim()),
+  },
+];
+
+const SALESYS_BASE = 'https://statistik.salesys.se';
+
+export type ParsedSalesysDay = {
+  grossOrders: number;
+  products: { product: string; orders: number }[];
+};
+
+function normalizeName(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  return value.trim().toLowerCase();
+}
+
+function isBruttosalgName(name: string): boolean {
+  const n = normalizeName(name);
+  return n === 'bruttosalg' || n.includes('bruttosalg');
+}
+
+function readOrderCount(node: unknown): number | null {
+  if (!node || typeof node !== 'object') return null;
+  const rec = node as Record<string, unknown>;
+  const candidates = [
+    rec.value,
+    rec.count,
+    rec.total,
+    rec.orders,
+    rec.orderCount,
+    (rec.data as Record<string, unknown> | undefined)?.value,
+    (rec.data as Record<string, unknown> | undefined)?.count,
+    (rec.result as Record<string, unknown> | undefined)?.value,
+  ];
+  for (const c of candidates) {
+    if (typeof c === 'number' && Number.isFinite(c)) return Math.round(c);
+    if (typeof c === 'string' && c.trim() !== '' && Number.isFinite(Number(c))) {
+      return Math.round(Number(c));
+    }
+  }
+  return null;
+}
+
+function readName(node: unknown): string {
+  if (!node || typeof node !== 'object') return '';
+  const rec = node as Record<string, unknown>;
+  const raw =
+    rec.name ??
+    rec.title ??
+    rec.header ??
+    rec.label ??
+    rec.productName ??
+    rec.displayName;
+  return typeof raw === 'string' ? raw.trim() : '';
+}
+
+function childNodes(node: unknown): unknown[] {
+  if (!node || typeof node !== 'object') return [];
+  const rec = node as Record<string, unknown>;
+  const keys = [
+    'children',
+    'subTiles',
+    'subtiles',
+    'tiles',
+    'widgets',
+    'items',
+    'products',
+    'rows',
+    'breakdown',
+  ];
+  const out: unknown[] = [];
+  for (const k of keys) {
+    const v = rec[k];
+    if (Array.isArray(v)) out.push(...v);
+  }
+  if (Array.isArray(rec.results)) out.push(...rec.results);
+  return out;
+}
+
+function findBruttosalgNode(payload: unknown): Record<string, unknown> | null {
+  const walk = (node: unknown): Record<string, unknown> | null => {
+    if (!node || typeof node !== 'object') return null;
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        const found = walk(item);
+        if (found) return found;
+      }
+      return null;
+    }
+    const rec = node as Record<string, unknown>;
+    if (isBruttosalgName(readName(rec))) return rec;
+    for (const child of childNodes(rec)) {
+      const found = walk(child);
+      if (found) return found;
+    }
+    return null;
+  };
+  return walk(payload);
+}
+
+/**
+ * Parse dashboard POST /results JSON for Bruttosalg tile (+ product breakdown).
+ */
+export function parseSalesysBruttosalgResults(payload: unknown): ParsedSalesysDay {
+  const products: { product: string; orders: number }[] = [];
+  const bruttoNode = findBruttosalgNode(payload);
+  let grossOrders = bruttoNode ? readOrderCount(bruttoNode) : null;
+
+  if (bruttoNode) {
+    const seen = new Set<string>();
+    for (const child of childNodes(bruttoNode)) {
+      const childName = readName(child);
+      const childCount = readOrderCount(child);
+      if (!childName || isBruttosalgName(childName) || childCount === null) continue;
+      const key = childName.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      products.push({ product: childName, orders: childCount });
+    }
+  }
+
+  if (grossOrders === null && products.length > 0) {
+    grossOrders = products.reduce((s, p) => s + p.orders, 0);
+  }
+
+  return {
+    grossOrders: grossOrders ?? 0,
+    products,
+  };
+}
+
+export function resolveSalesysLinkId(config: SalesysSupplierConfig): string | null {
+  const raw = process.env[config.linkIdEnv];
+  return raw?.trim() || null;
+}
+
+export async function fetchSalesysDayResults(
+  linkId: string,
+  dashboardId: string,
+  after: string,
+  before: string
+): Promise<unknown> {
+  const url = `${SALESYS_BASE}/api/users/dashboard-links-v1/${encodeURIComponent(linkId)}/${encodeURIComponent(dashboardId)}/results`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ filters: { after, before } }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`SaleSys ${res.status}: ${text.slice(0, 200)}`);
+  }
+  return res.json();
+}
