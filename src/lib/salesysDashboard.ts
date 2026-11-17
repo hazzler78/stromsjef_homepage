@@ -3,6 +3,8 @@
  * linkId stays server-side only — never import this from client components.
  */
 
+import { readRuntimeEnv } from '@/lib/runtimeEnv';
+
 export type SalesysSupplierConfig = {
   supplier: string;
   label: string;
@@ -12,24 +14,26 @@ export type SalesysSupplierConfig = {
   enabled: boolean;
 };
 
-export const SALESYS_SUPPLIER_DASHBOARDS: SalesysSupplierConfig[] = [
-  {
-    supplier: 'kilden-kraft',
-    label: 'Kilden Kraft',
-    dashboardId:
-      process.env.SALESYS_DASHBOARD_ID_KILDEN_KRAFT?.trim() ||
-      '671b4e2f7936c320a601c078',
-    linkIdEnv: 'SALESYS_DASHBOARD_LINK_ID',
-    enabled: true,
-  },
-  {
-    supplier: 'elify-norge',
-    label: 'Elify Norge',
-    dashboardId: process.env.SALESYS_DASHBOARD_ID_ELIFY?.trim() || '',
-    linkIdEnv: 'SALESYS_DASHBOARD_LINK_ID_ELIFY',
-    enabled: Boolean(process.env.SALESYS_DASHBOARD_LINK_ID_ELIFY?.trim()),
-  },
-];
+export function getSalesysSupplierDashboards(): SalesysSupplierConfig[] {
+  return [
+    {
+      supplier: 'kilden-kraft',
+      label: 'Kilden Kraft',
+      dashboardId:
+        readRuntimeEnv('SALESYS_DASHBOARD_ID_KILDEN_KRAFT') ||
+        '671b4e2f7936c320a601c078',
+      linkIdEnv: 'SALESYS_DASHBOARD_LINK_ID',
+      enabled: true,
+    },
+    {
+      supplier: 'elify-norge',
+      label: 'Elify Norge',
+      dashboardId: readRuntimeEnv('SALESYS_DASHBOARD_ID_ELIFY') || '',
+      linkIdEnv: 'SALESYS_DASHBOARD_LINK_ID_ELIFY',
+      enabled: Boolean(readRuntimeEnv('SALESYS_DASHBOARD_LINK_ID_ELIFY')),
+    },
+  ];
+}
 
 const SALESYS_BASE = 'https://statistik.salesys.se';
 
@@ -159,8 +163,7 @@ export function parseSalesysBruttosalgResults(payload: unknown): ParsedSalesysDa
 }
 
 export function resolveSalesysLinkId(config: SalesysSupplierConfig): string | null {
-  const raw = process.env[config.linkIdEnv];
-  return raw?.trim() || null;
+  return readRuntimeEnv(config.linkIdEnv) ?? null;
 }
 
 export async function fetchSalesysDayResults(

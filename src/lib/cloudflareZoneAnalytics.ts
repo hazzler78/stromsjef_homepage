@@ -1,3 +1,5 @@
+import { readRuntimeEnv } from '@/lib/runtimeEnv';
+
 export type CfDailyVisitors = {
   date: string;
   uniques: number;
@@ -34,8 +36,8 @@ export async function fetchCloudflareDailyVisitors(
   from: string,
   to: string
 ): Promise<{ rows: CfDailyVisitors[]; configured: boolean; error?: string }> {
-  const token = process.env.CF_ANALYTICS_API_TOKEN?.trim();
-  const zoneId = process.env.CF_ZONE_ID?.trim();
+  const token = readRuntimeEnv('CF_ANALYTICS_API_TOKEN');
+  const zoneId = readRuntimeEnv('CF_ZONE_ID');
   if (!token || !zoneId) {
     return { rows: [], configured: false };
   }

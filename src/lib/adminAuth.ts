@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-function sanitizeEnv(value: string | undefined): string | undefined {
-  if (!value) return value;
-  const trimmed = value.trim();
-  return trimmed.replace(/^"|"$/g, '');
-}
+import { readRuntimeEnv } from '@/lib/runtimeEnv';
 
 export function getAdminPasswordExpected(): string | undefined {
-  return sanitizeEnv(process.env.ADMIN_PASSWORD);
+  return readRuntimeEnv('ADMIN_PASSWORD');
 }
 
 /** Returns an error response if the request is not authorized; otherwise null. */

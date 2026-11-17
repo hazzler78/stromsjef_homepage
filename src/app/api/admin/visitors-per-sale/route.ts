@@ -6,21 +6,19 @@ import {
   stockholmDateRange,
   stockholmDayIsoBounds,
 } from '@/lib/stockholmDates';
-import {
-  fetchSalesysDayResults,
-  parseSalesysBruttosalgResults,
-  resolveSalesysLinkId,
-  SALESYS_SUPPLIER_DASHBOARDS,
-} from '@/lib/salesysDashboard';
+import { getSalesysSupplierDashboards } from '@/lib/salesysDashboard';
 import { getSupabaseServerClient } from '@/lib/supabaseServer';
 import { supplierTextToSlug } from '@/lib/supplierSlug';
 import { buildVisitorsPerSaleMockResponse } from '@/lib/visitorsPerSaleMock';
+import {
+  countSubrequestsEstimate,
+  pickDaysToSync,
+  syncSalesysDaysLimited,
+  TOTAL_PRODUCT,
+  WORKER_SUBREQUEST_SOFT_LIMIT,
+} from '@/lib/visitorsPerSaleSync';
 
 export const runtime = 'edge';
-
-const START_HER_PATHS = ['/start-her', '/starta-har'];
-const TOTAL_PRODUCT = '__total__';
-const CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 
 type DailyRow = {
   date: string;
@@ -33,70 +31,12 @@ type DailyRow = {
   totalSales: number;
 };
 
-async function syncSalesysForDay(
-  saleDate: string,
-  warnings: string[]
-): Promise<void> {
-  const supabase = getSupabaseServerClient();
-  const { after, before } = stockholmDayIsoBounds(saleDate);
-
-  for (const cfg of SALESYS_SUPPLIER_DASHBOARDS) {
-    if (!cfg.enabled || !cfg.dashboardId) continue;
-    const linkId = resolveSalesysLinkId(cfg);
-    if (!linkId) {
-      warnings.push(`${cfg.label}: saknar link-id (${cfg.linkIdEnv})`);
-      continue;
-    }
-
-    const { data: existing } = await supabase
-      .from('salesys_daily_sales')
-      .select('fetched_at')
-      .eq('sale_date', saleDate)
-      .eq('supplier', cfg.supplier)
-      .eq('product', TOTAL_PRODUCT)
-      .maybeSingle();
-
-    const fresh =
-      existing?.fetched_at &&
-      Date.now() - new Date(existing.fetched_at).getTime() < CACHE_MAX_AGE_MS;
-    if (fresh) continue;
-
-    try {
-      const payload = await fetchSalesysDayResults(
-        linkId,
-        cfg.dashboardId,
-        after,
-        before
-      );
-      const parsed = parseSalesysBruttosalgResults(payload);
-      const rows = [
-        {
-          sale_date: saleDate,
-          supplier: cfg.supplier,
-          product: TOTAL_PRODUCT,
-          orders: parsed.grossOrders,
-          fetched_at: new Date().toISOString(),
-        },
-        ...parsed.products.map((p) => ({
-          sale_date: saleDate,
-          supplier: cfg.supplier,
-          product: p.product,
-          orders: p.orders,
-          fetched_at: new Date().toISOString(),
-        })),
-      ];
-
-      const { error } = await supabase.from('salesys_daily_sales').upsert(rows, {
-        onConflict: 'sale_date,supplier,product',
-      });
-      if (error) warnings.push(`${cfg.label} ${saleDate}: ${error.message}`);
-    } catch (err) {
-      warnings.push(
-        `${cfg.label} ${saleDate}: ${err instanceof Error ? err.message : String(err)}`
-      );
-    }
-  }
-}
+type FunnelRpcRow = {
+  day: string;
+  start_her_sessions: number;
+  plan_clicks: number;
+  supplier_clicks: Record<string, number> | null;
+};
 
 function emptyDaily(date: string): DailyRow {
   return {
@@ -126,10 +66,39 @@ export async function GET(req: NextRequest) {
 
   const warnings: string[] = [];
   const dates = stockholmDateRange(from, to);
+  const supplierConfigs = getSalesysSupplierDashboards();
+  const enabledSuppliers = supplierConfigs.filter((c) => c.enabled && c.dashboardId);
 
-  for (const d of dates) {
-    await syncSalesysForDay(d, warnings);
+  let supabase;
+  try {
+    supabase = getSupabaseServerClient();
+  } catch (err) {
+    return NextResponse.json(
+      {
+        error: err instanceof Error ? err.message : 'Supabase not configured',
+      },
+      { status: 503 }
+    );
   }
+
+  const { data: cacheRows, error: cacheErr } = await supabase
+    .from('salesys_daily_sales')
+    .select('sale_date, supplier, fetched_at')
+    .gte('sale_date', from)
+    .lte('sale_date', to)
+    .eq('product', TOTAL_PRODUCT);
+
+  if (cacheErr) {
+    warnings.push(`salesys_daily_sales (cache): ${cacheErr.message}`);
+  }
+
+  const { toSync, stillMissing } = pickDaysToSync(
+    dates,
+    supplierConfigs,
+    cacheRows ?? []
+  );
+
+  const syncResult = await syncSalesysDaysLimited(toSync, supabase, warnings);
 
   const cf = await fetchCloudflareDailyVisitors(from, to);
   if (!cf.configured) {
@@ -140,21 +109,22 @@ export async function GET(req: NextRequest) {
     warnings.push(`Cloudflare Analytics: ${cf.error}`);
   }
 
-  const supabase = getSupabaseServerClient();
-
   const fromUtc = stockholmDayIsoBounds(from).after;
   const toUtc = stockholmDayIsoBounds(to).before;
 
-  const { data: searches, error: searchErr } = await supabase
-    .from('postal_code_searches')
-    .select(
-      'created_at, session_id, page_path, clicked_plan, clicked_supplier'
-    )
-    .gte('created_at', fromUtc)
-    .lte('created_at', toUtc);
+  const { data: funnelRows, error: funnelErr } = await supabase.rpc(
+    'admin_start_her_funnel_daily',
+    { p_from: fromUtc, p_to: toUtc }
+  );
 
-  if (searchErr) {
-    warnings.push(`postal_code_searches: ${searchErr.message}`);
+  if (funnelErr) {
+    const msg = funnelErr.message ?? String(funnelErr);
+    warnings.push(`postal_code_searches: ${msg}`);
+    if (msg.toLowerCase().includes('admin_start_her_funnel_daily')) {
+      warnings.push(
+        'Kör migrasjon supabase/migrations/20261117103000_admin_start_her_funnel_daily_rpc.sql for aggregert funnel-data.'
+      );
+    }
   }
 
   const { data: salesRows, error: salesErr } = await supabase
@@ -181,35 +151,18 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const sessionSets = new Map<string, Set<string>>();
-  for (const s of searches ?? []) {
-    const path = s.page_path ?? '';
-    const isStartHer = START_HER_PATHS.some(
-      (p) => path === p || path.startsWith(`${p}?`)
-    );
-    if (!isStartHer) continue;
-
-    const day = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Europe/Stockholm',
-    }).format(new Date(s.created_at));
+  for (const row of (funnelRows ?? []) as FunnelRpcRow[]) {
+    const day = row.day;
     const dayRow = dailyMap.get(day);
     if (!dayRow) continue;
-
-    if (s.clicked_plan) dayRow.planClicks += 1;
-    const slug = supplierTextToSlug(s.clicked_supplier);
-    if (slug) {
-      dayRow.supplierClicks[slug] = (dayRow.supplierClicks[slug] ?? 0) + 1;
+    dayRow.startHerSessions = Number(row.start_her_sessions) || 0;
+    dayRow.planClicks = Number(row.plan_clicks) || 0;
+    const clicks = row.supplier_clicks ?? {};
+    for (const [rawSupplier, count] of Object.entries(clicks)) {
+      const slug = supplierTextToSlug(rawSupplier) ?? rawSupplier;
+      dayRow.supplierClicks[slug] =
+        (dayRow.supplierClicks[slug] ?? 0) + Number(count);
     }
-
-    const sid = s.session_id || `row-${s.created_at}`;
-    const key = `${day}`;
-    if (!sessionSets.has(key)) sessionSets.set(key, new Set());
-    sessionSets.get(key)!.add(sid);
-  }
-
-  for (const [day, set] of sessionSets) {
-    const dayRow = dailyMap.get(day);
-    if (dayRow) dayRow.startHerSessions = set.size;
   }
 
   for (const row of salesRows ?? []) {
@@ -232,12 +185,10 @@ export async function GET(req: NextRequest) {
   const totalSessions = sum((d) => d.startHerSessions);
   const totalSales = sum((d) => d.totalSales);
 
-  const configuredSuppliers = SALESYS_SUPPLIER_DASHBOARDS.filter(
-    (c) => c.enabled
-  ).map((c) => c.supplier);
+  const configuredSuppliers = enabledSuppliers.map((c) => c.supplier);
 
   const supplierKpis = configuredSuppliers.map((slug) => {
-    const cfg = SALESYS_SUPPLIER_DASHBOARDS.find((c) => c.supplier === slug)!;
+    const cfg = supplierConfigs.find((c) => c.supplier === slug)!;
     const clicks = sum((d) => d.supplierClicks[slug] ?? 0);
     const sales = sum((d) => d.salesBySupplier[slug] ?? 0);
     return {
@@ -248,6 +199,23 @@ export async function GET(req: NextRequest) {
       clicksPerSale: sales > 0 ? clicks / sales : null,
     };
   });
+
+  const daysSyncedCount = syncResult.daysSynced.length;
+  const subrequestsEstimate = countSubrequestsEstimate(
+    toSync.length,
+    enabledSuppliers.length
+  );
+
+  if (stillMissing > 0) {
+    warnings.push(
+      `SaleSys-cache: ${stillMissing} dag(er) mangler ennå — last siden på nytt for gradvis backfill (maks ${toSync.length} dag(er) hentet denne runden).`
+    );
+  }
+  if (subrequestsEstimate > WORKER_SUBREQUEST_SOFT_LIMIT) {
+    warnings.push(
+      `Internt: estimerte ${subrequestsEstimate} subrequests (soft limit ${WORKER_SUBREQUEST_SOFT_LIMIT}).`
+    );
+  }
 
   return NextResponse.json({
     from,
@@ -276,6 +244,12 @@ export async function GET(req: NextRequest) {
     salesCaveat:
       'Salgsiffror gäller endast konfigurerade SaleSys-dashboards (Kilden Kraft / ev. Elify Norge).',
     configuredSuppliers,
+    backfill: {
+      salesysDaysSyncedThisRequest: daysSyncedCount,
+      salesysDaysQueuedThisRequest: toSync.length,
+      salesysDaysRemainingEstimate: stillMissing,
+      subrequestsEstimate,
+    },
     warnings,
   });
 }
