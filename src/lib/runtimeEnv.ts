@@ -48,6 +48,18 @@ function readFromContext(key: string): string | undefined {
   return sanitizeEnv((ctx.env as Record<string, string | undefined>)[key]);
 }
 
+function probeRuntimeEnvFrom(key: string, from: 'context' | 'process'): EnvProbe {
+  const value = from === 'context' ? readFromContext(key) : readFromProcess(key);
+  const probe: EnvProbe = {
+    hasValue: Boolean(value),
+    source: value ? from : 'none',
+  };
+  if (key.includes('SUPABASE') && key.includes('KEY')) {
+    probe.jwtRole = supabaseJwtRole(value);
+  }
+  return probe;
+}
+
 export function probeRuntimeEnv(key: string): EnvProbe {
   const fromContext = readFromContext(key);
   const fromProcess = readFromProcess(key);
@@ -88,7 +100,8 @@ export function readSupabaseServiceRoleKey(): string | undefined {
   for (const c of candidates) {
     if (supabaseJwtRole(c.key) === 'service_role') return c.key;
   }
-  return candidates[0]?.key;
+  // Never fall back to anon/build-time keys — that causes RLS failures on writes.
+  return undefined;
 }
 
 export function readSupabaseUrl(): string | undefined {
@@ -104,6 +117,8 @@ export function readSupabaseUrl(): string | undefined {
 export function buildEnvDiagnostics(): Record<string, unknown> {
   const cfToken = probeRuntimeEnv('CF_ANALYTICS_API_TOKEN');
   const cfZone = probeRuntimeEnv('CF_ZONE_ID');
+  const serviceKeyContext = probeRuntimeEnvFrom('SUPABASE_SERVICE_ROLE_KEY', 'context');
+  const serviceKeyProcess = probeRuntimeEnvFrom('SUPABASE_SERVICE_ROLE_KEY', 'process');
   const serviceKey = probeRuntimeEnv('SUPABASE_SERVICE_ROLE_KEY');
   const salesysLink = probeRuntimeEnv('SALESYS_DASHBOARD_LINK_ID');
 
@@ -124,6 +139,8 @@ export function buildEnvDiagnostics(): Record<string, unknown> {
     hasServiceKey: serviceKey.hasValue,
     serviceKeySource: serviceKey.source,
     supabaseKeyRole: serviceKey.jwtRole ?? 'missing',
+    serviceKeyRoleContext: serviceKeyContext.jwtRole ?? 'missing',
+    serviceKeyRoleProcess: serviceKeyProcess.jwtRole ?? 'missing',
     hasSalesysLinkId: salesysLink.hasValue,
     salesysLinkIdSource: salesysLink.source,
   };

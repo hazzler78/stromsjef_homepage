@@ -251,6 +251,10 @@ export async function GET(req: NextRequest) {
       salesysDaysRemainingEstimate: stillMissing,
       subrequestsEstimate,
     },
+    salesysSync: {
+      cacheRowsInRange: cacheRows?.length ?? 0,
+      attempts: syncResult.attempts,
+    },
     envDiagnostics: buildEnvDiagnostics(),
     warnings,
   });
