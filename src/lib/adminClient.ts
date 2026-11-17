@@ -9,6 +9,21 @@ export function storeAdminPassword(password: string): void {
   sessionStorage.setItem('admin_password', password);
 }
 
+/** True when the browser session can call protected /api/admin/* routes. */
+export function isAdminBrowserSessionReady(): boolean {
+  if (typeof window === 'undefined') return false;
+  return (
+    sessionStorage.getItem('admin_authed') === 'true' &&
+    Boolean(getStoredAdminPassword())
+  );
+}
+
+export function clearAdminBrowserSession(): void {
+  if (typeof window === 'undefined') return;
+  sessionStorage.removeItem('admin_authed');
+  sessionStorage.removeItem('admin_password');
+}
+
 export async function adminFetch(
   input: RequestInfo | URL,
   init?: RequestInit

@@ -2,7 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { adminFetch, storeAdminPassword } from '@/lib/adminClient';
+import {
+  adminFetch,
+  clearAdminBrowserSession,
+  isAdminBrowserSessionReady,
+  storeAdminPassword,
+} from '@/lib/adminClient';
 import { defaultVisitorsPerSaleRange } from '@/lib/stockholmDates';
 
 const ADMIN_PASSWORD = 'grodan2025';
@@ -117,8 +122,8 @@ export default function VisitorsPerSaleAdmin() {
   const [useMock, setUseMock] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && sessionStorage.getItem('admin_authed') === 'true') {
-      setAuthed(true);
+    if (typeof window !== 'undefined') {
+      setAuthed(isAdminBrowserSessionReady());
     }
   }, []);
 
@@ -129,7 +134,16 @@ export default function VisitorsPerSaleAdmin() {
       const qs = new URLSearchParams({ from, to });
       if (useMock) qs.set('mock', '1');
       const res = await adminFetch(`/api/admin/visitors-per-sale?${qs}`, { cache: 'no-store' });
-      const json = await res.json();
+      const json = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        clearAdminBrowserSession();
+        setAuthed(false);
+        setData(null);
+        setLoginError(
+          'Sesjonen mangler admin-passord for API. Logg inn på nytt (samme passord som /admin).'
+        );
+        return;
+      }
       if (!res.ok) {
         throw new Error(json.error || res.statusText);
       }
@@ -163,6 +177,13 @@ export default function VisitorsPerSaleAdmin() {
     return (
       <div style={{ maxWidth: 400, margin: '4rem auto', padding: 24, border: '1px solid #e5e7eb', borderRadius: 12 }}>
         <h2>Admininnlogging</h2>
+        <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.5 }}>
+          Samme innlogging som på{' '}
+          <Link href="/admin" style={{ color: 'var(--primary)', fontWeight: 600 }}>
+            /admin
+          </Link>
+          .
+        </p>
         <form onSubmit={handleLogin}>
           <input
             type="password"
@@ -184,9 +205,19 @@ export default function VisitorsPerSaleAdmin() {
   return (
     <div style={{ padding: '2rem', maxWidth: 1100, margin: '0 auto', background: 'white', minHeight: '100vh' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
-        <h1 style={{ margin: 0, fontSize: 28, color: '#1e293b' }}>Besøkere per salg</h1>
-        <Link href="/admin" style={{ color: 'var(--primary)', fontWeight: 600 }}>
-          ← Admin-hub
+        <h1 style={{ margin: 0, fontSize: 28, color: '#1e293b' }}>Besøkende per salg</h1>
+        <Link
+          href="/admin"
+          style={{
+            color: 'var(--primary)',
+            fontWeight: 600,
+            padding: '8px 14px',
+            border: '1px solid #cbd5e1',
+            borderRadius: 8,
+            textDecoration: 'none',
+          }}
+        >
+          ← Tilbake til Admin
         </Link>
       </div>
 

@@ -1,7 +1,11 @@
 "use client";
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { storeAdminPassword } from '@/lib/adminClient';
+import {
+  clearAdminBrowserSession,
+  isAdminBrowserSessionReady,
+  storeAdminPassword,
+} from '@/lib/adminClient';
 
 const ADMIN_PASSWORD = "grodan2025";
 
@@ -143,7 +147,7 @@ const adminSections = [
     category: "analytics"
   },
   {
-    title: "Besøkere per salg",
+    title: "Besøkende per salg",
     description: "Edge-besøk, /start-her-trakt og SaleSys-salg for annonsebudsjett",
     href: "/admin/visitors-per-sale",
     icon: "📉",
@@ -185,7 +189,11 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      if (sessionStorage.getItem('admin_authed') === 'true') setAuthed(true);
+      if (isAdminBrowserSessionReady()) {
+        setAuthed(true);
+      } else if (sessionStorage.getItem('admin_authed') === 'true') {
+        clearAdminBrowserSession();
+      }
     }
   }, []);
 
@@ -276,7 +284,42 @@ export default function AdminPage() {
       padding: 24,
       minHeight: '100vh'
     }}>
-      <div style={{ 
+      <div
+        style={{
+          marginBottom: 20,
+          padding: 16,
+          borderRadius: 12,
+          border: '1px solid #bae6fd',
+          background: 'linear-gradient(90deg, #f0f9ff 0%, #ecfeff 100%)',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+        }}
+      >
+        <div>
+          <strong style={{ color: '#0c4a6e' }}>Besøkende per salg</strong>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#475569' }}>
+            Budsjett annonser — besøk, trakt og salg i ett dashboard.
+          </p>
+        </div>
+        <Link
+          href="/admin/visitors-per-sale"
+          style={{
+            padding: '10px 16px',
+            background: 'var(--primary)',
+            color: 'white',
+            borderRadius: 8,
+            fontWeight: 600,
+            textDecoration: 'none',
+          }}
+        >
+          Åpne dashboard →
+        </Link>
+      </div>
+
+      <div style={{
         textAlign: 'center', 
         marginBottom: 48,
         padding: '2rem',
