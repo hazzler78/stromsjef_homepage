@@ -14,8 +14,15 @@ import {
 
 export const TOTAL_PRODUCT = '__total__';
 export const CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+/**
+ * Rows cached before the Bruttosalg parser fix (#15) are often bogus `orders=0`.
+ * Re-fetch zero-order cache written before this timestamp.
+ */
+export const SALESYS_TRUSTED_CACHE_AFTER_MS = Date.parse(
+  '2026-11-17T09:30:00.000Z'
+);
 /** Max calendar days to backfill from SaleSys per HTTP request (Worker subrequest budget). */
-export const MAX_SALESYS_DAYS_PER_REQUEST = 5;
+export const MAX_SALESYS_DAYS_PER_REQUEST = 8;
 
 export type SalesysSyncAttempt = {
   date: string;
@@ -36,7 +43,30 @@ type CacheRow = {
   sale_date: string;
   supplier: string;
   fetched_at: string;
+  orders?: number | null;
 };
+
+function isPoisonedLegacyZero(
+  orders: number | null | undefined,
+  fetchedAt: string | undefined
+): boolean {
+  if (orders === null || orders === undefined) return false;
+  if (orders !== 0) return false;
+  if (!fetchedAt) return true;
+  const fetchedMs = Date.parse(fetchedAt);
+  if (Number.isNaN(fetchedMs)) return true;
+  return fetchedMs < SALESYS_TRUSTED_CACHE_AFTER_MS;
+}
+
+function cacheNeedsRefresh(
+  fetchedAt: string | undefined,
+  saleDate: string,
+  orders: number | null | undefined
+): boolean {
+  if (!fetchedAt) return true;
+  if (isPoisonedLegacyZero(orders, fetchedAt)) return true;
+  return isStale(fetchedAt, saleDate);
+}
 
 function isStale(fetchedAt: string | undefined, saleDate: string): boolean {
   if (!fetchedAt) return true;
@@ -82,9 +112,15 @@ export function pickDaysToSync(
   cached: CacheRow[]
 ): { toSync: string[]; stillMissing: number } {
   const cacheKey = (date: string, supplier: string) => `${date}|${supplier}`;
-  const fetchedAt = new Map<string, string>();
+  const cacheByKey = new Map<
+    string,
+    { fetched_at: string; orders: number | null | undefined }
+  >();
   for (const row of cached) {
-    fetchedAt.set(cacheKey(row.sale_date, row.supplier), row.fetched_at);
+    cacheByKey.set(cacheKey(row.sale_date, row.supplier), {
+      fetched_at: row.fetched_at,
+      orders: row.orders,
+    });
   }
 
   const today = toStockholmDateString();
@@ -97,8 +133,11 @@ export function pickDaysToSync(
     for (const cfg of configs) {
       if (!cfg.enabled || !cfg.dashboardId) continue;
       const key = cacheKey(date, cfg.supplier);
-      const at = fetchedAt.get(key);
-      if (!at || isStale(at, date)) {
+      const hit = cacheByKey.get(key);
+      if (
+        !hit ||
+        cacheNeedsRefresh(hit.fetched_at, date, hit.orders)
+      ) {
         dateNeeds = true;
         break;
       }

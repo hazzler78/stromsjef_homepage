@@ -123,6 +123,15 @@ export function parseSalesysBruttosalgResults(
   const readerNames = options?.readerNames ?? {};
   const bruttoId = resolveBruttosalgReaderId(readerNames, options?.bruttoReaderId);
 
+  if (Array.isArray(payload) && payload.length === 0) {
+    return {
+      grossOrders: 0,
+      products: [],
+      foundBruttosalg: true,
+      tileNamesSample: [],
+    };
+  }
+
   if (!isResultsArray(payload)) {
     return {
       grossOrders: 0,

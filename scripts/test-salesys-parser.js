@@ -52,6 +52,15 @@ function parseSalesysBruttosalgResults(payload, options = {}) {
   const readerNames = options.readerNames ?? {};
   const bruttoId = resolveBruttosalgReaderId(readerNames, options.bruttoReaderId);
 
+  if (Array.isArray(payload) && payload.length === 0) {
+    return {
+      grossOrders: 0,
+      products: [],
+      foundBruttosalg: true,
+      tileNamesSample: [],
+    };
+  }
+
   if (!isResultsArray(payload)) {
     return {
       grossOrders: 0,
@@ -92,6 +101,10 @@ const fixtureDir = path.join(__dirname, '../fixtures');
 const readerNames = JSON.parse(
   fs.readFileSync(path.join(fixtureDir, 'salesys-reader-names-kilden.json'), 'utf8')
 );
+
+const emptyDay = parseSalesysBruttosalgResults([], { readerNames });
+assert.strictEqual(emptyDay.foundBruttosalg, true);
+assert.strictEqual(emptyDay.grossOrders, 0);
 
 const nov15 = JSON.parse(fs.readFileSync(path.join(fixtureDir, 'salesys-results-nov15.json'), 'utf8'));
 const parsedDay = parseSalesysBruttosalgResults(nov15, { readerNames });
