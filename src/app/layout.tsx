@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import CookieConsent from '@/components/CookieConsent';
 import MetaPixel from '@/components/MetaPixel';
 import TikTokPixel from '@/components/TikTokPixel';
+import Ga4 from '@/components/Ga4';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -99,6 +100,16 @@ export default function RootLayout({
         <meta name="facebook-domain-verification" content="in9xjxefhkl6pbe4g33zjwrsnkliin" />
         <meta property="fb:app_id" content="1552012742628310" />
         <meta name="tiktok-developers-site-verification" content="i7h859t0QF0G6Dua8q4h9qJUXwuPQoof" />
+        {process.env.NEXT_PUBLIC_GA4_ID ? (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA4_ID}`} />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());`,
+              }}
+            />
+          </>
+        ) : null}
         {/* Meta Pixel noscript fallback */}
         <noscript>
           <img 
@@ -145,6 +156,7 @@ export default function RootLayout({
         <CookieConsent />
         <MetaPixel />
         <TikTokPixel />
+        <Ga4 />
       </body>
     </html>
   );

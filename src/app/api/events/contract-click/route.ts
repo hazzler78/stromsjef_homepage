@@ -8,15 +8,18 @@ import { sendTikTokEvent, getTikTokEventContext } from '@/lib/tiktokEventsApi';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
-      contractType, 
-      logId, 
-      savingsAmount, 
-      sessionId, 
+    const {
+      contractType,
+      logId,
+      savingsAmount,
+      sessionId,
       source = 'jamfor-elpriser',
       utmSource,
       utmMedium,
-      utmCampaign
+      utmCampaign,
+      utmContent,
+      supplierName,
+      planId,
     } = body;
 
     // Validera att logId finns i invoice_ocr om det är angivet
@@ -40,18 +43,43 @@ export async function POST(request: NextRequest) {
 
     // Logga kontraktsklick
     const supabase = getSupabaseServerClient();
+    const normalizedType =
+      contractType === 'rorligt' || contractType === 'fastpris'
+        ? contractType
+        : contractType === 'spot' || contractType === 'variable'
+          ? 'rorligt'
+          : contractType === 'fixed'
+            ? 'fastpris'
+            : null;
+
+    const sourceLabel =
+      typeof source === 'string'
+        ? supplierName && typeof supplierName === 'string'
+          ? `${source}:${supplierName}`
+          : source
+        : 'jamfor-elpriser';
+
+    if (!normalizedType) {
+      return NextResponse.json({ error: 'Invalid contractType' }, { status: 400 });
+    }
+
     const { error } = await supabase.from('contract_clicks').insert({
-      contract_type: typeof contractType === 'string' ? contractType : null,
-      log_id: validLogId, // Kan vara null om logId inte finns
+      contract_type: normalizedType,
+      log_id: validLogId,
       savings_amount: typeof savingsAmount === 'number' ? savingsAmount : null,
-      session_id: typeof sessionId === 'string' ? sessionId : null,
-      source: typeof source === 'string' ? source : 'jamfor-elpriser',
+      session_id:
+        typeof sessionId === 'string'
+          ? planId && typeof planId === 'string'
+            ? `${sessionId}::${planId}`
+            : sessionId
+          : null,
+      source: sourceLabel,
       utm_source: typeof utmSource === 'string' ? utmSource : null,
       utm_medium: typeof utmMedium === 'string' ? utmMedium : null,
       utm_campaign: typeof utmCampaign === 'string' ? utmCampaign : null,
       user_agent: ua,
-      referer,
-      created_at: new Date().toISOString()
+      referer: utmContent && typeof utmContent === 'string' ? `${referer} | utm_content=${utmContent}` : referer,
+      created_at: new Date().toISOString(),
     });
 
     if (error) {

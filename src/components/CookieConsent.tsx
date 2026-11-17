@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { initializeMetaPixel } from './MetaPixel';
 import { initializeTikTokPixel } from './TikTokPixel';
+import { initializeGa4 } from './Ga4';
 
 const CookieBanner = styled.div<{ $isVisible: boolean }>`
   position: fixed;
@@ -337,15 +338,7 @@ export default function CookieConsent() {
     // Necessary cookies are always enabled
     // Analytics cookies (Google Analytics, etc.)
     if (prefs.analytics) {
-      // Enable analytics tracking
-      // This is where you would initialize Google Analytics, etc.
-      if (typeof window !== 'undefined') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const win = window as typeof window & { dataLayer?: unknown[] };
-        win.dataLayer = win.dataLayer || [];
-        // Add your analytics initialization here if needed
-        // Example: gtag('config', 'GA_MEASUREMENT_ID');
-      }
+      initializeGa4();
     } else {
       // Disable analytics
       // Block analytics scripts if needed

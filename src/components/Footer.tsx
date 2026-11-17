@@ -123,8 +123,8 @@ export default function Footer() {
           <FooterColumn>
             <h3>Tjenester</h3>
             <ul>
-              <li><Link href={withDefaultCtaUtm('/start-her', 'footer', 'services-byt')}>Bytt strømavtale</Link></li>
-              <li><Link href={withDefaultCtaUtm('/jamfor-elpriser', 'footer', 'services-jamfor')}>Sammenlign strømpriser</Link></li>
+              <li><Link href={withDefaultCtaUtm('/bytt-stromavtale', 'footer', 'services-byt')}>Bytt strømavtale</Link></li>
+              <li><Link href={withDefaultCtaUtm('/sammenlign-strompriser', 'footer', 'services-jamfor')}>Sammenlign strømpriser</Link></li>
               <li><Link href={withDefaultCtaUtm('/bedrift', 'footer', 'services-bedrift')}>Bedrift</Link></li>
             </ul>
           </FooterColumn>
