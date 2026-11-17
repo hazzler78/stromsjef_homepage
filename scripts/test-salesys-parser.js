@@ -1,154 +1,143 @@
 /**
- * SaleSys Bruttosalg parser regression test (fixture only — no live API).
- * Run: node scripts/test-salesys-parser.js
+ * SaleSys Bruttosalg parser regression (real API shape: readerId + intervals).
+ * Run: npm run test:salesys-parser
  */
 
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
-// Mirror of src/lib/salesysDashboard.ts parseSalesysBruttosalgResults (pure JS for node)
-
-function normalizeName(value) {
-  if (typeof value !== 'string') return '';
-  return value.trim().toLowerCase();
-}
+const KILDEN_KRAFT_BRUTTO_READER_ID = '679234030719d33e3566dc6c';
 
 function isBruttosalgName(name) {
-  const n = normalizeName(name);
+  const n = (name || '').trim().toLowerCase();
   return n === 'bruttosalg' || n.includes('bruttosalg');
 }
 
-function readOrderCount(node) {
-  if (!node || typeof node !== 'object') return null;
-  const candidates = [
-    node.value,
-    node.count,
-    node.total,
-    node.orders,
-    node.orderCount,
-    node.data?.value,
-    node.data?.count,
-    node.result?.value,
-  ];
-  for (const c of candidates) {
-    if (typeof c === 'number' && Number.isFinite(c)) return Math.round(c);
-    if (typeof c === 'string' && c.trim() !== '' && Number.isFinite(Number(c))) {
-      return Math.round(Number(c));
+function resolveBruttosalgReaderId(readerNames, explicitId) {
+  if (explicitId) return explicitId;
+  if (readerNames) {
+    for (const [id, name] of Object.entries(readerNames)) {
+      if (isBruttosalgName(name)) return id;
     }
   }
-  return null;
+  return KILDEN_KRAFT_BRUTTO_READER_ID;
 }
 
-function readName(node) {
-  if (!node || typeof node !== 'object') return '';
-  const raw =
-    node.name ?? node.title ?? node.header ?? node.label ?? node.productName ?? node.displayName;
-  return typeof raw === 'string' ? raw.trim() : '';
-}
-
-function childNodes(node) {
-  if (!node || typeof node !== 'object') return [];
-  const keys = [
-    'children',
-    'subTiles',
-    'subtiles',
-    'tiles',
-    'widgets',
-    'items',
-    'products',
-    'rows',
-    'breakdown',
-  ];
-  const out = [];
-  for (const k of keys) {
-    const v = node[k];
-    if (Array.isArray(v)) out.push(...v);
-  }
-  if (Array.isArray(node.results)) out.push(...node.results);
-  return out;
-}
-
-function findBruttosalgNode(payload) {
-  function walk(node) {
-    if (!node || typeof node !== 'object') return null;
-    if (Array.isArray(node)) {
-      for (const item of node) {
-        const found = walk(item);
-        if (found) return found;
-      }
-      return null;
+function sumIntervalValues(row) {
+  const intervals = row.intervals;
+  if (!Array.isArray(intervals) || intervals.length === 0) return null;
+  let sum = 0;
+  let any = false;
+  for (const iv of intervals) {
+    if (typeof iv?.value === 'number' && Number.isFinite(iv.value)) {
+      sum += iv.value;
+      any = true;
     }
-    if (isBruttosalgName(readName(node))) return node;
-    for (const child of childNodes(node)) {
-      const found = walk(child);
-      if (found) return found;
-    }
-    return null;
   }
-  return walk(payload);
+  return any ? Math.round(sum) : null;
 }
 
-function parseSalesysBruttosalgResults(payload) {
+function isResultsArray(payload) {
+  return (
+    Array.isArray(payload) &&
+    payload.length > 0 &&
+    typeof payload[0] === 'object' &&
+    payload[0] !== null &&
+    'readerId' in payload[0]
+  );
+}
+
+function parseSalesysBruttosalgResults(payload, options = {}) {
+  const readerNames = options.readerNames ?? {};
+  const bruttoId = resolveBruttosalgReaderId(readerNames, options.bruttoReaderId);
+
+  if (!isResultsArray(payload)) {
+    return {
+      grossOrders: 0,
+      products: [],
+      foundBruttosalg: false,
+      tileNamesSample: [],
+    };
+  }
+
+  const bruttoRow = bruttoId ? payload.find((r) => r.readerId === bruttoId) : undefined;
+  const grossOrders = bruttoRow ? sumIntervalValues(bruttoRow) : null;
+  const foundBruttosalg = Boolean(bruttoRow) && grossOrders !== null;
+
   const products = [];
-  const bruttoNode = findBruttosalgNode(payload);
-  let grossOrders = bruttoNode ? readOrderCount(bruttoNode) : null;
+  const seen = new Set();
 
-  if (bruttoNode) {
-    const seen = new Set();
-    for (const child of childNodes(bruttoNode)) {
-      const childName = readName(child);
-      const childCount = readOrderCount(child);
-      if (!childName || isBruttosalgName(childName) || childCount === null) continue;
-      const key = childName.toLowerCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      products.push({ product: childName, orders: childCount });
-    }
-  }
-
-  if (grossOrders === null && products.length > 0) {
-    grossOrders = products.reduce((s, p) => s + p.orders, 0);
+  for (const row of payload) {
+    if (bruttoId && row.readerId === bruttoId) continue;
+    const count = sumIntervalValues(row);
+    if (count === null) continue;
+    const label = readerNames[row.readerId] ?? row.readerId;
+    if (isBruttosalgName(label)) continue;
+    const key = label.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    products.push({ product: label, orders: count });
   }
 
   return {
-    grossOrders: grossOrders ?? 0,
-    products,
-    foundBruttosalg: Boolean(findBruttosalgNode(payload)),
+    grossOrders: foundBruttosalg ? grossOrders : 0,
+    products: foundBruttosalg ? products : [],
+    foundBruttosalg,
+    tileNamesSample: payload.map((r) => readerNames[r.readerId] ?? r.readerId).slice(0, 20),
   };
 }
 
-function findBruttosalgNode(payload) {
-  function walk(node) {
-    if (!node || typeof node !== 'object') return null;
-    if (Array.isArray(node)) {
-      for (const item of node) {
-        const found = walk(item);
-        if (found) return found;
-      }
-      return null;
-    }
-    if (isBruttosalgName(readName(node))) return node;
-    for (const child of childNodes(node)) {
-      const found = walk(child);
-      if (found) return found;
-    }
-    return null;
-  }
-  return walk(payload);
-}
-
-const fixturePath = path.join(__dirname, '../fixtures/salesys-bruttosalg-sample.json');
-const sample = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
-const parsed = parseSalesysBruttosalgResults(sample);
-
-assert.strictEqual(parsed.foundBruttosalg, true, 'found Bruttosalg');
-assert.strictEqual(parsed.grossOrders, 7, 'gross Bruttosalg');
-assert.strictEqual(parsed.products.length, 3, 'product breakdown count');
-assert.deepStrictEqual(
-  parsed.products.map((p) => p.product).sort(),
-  ['Fastpris 12 mnd', 'Norgespris', 'Spotpris']
+const fixtureDir = path.join(__dirname, '../fixtures');
+const readerNames = JSON.parse(
+  fs.readFileSync(path.join(fixtureDir, 'salesys-reader-names-kilden.json'), 'utf8')
 );
 
+const nov15 = JSON.parse(fs.readFileSync(path.join(fixtureDir, 'salesys-results-nov15.json'), 'utf8'));
+const parsedDay = parseSalesysBruttosalgResults(nov15, { readerNames });
+assert.strictEqual(parsedDay.foundBruttosalg, true);
+assert.strictEqual(parsedDay.grossOrders, 2);
+
+const range = JSON.parse(
+  fs.readFileSync(path.join(fixtureDir, 'salesys-results-range-nov9-16.json'), 'utf8')
+);
+const parsedRange = parseSalesysBruttosalgResults(range, { readerNames });
+assert.strictEqual(parsedRange.foundBruttosalg, true);
+assert.strictEqual(parsedRange.grossOrders, 68);
+
+const perDayExpected = {
+  '2026-11-09': 9,
+  '2026-11-10': 17,
+  '2026-11-11': 25,
+  '2026-11-12': 9,
+  '2026-11-13': 2,
+  '2026-11-14': 3,
+  '2026-11-15': 2,
+  '2026-11-16': 1,
+};
+let liveSum = 0;
+const perDayParsed = {};
+for (const [day, expected] of Object.entries(perDayExpected)) {
+  const fixturePath = path.join(fixtureDir, `salesys-results-${day}.json`);
+  assert.ok(fs.existsSync(fixturePath), `missing ${fixturePath}`);
+  const payload = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+  const p = parseSalesysBruttosalgResults(payload, { readerNames });
+  assert.strictEqual(p.grossOrders, expected, `day ${day}`);
+  perDayParsed[day] = p.grossOrders;
+  liveSum += p.grossOrders;
+}
+assert.strictEqual(liveSum, 68, 'per-day sum Nov 9-16');
+
 console.log('test-salesys-parser: OK');
-console.log(JSON.stringify(parsed, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      nov15: parsedDay.grossOrders,
+      rangeTotal: parsedRange.grossOrders,
+      perDayParsed,
+      liveSum,
+    },
+    null,
+    2
+  )
+);
