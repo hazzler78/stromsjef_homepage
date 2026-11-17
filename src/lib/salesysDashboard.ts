@@ -37,6 +37,15 @@ export function getSalesysSupplierDashboards(): SalesysSupplierConfig[] {
 
 const SALESYS_BASE = 'https://statistik.salesys.se';
 
+/** Kilden Kraft dashboard — Bruttosalg reader (from GET definition). */
+export const KILDEN_KRAFT_BRUTTO_READER_ID = '679234030719d33e3566dc6c';
+
+export type SalesysReaderRow = {
+  readerId: string;
+  intervals?: { value?: number; intervalStart?: string }[];
+  groupedId?: string;
+};
+
 export type ParsedSalesysDay = {
   grossOrders: number;
   products: { product: string; orders: number }[];
@@ -44,12 +53,17 @@ export type ParsedSalesysDay = {
   tileNamesSample: string[];
 };
 
+export type ParseSalesysOptions = {
+  readerNames?: Record<string, string>;
+  bruttoReaderId?: string;
+};
+
 function normalizeName(value: unknown): string {
   if (typeof value !== 'string') return '';
   return value.trim().toLowerCase();
 }
 
-function isBruttosalgName(name: string): boolean {
+export function isBruttosalgName(name: string): boolean {
   const n = normalizeName(name);
   return (
     n === 'bruttosalg' ||
@@ -62,146 +76,116 @@ function isBruttosalgName(name: string): boolean {
   );
 }
 
-function readOrderCount(node: unknown): number | null {
-  if (!node || typeof node !== 'object') return null;
-  const rec = node as Record<string, unknown>;
-  const candidates = [
-    rec.value,
-    rec.count,
-    rec.total,
-    rec.orders,
-    rec.orderCount,
-    (rec.data as Record<string, unknown> | undefined)?.value,
-    (rec.data as Record<string, unknown> | undefined)?.count,
-    (rec.result as Record<string, unknown> | undefined)?.value,
-  ];
-  for (const c of candidates) {
-    if (typeof c === 'number' && Number.isFinite(c)) return Math.round(c);
-    if (typeof c === 'string' && c.trim() !== '' && Number.isFinite(Number(c))) {
-      return Math.round(Number(c));
+export function resolveBruttosalgReaderId(
+  readerNames: Record<string, string> | undefined,
+  explicitId?: string
+): string | undefined {
+  if (explicitId) return explicitId;
+  if (readerNames) {
+    for (const [id, name] of Object.entries(readerNames)) {
+      if (isBruttosalgName(name)) return id;
     }
   }
-  return null;
+  return KILDEN_KRAFT_BRUTTO_READER_ID;
 }
 
-function readName(node: unknown): string {
-  if (!node || typeof node !== 'object') return '';
-  const rec = node as Record<string, unknown>;
-  const raw =
-    rec.name ??
-    rec.title ??
-    rec.header ??
-    rec.label ??
-    rec.productName ??
-    rec.displayName;
-  return typeof raw === 'string' ? raw.trim() : '';
-}
-
-function childNodes(node: unknown): unknown[] {
-  if (!node || typeof node !== 'object') return [];
-  const rec = node as Record<string, unknown>;
-  const keys = [
-    'children',
-    'subTiles',
-    'subtiles',
-    'tiles',
-    'widgets',
-    'items',
-    'products',
-    'rows',
-    'breakdown',
-  ];
-  const out: unknown[] = [];
-  for (const k of keys) {
-    const v = rec[k];
-    if (Array.isArray(v)) out.push(...v);
+function sumIntervalValues(row: SalesysReaderRow): number | null {
+  const intervals = row.intervals;
+  if (!Array.isArray(intervals) || intervals.length === 0) return null;
+  let sum = 0;
+  let any = false;
+  for (const iv of intervals) {
+    if (typeof iv?.value === 'number' && Number.isFinite(iv.value)) {
+      sum += iv.value;
+      any = true;
+    }
   }
-  if (Array.isArray(rec.results)) out.push(...rec.results);
-  return out;
+  return any ? Math.round(sum) : null;
 }
 
-/** Collect tile/widget names for safe diagnostics (no values). */
-export function collectSalesysTileNames(payload: unknown, max = 20): string[] {
-  const names: string[] = [];
-  const seen = new Set<string>();
-
-  const walk = (node: unknown): void => {
-    if (!node || typeof node !== 'object' || names.length >= max) return;
-    if (Array.isArray(node)) {
-      for (const item of node) walk(item);
-      return;
-    }
-    const name = readName(node);
-    if (name) {
-      const key = name.toLowerCase();
-      if (!seen.has(key)) {
-        seen.add(key);
-        names.push(name);
-      }
-    }
-    for (const child of childNodes(node)) walk(child);
-    const rec = node as Record<string, unknown>;
-    for (const value of Object.values(rec)) {
-      if (value && typeof value === 'object') walk(value);
-    }
-  };
-
-  walk(payload);
-  return names;
-}
-
-function findBruttosalgNode(payload: unknown): Record<string, unknown> | null {
-  const walk = (node: unknown): Record<string, unknown> | null => {
-    if (!node || typeof node !== 'object') return null;
-    if (Array.isArray(node)) {
-      for (const item of node) {
-        const found = walk(item);
-        if (found) return found;
-      }
-      return null;
-    }
-    const rec = node as Record<string, unknown>;
-    if (isBruttosalgName(readName(rec))) return rec;
-    for (const child of childNodes(rec)) {
-      const found = walk(child);
-      if (found) return found;
-    }
-    return null;
-  };
-  return walk(payload);
+function isResultsArray(payload: unknown): payload is SalesysReaderRow[] {
+  return (
+    Array.isArray(payload) &&
+    payload.length > 0 &&
+    typeof payload[0] === 'object' &&
+    payload[0] !== null &&
+    'readerId' in (payload[0] as object)
+  );
 }
 
 /**
- * Parse dashboard POST /results JSON for Bruttosalg tile (+ product breakdown).
+ * Parse POST /results JSON (array of readerId + intervals) for Bruttosalg.
  */
-export function parseSalesysBruttosalgResults(payload: unknown): ParsedSalesysDay {
+export function parseSalesysBruttosalgResults(
+  payload: unknown,
+  options?: ParseSalesysOptions
+): ParsedSalesysDay {
+  const readerNames = options?.readerNames ?? {};
+  const bruttoId = resolveBruttosalgReaderId(readerNames, options?.bruttoReaderId);
+
+  if (!isResultsArray(payload)) {
+    return {
+      grossOrders: 0,
+      products: [],
+      foundBruttosalg: false,
+      tileNamesSample: [],
+    };
+  }
+
+  const bruttoRow = bruttoId
+    ? payload.find((r) => r.readerId === bruttoId)
+    : undefined;
+  const grossOrders = bruttoRow ? sumIntervalValues(bruttoRow) : null;
+  const foundBruttosalg =
+    Boolean(bruttoRow) && grossOrders !== null;
+
   const products: { product: string; orders: number }[] = [];
-  const bruttoNode = findBruttosalgNode(payload);
-  let grossOrders = bruttoNode ? readOrderCount(bruttoNode) : null;
+  const seen = new Set<string>();
 
-  if (bruttoNode) {
-    const seen = new Set<string>();
-    for (const child of childNodes(bruttoNode)) {
-      const childName = readName(child);
-      const childCount = readOrderCount(child);
-      if (!childName || isBruttosalgName(childName) || childCount === null) continue;
-      const key = childName.toLowerCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      products.push({ product: childName, orders: childCount });
-    }
+  for (const row of payload) {
+    if (bruttoId && row.readerId === bruttoId) continue;
+    const count = sumIntervalValues(row);
+    if (count === null) continue;
+    const label = readerNames[row.readerId] ?? row.readerId;
+    if (isBruttosalgName(label)) continue;
+    const key = label.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    products.push({ product: label, orders: count });
   }
 
-  if (grossOrders === null && products.length > 0) {
-    grossOrders = products.reduce((s, p) => s + p.orders, 0);
-  }
+  const tileNamesSample = payload
+    .map((r) => readerNames[r.readerId] ?? r.readerId)
+    .slice(0, 20);
 
   return {
-    grossOrders: grossOrders ?? 0,
-    products,
-    foundBruttosalg: Boolean(bruttoNode),
-    tileNamesSample: collectSalesysTileNames(payload),
+    grossOrders: foundBruttosalg ? grossOrders! : 0,
+    products: foundBruttosalg ? products : [],
+    foundBruttosalg,
+    tileNamesSample,
   };
+}
+
+export async function fetchSalesysReaderNames(
+  linkId: string,
+  dashboardId: string
+): Promise<Record<string, string>> {
+  const url = `${SALESYS_BASE}/api/users/dashboard-links-v1/${encodeURIComponent(linkId)}`;
+  const res = await fetch(url, {
+    headers: { Accept: 'application/json' },
+  });
+  if (!res.ok) {
+    throw new Error(`SaleSys definition ${res.status}`);
+  }
+  const json = (await res.json()) as {
+    dashboards?: { id: string; readers?: { id: string; name: string }[] }[];
+  };
+  const dashboard = json.dashboards?.find((d) => d.id === dashboardId);
+  const map: Record<string, string> = {};
+  for (const reader of dashboard?.readers ?? []) {
+    if (reader.id && reader.name) map[reader.id] = reader.name;
+  }
+  return map;
 }
 
 export function resolveSalesysLinkId(config: SalesysSupplierConfig): string | null {

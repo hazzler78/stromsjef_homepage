@@ -6,6 +6,7 @@ import {
 } from '@/lib/stockholmDates';
 import {
   fetchSalesysDayResults,
+  fetchSalesysReaderNames,
   getSalesysSupplierDashboards,
   parseSalesysBruttosalgResults,
   resolveSalesysLinkId,
@@ -127,7 +128,8 @@ export function pickDaysToSync(
 
 export function countSubrequestsEstimate(daysToSync: number, supplierCount: number): number {
   const supplierOps = Math.max(1, supplierCount) * 2;
-  return 4 + daysToSync * supplierOps;
+  // +1 GET dashboard definition per supplier
+  return 4 + supplierCount + daysToSync * supplierOps;
 }
 
 export const WORKER_SUBREQUEST_SOFT_LIMIT = 45;
@@ -140,8 +142,33 @@ export async function syncSalesysDaysLimited(
   const configs = getSalesysSupplierDashboards().filter((c) => c.enabled && c.dashboardId);
   const daysSynced: string[] = [];
   const attempts: SalesysSyncAttempt[] = [];
+  const today = toStockholmDateString();
+
+  const readerNamesByConfig = new Map<string, Record<string, string>>();
+  for (const cfg of configs) {
+    const linkId = resolveSalesysLinkId(cfg);
+    if (!linkId) continue;
+    try {
+      readerNamesByConfig.set(
+        cfg.supplier,
+        await fetchSalesysReaderNames(linkId, cfg.dashboardId)
+      );
+    } catch (err) {
+      warnings.push(
+        `${cfg.label}: kunne ikke lese dashboard-definisjon (${
+          err instanceof Error ? err.message : String(err)
+        })`
+      );
+    }
+  }
 
   for (const saleDate of saleDates) {
+    if (saleDate === today) {
+      warnings.push(
+        `${saleDate}: dagens salg caches ikke (fortsatt i endring) — vises fra Supabase etter midnatt.`
+      );
+      continue;
+    }
     const { after, before } = stockholmDayIsoBounds(saleDate);
     let anySupplier = false;
 
@@ -167,7 +194,9 @@ export async function syncSalesysDaysLimited(
           after,
           before
         );
-        const parsed = parseSalesysBruttosalgResults(payload);
+        const parsed = parseSalesysBruttosalgResults(payload, {
+          readerNames: readerNamesByConfig.get(cfg.supplier),
+        });
         attempt.foundBruttosalg = parsed.foundBruttosalg;
         attempt.parsedOrders = parsed.grossOrders;
 
