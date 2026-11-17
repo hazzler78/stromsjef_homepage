@@ -14,7 +14,8 @@
     "test:otovo": "node test-otovo-interest.js",
     "test:rls-pr7": "bash scripts/test-rls-pr7.sh",
     "test:salesys-parser": "node scripts/test-salesys-parser.js",
-    "test:visitors-per-sale-subrequests": "node scripts/test-visitors-per-sale-subrequests.js"
+    "test:visitors-per-sale-subrequests": "node scripts/test-visitors-per-sale-subrequests.js",
+    "test:runtime-env-jwt": "node scripts/test-runtime-env-jwt.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.3",

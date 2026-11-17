@@ -1,22 +1,15 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { readRuntimeEnv } from '@/lib/runtimeEnv';
+import {
+  readSupabaseServiceRoleKey,
+  readSupabaseUrl,
+} from '@/lib/runtimeEnv';
 
+/** Same pattern as working admin routes — env read inside the request, no extra headers. */
 export function getSupabaseServerClient(): SupabaseClient {
-  const url = readRuntimeEnv('SUPABASE_URL') ?? readRuntimeEnv('NEXT_PUBLIC_SUPABASE_URL');
-  const key = readRuntimeEnv('SUPABASE_SERVICE_ROLE_KEY');
+  const url = readSupabaseUrl();
+  const key = readSupabaseServiceRoleKey();
   if (!url || !key) {
     throw new Error('Supabase credentials are not configured');
   }
-  return createClient(url, key, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-    global: {
-      headers: {
-        apikey: key,
-        Authorization: `Bearer ${key}`,
-      },
-    },
-  });
+  return createClient(url, key);
 }
