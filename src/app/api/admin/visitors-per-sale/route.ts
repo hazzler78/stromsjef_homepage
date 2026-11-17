@@ -10,6 +10,7 @@ import { getSalesysSupplierDashboards } from '@/lib/salesysDashboard';
 import { getSupabaseServerClient } from '@/lib/supabaseServer';
 import { supplierTextToSlug } from '@/lib/supplierSlug';
 import { buildVisitorsPerSaleMockResponse } from '@/lib/visitorsPerSaleMock';
+import { buildEnvDiagnostics } from '@/lib/runtimeEnv';
 import {
   countSubrequestsEstimate,
   pickDaysToSync,
@@ -250,6 +251,7 @@ export async function GET(req: NextRequest) {
       salesysDaysRemainingEstimate: stillMissing,
       subrequestsEstimate,
     },
+    envDiagnostics: buildEnvDiagnostics(),
     warnings,
   });
 }
