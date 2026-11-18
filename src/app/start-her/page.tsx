@@ -476,19 +476,32 @@ export default function StartHer() {
 
   const onSalesysReady = useCallback(() => {
     if (!selectedPlan) return;
-    const eventId = generateEventId();
-    const contentName = `${selectedPlan.supplierName} · ${selectedPlan.planName}`;
-    trackFunnelEvent({
-      eventId,
-      metaEvent: 'InitiateCheckout',
-      metaParams: { content_name: contentName, content_category: contractTypeFromPlan(selectedPlan.bindingTime) },
-      ga4Event: 'begin_checkout',
-      ga4Params: {
-        supplier: selectedPlan.supplierName,
-        plan_name: selectedPlan.planName,
-      },
-    });
+    window.setTimeout(() => {
+      if (!selectedPlan) return;
+      const eventId = generateEventId();
+      const contentName = `${selectedPlan.supplierName} · ${selectedPlan.planName}`;
+      trackFunnelEvent({
+        eventId,
+        metaEvent: 'InitiateCheckout',
+        metaParams: { content_name: contentName, content_category: contractTypeFromPlan(selectedPlan.bindingTime) },
+        ga4Event: 'begin_checkout',
+        ga4Params: {
+          supplier: selectedPlan.supplierName,
+          plan_name: selectedPlan.planName,
+        },
+      });
+    }, 0);
   }, [selectedPlan]);
+
+  const salesysOptions = useMemo(
+    () => ({ width: '100%', test: process.env.NODE_ENV === 'development' } as const),
+    []
+  );
+
+  const salesysDefaultFields = useMemo(
+    () => [{ fieldId: '66e9457420ef2d3b8c66f500', value: postalCode.trim() || '0000' }],
+    [postalCode]
+  );
 
   useEffect(() => {
     if (!selectedPlan) return undefined;
@@ -626,10 +639,8 @@ export default function StartHer() {
                 formId={
                   SALESYS_FORM_IDS[contractTypeFromPlan(selectedPlan.bindingTime)]
                 }
-                options={{ width: '100%', test: process.env.NODE_ENV === 'development' }}
-                defaultFields={[
-                  { fieldId: '66e9457420ef2d3b8c66f500', value: postalCode.trim() || '0000' },
-                ]}
+                options={salesysOptions}
+                defaultFields={salesysDefaultFields}
                 onReady={onSalesysReady}
               />
             </FormPanel>

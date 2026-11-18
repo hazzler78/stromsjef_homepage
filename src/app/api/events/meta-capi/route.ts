@@ -47,14 +47,22 @@ export async function POST(request: NextRequest) {
       ],
     };
 
-    const res = await fetch(
-      `https://graph.facebook.com/v21.0/${META_PIXEL_ID}/events?access_token=${encodeURIComponent(token)}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      }
-    );
+    const capiController = new AbortController();
+    const capiTimeout = setTimeout(() => capiController.abort(), 4000);
+    let res: Response;
+    try {
+      res = await fetch(
+        `https://graph.facebook.com/v21.0/${META_PIXEL_ID}/events?access_token=${encodeURIComponent(token)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: capiController.signal,
+        }
+      );
+    } finally {
+      clearTimeout(capiTimeout);
+    }
 
     if (!res.ok) {
       const text = await res.text();

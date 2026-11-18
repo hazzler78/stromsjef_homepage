@@ -118,18 +118,30 @@ export function trackFunnelEvent(options: TrackFunnelOptions): void {
   }
 
   if (options.capi !== false && options.metaEvent && canTrackMarketing()) {
-    fetch('/api/events/meta-capi', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        eventName: options.metaEvent,
-        eventId: options.eventId,
-        eventSourceUrl: window.location.href,
-        customData: { ...options.metaParams, ...utmPayload },
-      }),
-      keepalive: true,
-    }).catch(() => {});
+    postMetaCapi({
+      eventName: options.metaEvent,
+      eventId: options.eventId,
+      eventSourceUrl: window.location.href,
+      customData: { ...options.metaParams, ...utmPayload },
+    });
   }
+}
+
+const META_CAPI_CLIENT_TIMEOUT_MS = 2500;
+
+/** Never block UI — short client timeout; errors are ignored. */
+function postMetaCapi(body: Record<string, unknown>): void {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), META_CAPI_CLIENT_TIMEOUT_MS);
+  fetch('/api/events/meta-capi', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    keepalive: true,
+    signal: controller.signal,
+  })
+    .catch(() => {})
+    .finally(() => window.clearTimeout(timer));
 }
 
 export const SALESYS_FORM_IDS = {
@@ -151,23 +163,34 @@ export function observeSalesysSuccess(
   if (!container) return () => {};
 
   let fired = false;
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   const successPattern =
-    /(takk|thank|bekreft|vellykket|success|mottatt|registrert|gratulerer)/i;
+    /(takk for|takk!|thank you|takk skal du ha|bekreftelse|vellykket|mottatt|gratulerer)/i;
+  const loadingPattern = /(laster|vent|sender|submitting|spinner|behandler|registrerer)/i;
 
   const check = () => {
     if (fired) return;
     const text = container.innerText || '';
-    if (successPattern.test(text) && text.length > 20) {
+    if (text.length < 25 || loadingPattern.test(text)) return;
+    if (successPattern.test(text)) {
       fired = true;
-      onSuccess();
+      window.setTimeout(() => onSuccess(), 0);
     }
   };
 
-  const observer = new MutationObserver(check);
-  observer.observe(container, { childList: true, subtree: true, characterData: true });
-  check();
+  const scheduleCheck = () => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(check, 400);
+  };
 
-  return () => observer.disconnect();
+  const observer = new MutationObserver(scheduleCheck);
+  observer.observe(container, { childList: true, subtree: true, characterData: true });
+  scheduleCheck();
+
+  return () => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    observer.disconnect();
+  };
 }
 
 declare global {
