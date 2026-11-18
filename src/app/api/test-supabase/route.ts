@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { normalizeSupabaseProjectUrl } from '@/lib/runtimeEnv';
 
 export async function GET() {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseUrl = normalizeSupabaseProjectUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
     console.log('Testing Supabase connection...');

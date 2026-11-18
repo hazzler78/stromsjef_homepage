@@ -15,6 +15,7 @@ import {
   observeSalesysSuccess,
   trackFunnelEvent,
 } from '@/lib/funnelTracking';
+import { normalizeSupabaseProjectUrl } from '@/lib/runtimeEnv';
 
 const Section = styled.section`
   padding: var(--section-spacing) 0;
@@ -230,7 +231,9 @@ export default function StartHer() {
   useEffect(() => {
     const z = effectiveZone;
     if (!z) return; 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
+    const supabaseUrl = normalizeSupabaseProjectUrl(
+      process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined
+    );
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string | undefined;
     if (!supabaseUrl || !supabaseKey) return;
     setLoading(true);

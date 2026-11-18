@@ -25,6 +25,13 @@ function sanitizeEnv(value: string | undefined): string | undefined {
   return trimmed.replace(/^"|"$/g, '');
 }
 
+/** Strip accidental REST path suffixes from project URL env vars. */
+export function normalizeSupabaseProjectUrl(url: string | undefined): string | undefined {
+  const sanitized = sanitizeEnv(url);
+  if (!sanitized) return undefined;
+  return sanitized.replace(/\/rest\/v1\/?$/i, '').replace(/\/$/, '');
+}
+
 /** Decode role claim from a legacy Supabase JWT (no verification — diagnostics only). */
 export function supabaseJwtRole(key: string | undefined): EnvProbe['jwtRole'] {
   if (!key) return 'unknown';
