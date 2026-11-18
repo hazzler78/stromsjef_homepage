@@ -50,6 +50,14 @@ const MIN_USABLE_FORM_HEIGHT = 120;
  * Embeds Salesys via web_form1.js (iframe inside mount div). Matches fastpris-avtal / elchef pattern:
  * script from https://salesys.se/scripts/web_form1.js, createWebForm(container, formId, { width: '100%' }).
  * Mount node is React-empty so Salesys can own its DOM (no reconcile wipes).
+ *
+ * TEMPORARILY UNUSED ON /start-her (Nov 2026):
+ * Inline Salesys is disabled on the homepage because skaffa.salesys.se / domain
+ * approval for stromsjef.no is pending — the embed spun forever and lost customers.
+ * /start-her currently opens resolvePlanAffiliateLink() instead.
+ *
+ * RE-ENABLE: set ENABLE_INLINE_SALESYS_FORM = true in src/app/start-her/page.tsx
+ * once Salesys has approved the stromsjef.no domain. Do not delete this component.
  */
 export default function SalesysForm({
   containerId = "form-container",

@@ -20,6 +20,13 @@ import {
 import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
 import { resolvePlanAffiliateLink } from '@/lib/planAffiliateLink';
 
+/**
+ * TEMP: inline Salesys on /start-her is OFF until the Salesys domain for
+ * stromsjef.no is approved (embed spun forever → lost customers).
+ * Flip to `true` to restore the accordion SalesysForm under each plan; keep SalesysForm.tsx.
+ */
+const ENABLE_INLINE_SALESYS_FORM = false;
+
 const Section = styled.section`
   padding: var(--section-spacing) 0;
 `;
@@ -473,6 +480,26 @@ export default function StartHer() {
       },
     });
 
+    if (!ENABLE_INLINE_SALESYS_FORM) {
+      // Affiliate path: fire InitiateCheckout on the button (was Salesys onReady before).
+      trackFunnelEvent({
+        eventId: generateEventId(),
+        metaEvent: 'InitiateCheckout',
+        metaParams: { content_name: contentName, content_category: contractType },
+        ga4Event: 'begin_checkout',
+        ga4Params: {
+          supplier: plan.supplierName,
+          plan_name: plan.planName,
+        },
+      });
+      const affiliateUrl = resolvePlanAffiliateLink(plan);
+      if (affiliateUrl) {
+        window.open(affiliateUrl, '_blank', 'noopener,noreferrer');
+      }
+      return;
+    }
+
+    // --- Re-enable path: inline Salesys under #bytteskjema (after domain approval) ---
     purchaseTrackedRef.current = false;
     setSalesysLoadState('loading');
     salesysUsableRef.current = false;
@@ -504,6 +531,7 @@ export default function StartHer() {
   }, [selectedPlan?.id, formMountKey]);
 
   const onSalesysReady = useCallback(() => {
+    // Only when ENABLE_INLINE_SALESYS_FORM is true.
     if (!selectedPlan) return;
     window.setTimeout(() => {
       if (!selectedPlan) return;
@@ -534,7 +562,7 @@ export default function StartHer() {
   }, [postalCode]);
 
   useEffect(() => {
-    if (!selectedPlan) return undefined;
+    if (!ENABLE_INLINE_SALESYS_FORM || !selectedPlan) return undefined;
     return observeSalesysSuccess(SALESYS_CONTAINER_ID, () => trackPurchase(selectedPlan));
   }, [selectedPlan, formMountKey, trackPurchase]);
 
@@ -659,7 +687,7 @@ export default function StartHer() {
                       </GlassButton>
                     </div>
                   </PlanCard>
-                  {isExpanded && (
+                  {ENABLE_INLINE_SALESYS_FORM && isExpanded && (
                     <InlineFormPanel id="bytteskjema">
                       <h2 style={{ marginTop: 0, fontSize: '1.15rem' }}>
                         Bytt til {plan.supplierName} – {plan.planName}
@@ -711,7 +739,6 @@ export default function StartHer() {
               <div style={{ color: 'var(--gray-700)', marginTop: 8 }}>Ingen avtale for valgt område akkurat nå.</div>
             )}
           </Plans>
-
         </Container>
       </div>
     </Section>
