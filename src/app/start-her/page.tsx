@@ -140,7 +140,7 @@ const Logo = styled.img`
 `;
 
 const InlineFormPanel = styled.div`
-  padding: 0.9rem 0.75rem 1.25rem;
+  padding: 0.75rem 0.5rem 1.25rem;
   border-top: 1px solid #e5e7eb;
   background: #f8fafc;
   width: 100%;
@@ -150,7 +150,7 @@ const InlineFormPanel = styled.div`
     padding: 1rem 1.1rem 1.5rem;
   }
 
-  /* Salesys iframe must stay full-bleed and tall enough to fill out */
+  /* Salesys iframe: full width of card, tall enough to fill out */
   #start-her-salesys-form,
   #start-her-salesys-form iframe {
     width: 100% !important;
@@ -159,11 +159,27 @@ const InlineFormPanel = styled.div`
   }
 
   #start-her-salesys-form iframe {
-    min-height: 720px;
+    min-height: min(85vh, 900px);
+    height: min(85vh, 900px);
   }
 `;
 
 const SALESYS_CONTAINER_ID = 'start-her-salesys-form';
+
+function buildSalesysFormUrl(formId: string): string {
+  const url = new URL(formId, 'https://skaffa.salesys.se');
+  url.searchParams.set('loadBackground', '#f8fafc');
+  url.searchParams.set('t', String(Date.now()));
+  if (typeof window !== 'undefined') {
+    try {
+      const ref = new URL(window.location.href);
+      url.searchParams.set('referrer', ref.origin + ref.pathname + ref.search);
+    } catch {
+      /* ignore */
+    }
+  }
+  return url.href;
+}
 
 function formatPrice(value: number) {
   // Norwegian format, allow negatives for campaigns like -1.7 øre
@@ -692,9 +708,38 @@ export default function StartHer() {
                       </p>
                       {!postalCode.trim() && (
                         <p style={{ color: '#92400e', fontSize: '0.9rem', marginTop: 0 }}>
-                          Tips: Skriv inn postnummer over for forhåndsutfylling, eller bruk leverandørens lenke under.
+                          Tips: Skriv inn postnummer over for forhåndsutfylling, eller åpne skjemaet i full størrelse under.
                         </p>
                       )}
+                      <div style={{ display: 'grid', gap: '0.6rem', marginBottom: '0.85rem' }}>
+                        <GlassButton
+                          variant="primary"
+                          size="md"
+                          background="linear-gradient(135deg, var(--primary), var(--secondary))"
+                          disableScrollEffect={true}
+                          disableHoverEffect={true}
+                          onClick={() => {
+                            const formId = SALESYS_FORM_IDS[contractTypeFromPlan(plan.bindingTime)];
+                            window.open(buildSalesysFormUrl(formId), '_blank', 'noopener,noreferrer');
+                          }}
+                          aria-label="Åpne bytteskjema i full størrelse"
+                        >
+                          Åpne bytteskjema (full størrelse)
+                        </GlassButton>
+                        {(showAffiliate || affiliateFallbackDue) && affiliateUrl && (
+                          <GlassButton
+                            variant="secondary"
+                            size="md"
+                            background="linear-gradient(135deg, var(--secondary), var(--primary))"
+                            disableScrollEffect={true}
+                            disableHoverEffect={true}
+                            onClick={() => window.open(affiliateUrl, '_blank', 'noopener,noreferrer')}
+                            aria-label={`Fortsett hos ${plan.supplierName}`}
+                          >
+                            Fortsett bestilling hos {plan.supplierName}
+                          </GlassButton>
+                        )}
+                      </div>
                       <SalesysForm
                         key={formMountKey}
                         containerId={SALESYS_CONTAINER_ID}
@@ -704,26 +749,16 @@ export default function StartHer() {
                         onReady={onSalesysReady}
                         onLoadStateChange={setSalesysLoadState}
                         onFormUsable={handleSalesysUsable}
+                        minHeightPx={Math.round(
+                          typeof window !== 'undefined'
+                            ? Math.max(720, window.innerHeight * 0.75)
+                            : 720
+                        )}
                       />
                       {salesysLoadState === 'loading' && !affiliateFallbackDue && (
                         <p style={{ color: 'var(--gray-600)', fontSize: '0.9rem', marginTop: '0.75rem' }}>
                           Laster bytteskjema…
                         </p>
-                      )}
-                      {showAffiliate && (
-                        <div style={{ marginTop: '1rem' }}>
-                          <GlassButton
-                            variant="primary"
-                            size="md"
-                            background="linear-gradient(135deg, var(--primary), var(--secondary))"
-                            disableScrollEffect={true}
-                            disableHoverEffect={true}
-                            onClick={() => window.open(affiliateUrl!, '_blank', 'noopener,noreferrer')}
-                            aria-label={`Fortsett hos ${plan.supplierName}`}
-                          >
-                            Fortsett bestilling hos {plan.supplierName}
-                          </GlassButton>
-                        </div>
                       )}
                     </InlineFormPanel>
                   )}
