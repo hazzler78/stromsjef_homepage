@@ -140,9 +140,27 @@ const Logo = styled.img`
 `;
 
 const InlineFormPanel = styled.div`
-  padding: 0.9rem 1rem 1.1rem;
+  padding: 0.9rem 0.75rem 1.25rem;
   border-top: 1px solid #e5e7eb;
   background: #f8fafc;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (min-width: 640px) {
+    padding: 1rem 1.1rem 1.5rem;
+  }
+
+  /* Salesys iframe must stay full-bleed and tall enough to fill out */
+  #start-her-salesys-form,
+  #start-her-salesys-form iframe {
+    width: 100% !important;
+    max-width: 100%;
+    display: block;
+  }
+
+  #start-her-salesys-form iframe {
+    min-height: 720px;
+  }
 `;
 
 const SALESYS_CONTAINER_ID = 'start-her-salesys-form';
@@ -523,7 +541,12 @@ export default function StartHer() {
   }, [selectedPlan]);
 
   const salesysOptions = useMemo(
-    () => ({ width: '100%', test: process.env.NODE_ENV === 'development' } as const),
+    () =>
+      ({
+        width: '100%',
+        loadBackground: '#f8fafc',
+        test: process.env.NODE_ENV === 'development',
+      }) as const,
     []
   );
 
