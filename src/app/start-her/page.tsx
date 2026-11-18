@@ -8,6 +8,8 @@ import { ElectricityPlan, PriceZone, inferZoneFromPostalCode, getSupplierLogoUrl
 import { createClient } from '@supabase/supabase-js';
 import {
   SALESYS_FORM_IDS,
+  canTrackAnalytics,
+  canTrackMarketing,
   captureUtmFromUrl,
   contractTypeFromPlan,
   generateEventId,
@@ -203,9 +205,9 @@ export default function StartHer() {
   const purchaseTrackedRef = useRef(false);
   const viewContentTrackedRef = useRef(false);
 
-  useEffect(() => {
-    captureUtmFromUrl();
+  const trackFunnelEntry = useCallback(() => {
     if (viewContentTrackedRef.current) return;
+    if (!canTrackMarketing() && !canTrackAnalytics()) return;
     viewContentTrackedRef.current = true;
     const eventId = generateEventId();
     const utm = getStoredUtm();
@@ -218,6 +220,13 @@ export default function StartHer() {
       ga4Params: { page_path: '/start-her' },
     });
   }, []);
+
+  useEffect(() => {
+    captureUtmFromUrl();
+    trackFunnelEntry();
+    window.addEventListener('cookieConsentChanged', trackFunnelEntry);
+    return () => window.removeEventListener('cookieConsentChanged', trackFunnelEntry);
+  }, [trackFunnelEntry]);
 
   const inferred = useMemo(() => {
     if (postalCode.length >= 4) {
