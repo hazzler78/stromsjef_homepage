@@ -144,13 +144,25 @@ function postMetaCapi(body: Record<string, unknown>): void {
     .finally(() => window.clearTimeout(timer));
 }
 
+/** Kilden Kraft offer web form (Bjørnar / Salesys, Nov 2026). */
 export const SALESYS_FORM_IDS = {
-  rorligt: '68b05450a1479b5cec96958c',
-  fastpris: '68b1ea117c19431581b6723a',
+  kilden: '6a1d7e6052bedbc09493bbcb',
+} as const;
+
+/**
+ * Salesys product ids for setProduct().
+ * TODO: per-plan product ids are pending from Salesys — use the shared Kilden id for all Kilden plans until then.
+ */
+export const SALESYS_PRODUCT_IDS = {
+  kilden: '66c4dcdf6953b53b564c3c1c',
 } as const;
 
 export function contractTypeFromPlan(bindingTime: number): 'rorligt' | 'fastpris' {
   return bindingTime > 0 ? 'fastpris' : 'rorligt';
+}
+
+export function isKildenSupplier(supplierName: string): boolean {
+  return /kilden/i.test(supplierName.trim());
 }
 
 /** Observe Salesys container for a success / thank-you state. */

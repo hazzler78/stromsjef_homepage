@@ -8,12 +8,14 @@ import { ElectricityPlan, PriceZone, inferZoneFromPostalCode, getSupplierLogoUrl
 import { createClient } from '@supabase/supabase-js';
 import {
   SALESYS_FORM_IDS,
+  SALESYS_PRODUCT_IDS,
   canTrackAnalytics,
   canTrackMarketing,
   captureUtmFromUrl,
   contractTypeFromPlan,
   generateEventId,
   getStoredUtm,
+  isKildenSupplier,
   observeSalesysSuccess,
   trackFunnelEvent,
 } from '@/lib/funnelTracking';
@@ -21,9 +23,9 @@ import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
 import { resolvePlanAffiliateLink } from '@/lib/planAffiliateLink';
 
 /**
- * Inline Salesys accordion under each plan on /start-her.
- * Re-enabled so Salesys tech support can debug domain whitelisting on stromsjef.no.
- * If the embed fails again, set to `false` to fall back to resolvePlanAffiliateLink().
+ * Inline Salesys accordion under Kilden Kraft plans on /start-her.
+ * Non-Kilden suppliers keep resolvePlanAffiliateLink() CTAs.
+ * If the embed fails again, set to `false` to fall back to affiliate for everyone.
  */
 const ENABLE_INLINE_SALESYS_FORM = true;
 
@@ -480,8 +482,11 @@ export default function StartHer() {
       },
     });
 
-    if (!ENABLE_INLINE_SALESYS_FORM) {
-      // Affiliate path: fire InitiateCheckout on the button (was Salesys onReady before).
+    const useInlineSalesys =
+      ENABLE_INLINE_SALESYS_FORM && isKildenSupplier(plan.supplierName);
+
+    if (!useInlineSalesys) {
+      // Affiliate path (all non-Kilden, or when inline Salesys is disabled).
       trackFunnelEvent({
         eventId: generateEventId(),
         metaEvent: 'InitiateCheckout',
@@ -499,7 +504,7 @@ export default function StartHer() {
       return;
     }
 
-    // --- Re-enable path: inline Salesys under #bytteskjema (after domain approval) ---
+    // Kilden Kraft: inline Salesys under #bytteskjema
     purchaseTrackedRef.current = false;
     setSalesysLoadState('loading');
     salesysUsableRef.current = false;
@@ -550,8 +555,16 @@ export default function StartHer() {
     }, 0);
   }, [selectedPlan]);
 
+  // Matches Kilden Kraft working embed from Salesys (Bjørnar).
   const salesysOptions = useMemo(
-    () => ({ width: '100%', test: process.env.NODE_ENV === 'development' } as const),
+    () =>
+      ({
+        query: { isAlertHandled: true },
+        width: '100%',
+        themeHostname: 'webform.kildenkraft.no',
+        theme: {},
+        loadBackground: '#FFFFFF00',
+      }) as const,
     []
   );
 
@@ -687,7 +700,9 @@ export default function StartHer() {
                       </GlassButton>
                     </div>
                   </PlanCard>
-                  {ENABLE_INLINE_SALESYS_FORM && isExpanded && (
+                  {ENABLE_INLINE_SALESYS_FORM &&
+                    isKildenSupplier(plan.supplierName) &&
+                    isExpanded && (
                     <InlineFormPanel id="bytteskjema">
                       <h2 style={{ marginTop: 0, fontSize: '1.15rem' }}>
                         Bytt til {plan.supplierName} – {plan.planName}
@@ -703,7 +718,8 @@ export default function StartHer() {
                       <SalesysForm
                         key={formMountKey}
                         containerId={SALESYS_CONTAINER_ID}
-                        formId={SALESYS_FORM_IDS[contractTypeFromPlan(plan.bindingTime)]}
+                        formId={SALESYS_FORM_IDS.kilden}
+                        productId={SALESYS_PRODUCT_IDS.kilden}
                         options={salesysOptions}
                         defaultFields={salesysDefaultFields}
                         onReady={onSalesysReady}
