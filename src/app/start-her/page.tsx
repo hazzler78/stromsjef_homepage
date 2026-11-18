@@ -18,6 +18,7 @@ import {
   trackFunnelEvent,
 } from '@/lib/funnelTracking';
 import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
+import { resolvePlanAffiliateLink } from '@/lib/planAffiliateLink';
 
 const Section = styled.section`
   padding: var(--section-spacing) 0;
@@ -99,14 +100,19 @@ const Plans = styled.div`
   gap: 0.75rem;
 `;
 
+const PlanRow = styled.div<{ $expanded?: boolean }>`
+  border: 1px solid ${(p) => (p.$expanded ? '#93c5fd' : '#e5e7eb')};
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+`;
+
 const PlanCard = styled.div`
   display: grid;
   grid-template-areas: "logo details cta";
   grid-template-columns: 64px 1fr auto;
   gap: 1rem;
   align-items: center;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
   background: #fff;
   padding: 0.9rem 1rem;
 
@@ -133,11 +139,9 @@ const Logo = styled.img`
   object-fit: contain;
 `;
 
-const FormPanel = styled.div`
-  margin-top: 1.5rem;
-  padding: 1rem;
-  border-radius: 12px;
-  border: 1px solid #dbeafe;
+const InlineFormPanel = styled.div`
+  padding: 0.9rem 1rem 1.1rem;
+  border-top: 1px solid #e5e7eb;
   background: #f8fafc;
 `;
 
@@ -203,6 +207,8 @@ export default function StartHer() {
   const [selectedPlan, setSelectedPlan] = useState<ElectricityPlanWithBadge | null>(null);
   const [formMountKey, setFormMountKey] = useState(0);
   const [salesysLoadState, setSalesysLoadState] = useState<SalesysLoadState>('loading');
+  const [affiliateFallbackDue, setAffiliateFallbackDue] = useState(false);
+  const salesysUsableRef = useRef(false);
   const purchaseTrackedRef = useRef(false);
   const viewContentTrackedRef = useRef(false);
 
@@ -469,12 +475,33 @@ export default function StartHer() {
 
     purchaseTrackedRef.current = false;
     setSalesysLoadState('loading');
+    salesysUsableRef.current = false;
+    setAffiliateFallbackDue(false);
     setSelectedPlan(plan);
     setFormMountKey((k) => k + 1);
-    setTimeout(() => {
-      document.getElementById(SALESYS_CONTAINER_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
   };
+
+  const handleSalesysUsable = useCallback(() => {
+    salesysUsableRef.current = true;
+    setAffiliateFallbackDue(false);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedPlan) {
+      setAffiliateFallbackDue(false);
+      return;
+    }
+    salesysUsableRef.current = false;
+    setAffiliateFallbackDue(false);
+    const deadlineTimer = window.setTimeout(() => {
+      if (!salesysUsableRef.current) {
+        setAffiliateFallbackDue(true);
+      }
+    }, 5000);
+    return () => {
+      window.clearTimeout(deadlineTimer);
+    };
+  }, [selectedPlan?.id, formMountKey]);
 
   const onSalesysReady = useCallback(() => {
     if (!selectedPlan) return;
@@ -570,110 +597,121 @@ export default function StartHer() {
           <Plans>
             {loading && <div>Laster…</div>}
             {error && <div style={{ color: '#b91c1c' }}>Feil: {error}</div>}
-            {effectiveZone && filteredPlans.map(plan => (
-              <PlanCard key={plan.id}>
-                <Logo className="logo" src={plan.logoUrl || getSupplierLogoUrl(plan.supplierName)} alt={`${plan.supplierName} logo`} />
-                <div className="details">
-                  <div style={{ fontWeight: 700 }}>{plan.supplierName} · {plan.planName}</div>
-                  <div style={{ fontSize: '0.95rem', color: 'var(--gray-600)' }}>
-                    {plan.bindingTime > 0 ? `Bindingstid ${plan.bindingTime} mnd` : 'Ingen bindingstid'}
-                    {plan.terminationFee ? ` · Bruddgebyr ${plan.terminationFee} kr` : ''}
-                    {plan.termsGuarantee ? ` · ${plan.termsGuarantee}` : ''}
-                  </div>
-                  {plan.guaranteeDisclaimer && (
-                    <div style={{ fontSize: '0.85rem', color: 'var(--gray-500)', marginTop: 4 }}>{plan.guaranteeDisclaimer}</div>
-                  )}
-                  <div style={{ fontSize: '0.8rem', color: 'var(--gray-600)', marginTop: 6 }}>
-                    Avtalen forutsetter godkjent kredittvurdering. Avtaler kan sammenlignes med andre avtaler på {""}
-                    <a href="http://strompris.no" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>forbrukerrådets strømprisportal</a>.
-                  </div>
-                </div>
-                <div className="cta" style={{ display: 'grid', gap: 6, justifyItems: 'end' }}>
-                  {(plan.recommended || plan.priceBadge) && (
-                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                      {plan.recommended && (
-                        <span style={{
-                          fontWeight: 800,
-                          color: '#0b3b2e',
-                          background: 'linear-gradient(135deg, #a7f3d0, #6ee7b7)',
-                          border: '1px solid rgba(16,185,129,0.4)',
-                          padding: '2px 8px',
-                          borderRadius: 9999,
-                          fontSize: '0.8rem'
-                        }}>Mest populær</span>
+            {effectiveZone && filteredPlans.map((plan) => {
+              const isExpanded = selectedPlan?.id === plan.id;
+              const affiliateUrl = resolvePlanAffiliateLink(plan);
+              const showAffiliate =
+                isExpanded &&
+                !!affiliateUrl &&
+                (affiliateFallbackDue || salesysLoadState === 'failed');
+
+              return (
+                <PlanRow key={plan.id} $expanded={isExpanded}>
+                  <PlanCard>
+                    <Logo className="logo" src={plan.logoUrl || getSupplierLogoUrl(plan.supplierName)} alt={`${plan.supplierName} logo`} />
+                    <div className="details">
+                      <div style={{ fontWeight: 700 }}>{plan.supplierName} · {plan.planName}</div>
+                      <div style={{ fontSize: '0.95rem', color: 'var(--gray-600)' }}>
+                        {plan.bindingTime > 0 ? `Bindingstid ${plan.bindingTime} mnd` : 'Ingen bindingstid'}
+                        {plan.terminationFee ? ` · Bruddgebyr ${plan.terminationFee} kr` : ''}
+                        {plan.termsGuarantee ? ` · ${plan.termsGuarantee}` : ''}
+                      </div>
+                      {plan.guaranteeDisclaimer && (
+                        <div style={{ fontSize: '0.85rem', color: 'var(--gray-500)', marginTop: 4 }}>{plan.guaranteeDisclaimer}</div>
                       )}
-                      {plan.priceBadge && (
-                        <span style={{ fontWeight: 800, color: '#111827' }}>{plan.priceBadge}</span>
-                      )}
+                      <div style={{ fontSize: '0.8rem', color: 'var(--gray-600)', marginTop: 6 }}>
+                        Avtalen forutsetter godkjent kredittvurdering. Avtaler kan sammenlignes med andre avtaler på{' '}
+                        <a href="http://strompris.no" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>forbrukerrådets strømprisportal</a>.
+                      </div>
                     </div>
+                    <div className="cta" style={{ display: 'grid', gap: 6, justifyItems: 'end' }}>
+                      {(plan.recommended || plan.priceBadge) && (
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          {plan.recommended && (
+                            <span style={{
+                              fontWeight: 800,
+                              color: '#0b3b2e',
+                              background: 'linear-gradient(135deg, #a7f3d0, #6ee7b7)',
+                              border: '1px solid rgba(16,185,129,0.4)',
+                              padding: '2px 8px',
+                              borderRadius: 9999,
+                              fontSize: '0.8rem'
+                            }}>Mest populær</span>
+                          )}
+                          {plan.priceBadge && (
+                            <span style={{ fontWeight: 800, color: '#111827' }}>{plan.priceBadge}</span>
+                          )}
+                        </div>
+                      )}
+                      <div style={{ fontWeight: 800 }}>{formatPrice(plan.pricePerKwh)}</div>
+                      <div style={{ fontSize: '0.9rem', color: 'var(--gray-600)' }}>{plan.monthlyFee === 0 ? '0 kr månedsavgift' : `${plan.monthlyFee} kr/mnd`}</div>
+                      <GlassButton
+                        variant="secondary"
+                        size="sm"
+                        background="linear-gradient(135deg, var(--secondary), var(--primary))"
+                        disableScrollEffect={true}
+                        disableHoverEffect={true}
+                        onClick={() => handleSelectPlan(plan)}
+                        aria-label={`Velg ${plan.supplierName} ${plan.planName}`}
+                        aria-expanded={isExpanded}
+                      >
+                        Velg avtalen
+                      </GlassButton>
+                    </div>
+                  </PlanCard>
+                  {isExpanded && (
+                    <InlineFormPanel id="bytteskjema">
+                      <h2 style={{ marginTop: 0, fontSize: '1.15rem' }}>
+                        Bytt til {plan.supplierName} – {plan.planName}
+                      </h2>
+                      <p style={{ color: 'var(--gray-600)', fontSize: '0.95rem' }}>
+                        Fyll ut skjemaet for å fullføre byttet. Postnummer: {postalCode.trim() || '—'} · Sone: {effectiveZone}
+                      </p>
+                      {!postalCode.trim() && (
+                        <p style={{ color: '#92400e', fontSize: '0.9rem', marginTop: 0 }}>
+                          Tips: Skriv inn postnummer over for forhåndsutfylling, eller bruk leverandørens lenke under.
+                        </p>
+                      )}
+                      <SalesysForm
+                        key={formMountKey}
+                        containerId={SALESYS_CONTAINER_ID}
+                        formId={SALESYS_FORM_IDS[contractTypeFromPlan(plan.bindingTime)]}
+                        options={salesysOptions}
+                        defaultFields={salesysDefaultFields}
+                        onReady={onSalesysReady}
+                        onLoadStateChange={setSalesysLoadState}
+                        onFormUsable={handleSalesysUsable}
+                      />
+                      {salesysLoadState === 'loading' && !affiliateFallbackDue && (
+                        <p style={{ color: 'var(--gray-600)', fontSize: '0.9rem', marginTop: '0.75rem' }}>
+                          Laster bytteskjema…
+                        </p>
+                      )}
+                      {showAffiliate && (
+                        <div style={{ marginTop: '1rem' }}>
+                          <GlassButton
+                            variant="primary"
+                            size="md"
+                            background="linear-gradient(135deg, var(--primary), var(--secondary))"
+                            disableScrollEffect={true}
+                            disableHoverEffect={true}
+                            onClick={() => window.open(affiliateUrl!, '_blank', 'noopener,noreferrer')}
+                            aria-label={`Fortsett hos ${plan.supplierName}`}
+                          >
+                            Fortsett bestilling hos {plan.supplierName}
+                          </GlassButton>
+                        </div>
+                      )}
+                    </InlineFormPanel>
                   )}
-                  <div style={{ fontWeight: 800 }}>{formatPrice(plan.pricePerKwh)}</div>
-                  <div style={{ fontSize: '0.9rem', color: 'var(--gray-600)' }}>{plan.monthlyFee === 0 ? '0 kr månedsavgift' : `${plan.monthlyFee} kr/mnd`}</div>
-                  <GlassButton
-                    variant="secondary"
-                    size="sm"
-                    background="linear-gradient(135deg, var(--secondary), var(--primary))"
-                    disableScrollEffect={true}
-                    disableHoverEffect={true}
-                    onClick={() => handleSelectPlan(plan)}
-                    aria-label={`Velg ${plan.supplierName} ${plan.planName}`}
-                  >
-                    Velg avtalen
-                  </GlassButton>
-                </div>
-              </PlanCard>
-            ))}
+                </PlanRow>
+              );
+            })}
             {effectiveZone && !loading && filteredPlans.length === 0 && (
               <div style={{ color: 'var(--gray-700)', marginTop: 8 }}>Ingen avtale for valgt område akkurat nå.</div>
             )}
           </Plans>
 
-          {selectedPlan && (
-            <FormPanel id="bytteskjema">
-              <h2 style={{ marginTop: 0, fontSize: '1.25rem' }}>
-                Bytt til {selectedPlan.supplierName} – {selectedPlan.planName}
-              </h2>
-              <p style={{ color: 'var(--gray-600)', fontSize: '0.95rem' }}>
-                Fyll ut skjemaet for å fullføre byttet. Postnummer: {postalCode.trim() || '—'} · Sone: {effectiveZone}
-              </p>
-              {!postalCode.trim() && (
-                <p style={{ color: '#92400e', fontSize: '0.9rem', marginTop: 0 }}>
-                  Tips: Skriv inn postnummer over for forhåndsutfylling. Du kan fortsatt bytte uten, eller bruke leverandørens lenke nedenfor.
-                </p>
-              )}
-              <SalesysForm
-                key={formMountKey}
-                containerId={SALESYS_CONTAINER_ID}
-                formId={
-                  SALESYS_FORM_IDS[contractTypeFromPlan(selectedPlan.bindingTime)]
-                }
-                options={salesysOptions}
-                defaultFields={salesysDefaultFields}
-                onReady={onSalesysReady}
-                onLoadStateChange={setSalesysLoadState}
-              />
-              {salesysLoadState === 'loading' && (
-                <p style={{ color: 'var(--gray-600)', fontSize: '0.9rem', marginTop: '0.75rem' }}>
-                  Laster bytteskjema…
-                </p>
-              )}
-              {selectedPlan.affiliateLink && salesysLoadState === 'failed' && (
-                <div style={{ marginTop: '1rem' }}>
-                  <GlassButton
-                    variant="primary"
-                    size="md"
-                    background="linear-gradient(135deg, var(--primary), var(--secondary))"
-                    disableScrollEffect={true}
-                    disableHoverEffect={true}
-                    onClick={() => window.open(selectedPlan.affiliateLink!, '_blank', 'noopener,noreferrer')}
-                    aria-label={`Fortsett hos ${selectedPlan.supplierName}`}
-                  >
-                    Fortsett bestilling hos {selectedPlan.supplierName}
-                  </GlassButton>
-                </div>
-              )}
-            </FormPanel>
-          )}
         </Container>
       </div>
     </Section>
