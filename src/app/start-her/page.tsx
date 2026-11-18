@@ -15,7 +15,7 @@ import {
   observeSalesysSuccess,
   trackFunnelEvent,
 } from '@/lib/funnelTracking';
-import { normalizeSupabaseProjectUrl } from '@/lib/runtimeEnv';
+import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
 
 const Section = styled.section`
   padding: var(--section-spacing) 0;

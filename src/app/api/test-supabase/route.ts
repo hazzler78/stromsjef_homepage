@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { normalizeSupabaseProjectUrl } from '@/lib/runtimeEnv';
+import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
 
 export async function GET() {
   try {
