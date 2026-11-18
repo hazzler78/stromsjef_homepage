@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { loadSalesysWebFormScript } from "@/lib/loadSalesysWebFormScript";
 
 export type SalesysFormField = {
   name?: string;
@@ -18,13 +19,18 @@ type SalesysFormOptions = {
   test?: boolean;
 };
 
+export type SalesysLoadState = "loading" | "ready" | "failed";
+
 type SalesysFormProps = {
   containerId?: string;
   formId: string;
   options?: SalesysFormOptions;
-  defaultFields?: Array<{ fieldId: string; value: string }>; 
+  defaultFields?: Array<{ fieldId: string; value: string }>;
   wrapperClassName?: string;
   onReady?: (formInstance: SalesysFormInstance) => void;
+  onLoadStateChange?: (state: SalesysLoadState) => void;
+  /** Fired when Salesys posts a resize with real form height (cross-origin usable signal). */
+  onFormUsable?: () => void;
 };
 
 declare global {
@@ -32,14 +38,18 @@ declare global {
     createWebForm?: (
       containerEl: HTMLElement,
       formId: string,
-      opts?: SalesysFormOptions
+      opts?: SalesysFormOptions & { onMessage?: (event: MessageEvent) => void }
     ) => SalesysFormInstance;
     myForm?: SalesysFormInstance;
   }
 }
 
+const MIN_USABLE_FORM_HEIGHT = 120;
+
 /**
- * Loads the Salesys web form script and initializes the form in a provided container.
+ * Embeds Salesys via web_form1.js (iframe inside mount div). Matches fastpris-avtal / elchef pattern:
+ * script from https://salesys.se/scripts/web_form1.js, createWebForm(container, formId, { width: '100%' }).
+ * Mount node is React-empty so Salesys can own its DOM (no reconcile wipes).
  *
  * TEMPORARILY UNUSED ON /start-her (Nov 2026):
  * Inline Salesys is disabled on the homepage because skaffa.salesys.se / domain
@@ -56,96 +66,114 @@ export default function SalesysForm({
   defaultFields,
   wrapperClassName,
   onReady,
+  onLoadStateChange,
+  onFormUsable,
 }: SalesysFormProps) {
+  const mountRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
-  const [initFailed, setInitFailed] = useState(false);
+  const onReadyRef = useRef(onReady);
+  const onLoadStateRef = useRef(onLoadStateChange);
+  const onFormUsableRef = useRef(onFormUsable);
+  const defaultFieldsRef = useRef(defaultFields);
+  const optionsRef = useRef(options);
+  const usableSignaledRef = useRef(false);
+
+  onReadyRef.current = onReady;
+  onLoadStateRef.current = onLoadStateChange;
+  onFormUsableRef.current = onFormUsable;
+  defaultFieldsRef.current = defaultFields;
+  optionsRef.current = options;
+
+  const notifyState = (next: SalesysLoadState) => {
+    onLoadStateRef.current?.(next);
+  };
 
   useEffect(() => {
-    if (initializedRef.current) return;
+    initializedRef.current = false;
+    usableSignaledRef.current = false;
+    notifyState("loading");
 
-    const container = document.getElementById(containerId);
-    if (!container) return;
+    const container = mountRef.current;
+    if (!container) {
+      notifyState("failed");
+      return;
+    }
 
-    // Helper to attempt initializing when script and function are ready
-    const tryInit = () => {
-      if (initializedRef.current) return true;
+    let cancelled = false;
+    let pollTimer: ReturnType<typeof setInterval> | undefined;
+
+    const signalUsable = () => {
+      if (cancelled || usableSignaledRef.current) return;
+      usableSignaledRef.current = true;
+      notifyState("ready");
+      onFormUsableRef.current?.();
+    };
+
+    const tryInit = (): boolean => {
+      if (cancelled || initializedRef.current) return true;
       if (typeof window.createWebForm !== "function") return false;
       try {
         container.innerHTML = "";
-        const formInstance = window.createWebForm(container, formId, options);
+        const mergedOptions = {
+          ...optionsRef.current,
+          width: optionsRef.current?.width ?? "100%",
+          onMessage: (event: MessageEvent) => {
+            const data = event.data as { type?: string; height?: number } | null;
+            if (data?.type === "resize" && typeof data.height === "number" && data.height >= MIN_USABLE_FORM_HEIGHT) {
+              signalUsable();
+            }
+          },
+        };
+        const formInstance = window.createWebForm(container, formId, mergedOptions);
         window.myForm = formInstance;
 
-        if (defaultFields && typeof formInstance?.setFields === "function") {
-          formInstance.setFields(defaultFields);
+        const fields = defaultFieldsRef.current;
+        if (fields?.length && typeof formInstance?.setFields === "function") {
+          formInstance.setFields(fields);
         }
 
-        if (typeof onReady === "function") {
-          onReady(formInstance);
+        if (typeof onReadyRef.current === "function") {
+          onReadyRef.current(formInstance);
         }
 
         initializedRef.current = true;
-        setInitFailed(false);
-        console.log("Salesys form initialized", formInstance);
         return true;
       } catch (err) {
-        console.warn("Salesys form init failed, will retry", err);
+        console.warn("Salesys form init failed", err);
         return false;
       }
     };
 
-    // If the script is already on the page, try immediately
-    if (tryInit()) return;
+    loadSalesysWebFormScript()
+      .then(() => {
+        if (cancelled) return;
+        if (tryInit()) return;
 
-    // Otherwise, inject the script and try on load, with polling fallback
-    const webFormScript = document.createElement("script");
-    webFormScript.src = "https://salesys.se/scripts/web_form1.js";
-    webFormScript.async = true;
-    webFormScript.onerror = () => {
-      console.error("Failed to load Salesys web form script");
-      setInitFailed(true);
-    };
-    document.body.appendChild(webFormScript);
-
-    const onLoad = () => {
-      // First attempt on load
-      if (tryInit()) return;
-      // Poll for up to ~10s if createWebForm is late-binding inside the script
-      let attempts = 0;
-      const maxAttempts = 40; // 40 * 250ms = 10s
-      const poll = setInterval(() => {
-        attempts += 1;
-        if (tryInit() || attempts >= maxAttempts) {
-          clearInterval(poll);
-          if (!initializedRef.current) {
-            console.error("Salesys form failed to initialize after waiting");
-            setInitFailed(true);
+        let attempts = 0;
+        pollTimer = setInterval(() => {
+          attempts += 1;
+          if (tryInit() || attempts >= 40) {
+            if (pollTimer) clearInterval(pollTimer);
+            if (!initializedRef.current && !cancelled) {
+              notifyState("failed");
+            }
           }
-        }
-      }, 250);
-    };
+        }, 250);
+      })
+      .catch(() => {
+        if (!cancelled) notifyState("failed");
+      });
 
-    webFormScript.addEventListener("load", onLoad);
     return () => {
-      webFormScript.removeEventListener("load", onLoad);
+      cancelled = true;
+      if (pollTimer) clearInterval(pollTimer);
     };
-  }, [containerId, formId, options, defaultFields, onReady]);
+  }, [formId]);
 
   return (
-    <div id={containerId} className={wrapperClassName}>
-      {initFailed && (
-        <div style={{
-          padding: "12px",
-          background: "#fff4f4",
-          border: "1px solid #fecaca",
-          color: "#b91c1c",
-          borderRadius: 8,
-          fontSize: 14
-        }}>
-          Kunde inte ladda formuläret just nu. Kontrollera nätverket och att formId är giltigt.
-        </div>
-      )}
+    <div className={wrapperClassName}>
+      {/* Salesys owns this node — no React children inside */}
+      <div id={containerId} ref={mountRef} />
     </div>
   );
 }
-
-
