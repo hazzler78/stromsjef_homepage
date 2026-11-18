@@ -31,9 +31,7 @@ type SalesysFormProps = {
   wrapperClassName?: string;
   onReady?: (formInstance: SalesysFormInstance) => void;
   onLoadStateChange?: (state: SalesysLoadState) => void;
-  /** Fired when the iframe is mounted at a fillable size (or Salesys reports a real height). */
   onFormUsable?: () => void;
-  /** Minimum iframe height in px so the form is fillable before Salesys resize posts. */
   minHeightPx?: number;
 };
 
@@ -48,12 +46,27 @@ declare global {
   }
 }
 
-/** Salesys iframe has no default height until a resize postMessage — use a real form-sized floor. */
 const DEFAULT_MIN_IFRAME_HEIGHT_PX = 720;
+const SKAFFA_ORIGIN = "https://skaffa.salesys.se";
+
+function buildFormUrl(formId: string, options?: SalesysFormOptions): URL {
+  const url = new URL(formId, SKAFFA_ORIGIN);
+  if (options?.loadBackground) url.searchParams.set("loadBackground", options.loadBackground);
+  if (options?.lang) url.searchParams.set("lang", options.lang);
+  if (options?.test) url.searchParams.set("test", "1");
+  url.searchParams.set("t", String(Date.now()));
+  try {
+    const referrer = new URL(document.location.href);
+    url.searchParams.set("referrer", referrer.origin + referrer.pathname + referrer.search);
+  } catch {
+    /* ignore */
+  }
+  return url;
+}
 
 /**
- * Embeds Salesys via web_form1.js → iframe to skaffa.salesys.se/{formId}.
- * Mount node is React-empty so Salesys owns the DOM.
+ * Embeds Salesys as a full-size iframe (same URL as web_form1.js createWebForm).
+ * Forces min-height so the form is fillable before resize messages arrive.
  */
 export default function SalesysForm({
   containerId = "form-container",
@@ -67,7 +80,6 @@ export default function SalesysForm({
   minHeightPx = DEFAULT_MIN_IFRAME_HEIGHT_PX,
 }: SalesysFormProps) {
   const mountRef = useRef<HTMLDivElement>(null);
-  const initializedRef = useRef(false);
   const onReadyRef = useRef(onReady);
   const onLoadStateRef = useRef(onLoadStateChange);
   const onFormUsableRef = useRef(onFormUsable);
@@ -86,7 +98,6 @@ export default function SalesysForm({
   };
 
   useEffect(() => {
-    initializedRef.current = false;
     usableSignaledRef.current = false;
     notifyState("loading");
 
@@ -97,8 +108,11 @@ export default function SalesysForm({
     }
 
     let cancelled = false;
-    let pollTimer: ReturnType<typeof setInterval> | undefined;
-    let iframeWatch: MutationObserver | undefined;
+    let iframeEl: HTMLIFrameElement | null = null;
+    let messageQueue: Array<Record<string, unknown>> = [];
+    let iframeReady = false;
+
+    const floorHeight = () => Math.max(minHeightPx, Math.round(window.innerHeight * 0.7));
 
     const signalUsable = () => {
       if (cancelled || usableSignaledRef.current) return;
@@ -107,146 +121,112 @@ export default function SalesysForm({
       onFormUsableRef.current?.();
     };
 
-    const applyIframeSize = (iframe: HTMLIFrameElement, reportedHeight?: number) => {
+    const applySize = (iframe: HTMLIFrameElement, reportedHeight?: number) => {
+      const floor = floorHeight();
       iframe.style.width = "100%";
       iframe.style.maxWidth = "100%";
       iframe.style.border = "0";
       iframe.style.display = "block";
-      iframe.setAttribute("scrolling", "no");
-      const floor = Math.max(minHeightPx, Math.round(window.innerHeight * 0.7));
+      iframe.style.minHeight = `${floor}px`;
       const next =
         typeof reportedHeight === "number" && reportedHeight > 0
           ? Math.max(reportedHeight + 24, floor)
           : floor;
-      iframe.style.minHeight = `${floor}px`;
       iframe.style.height = `${next}px`;
     };
 
-    const watchForIframe = () => {
-      const existing = container.querySelector("iframe") as HTMLIFrameElement | null;
-      if (existing) {
-        applyIframeSize(existing);
+    const postToIframe = (message: Record<string, unknown>) => {
+      if (iframeReady && iframeEl?.contentWindow) {
+        iframeEl.contentWindow.postMessage(message, "*");
+      } else {
+        messageQueue.push(message);
+      }
+    };
+
+    const formInstance: SalesysFormInstance = {
+      setFields: (fields) => {
+        postToIframe({ type: "setFields", references: fields });
+      },
+    };
+
+    const onMessage = (event: MessageEvent) => {
+      if (cancelled) return;
+      if (event.origin !== SKAFFA_ORIGIN) return;
+      if (!iframeEl || event.source !== iframeEl.contentWindow) return;
+      const data = event.data as { type?: string; height?: number; url?: string; context?: string } | null;
+      if (!data?.type) return;
+      if (data.type === "resize" && typeof data.height === "number") {
+        applySize(iframeEl, data.height);
         signalUsable();
+      }
+    };
+
+    const mountIframe = () => {
+      if (cancelled || !container) return;
+      // Wait for accordion layout so width is non-zero
+      if (container.clientWidth < 40) {
+        requestAnimationFrame(mountIframe);
         return;
       }
-      iframeWatch = new MutationObserver(() => {
-        const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
-        if (iframe) {
-          applyIframeSize(iframe);
-          signalUsable();
-          iframeWatch?.disconnect();
-          iframeWatch = undefined;
-        }
+
+      container.innerHTML = "";
+      const url = buildFormUrl(formId, {
+        ...optionsRef.current,
+        loadBackground: optionsRef.current?.loadBackground ?? "#f8fafc",
       });
-      iframeWatch.observe(container, { childList: true, subtree: true });
-    };
 
-    const tryInit = (): boolean => {
-      if (cancelled || initializedRef.current) return true;
-      if (typeof window.createWebForm !== "function") return false;
-      // Accordion mount can have 0 width for one frame — wait for layout
-      if (container.clientWidth < 40) return false;
+      const iframe = document.createElement("iframe");
+      iframe.title = "Bytteskjema";
+      iframe.setAttribute("allow", "payment *; clipboard-write");
+      applySize(iframe);
+      iframe.src = url.href;
+      iframeEl = iframe;
 
-      try {
-        container.innerHTML = "";
-        const mergedOptions = {
-          ...optionsRef.current,
-          width: "100%",
-          loadBackground: optionsRef.current?.loadBackground ?? "#f8fafc",
-          onMessage: (event: MessageEvent) => {
-            const data = event.data as { type?: string; height?: number } | null;
-            if (data?.type !== "resize") return;
-            const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
-            if (iframe) {
-              applyIframeSize(iframe, typeof data.height === "number" ? data.height : undefined);
-              signalUsable();
-            }
-          },
-        };
-        const formInstance = window.createWebForm(container, formId, mergedOptions);
-        window.myForm = formInstance;
+      iframe.addEventListener("load", () => {
+        iframeReady = true;
+        for (const message of messageQueue) {
+          iframe.contentWindow?.postMessage(message, "*");
+        }
+        messageQueue = [];
+        applySize(iframe);
+        signalUsable();
 
         const fields = defaultFieldsRef.current;
-        if (fields?.length && typeof formInstance?.setFields === "function") {
-          // Defer so iframe exists (createWebForm appends after 1ms)
-          window.setTimeout(() => {
-            if (cancelled) return;
-            try {
-              formInstance.setFields?.(fields);
-            } catch {
-              /* ignore */
-            }
-          }, 50);
+        if (fields?.length) {
+          postToIframe({ type: "setFields", references: fields });
         }
+      });
 
-        if (typeof onReadyRef.current === "function") {
-          onReadyRef.current(formInstance);
-        }
-
-        initializedRef.current = true;
-        watchForIframe();
-        // createWebForm appends iframe after 1ms timeout
-        window.setTimeout(() => {
-          if (cancelled) return;
-          const iframe = container.querySelector("iframe") as HTMLIFrameElement | null;
-          if (iframe) {
-            applyIframeSize(iframe);
-            signalUsable();
-          }
-        }, 30);
-        return true;
-      } catch (err) {
-        console.warn("Salesys form init failed", err);
-        return false;
-      }
+      window.addEventListener("message", onMessage);
+      container.appendChild(iframe);
+      window.myForm = formInstance;
+      onReadyRef.current?.(formInstance);
+      // Tall shell is visible immediately; mark usable on load/resize
     };
 
-    const start = () => {
-      loadSalesysWebFormScript()
-        .then(() => {
-          if (cancelled) return;
-          if (tryInit()) return;
-
-          let attempts = 0;
-          pollTimer = setInterval(() => {
-            attempts += 1;
-            if (tryInit() || attempts >= 60) {
-              if (pollTimer) clearInterval(pollTimer);
-              if (!initializedRef.current && !cancelled) {
-                notifyState("failed");
-              }
-            }
-          }, 100);
-        })
-        .catch(() => {
-          if (!cancelled) notifyState("failed");
-        });
-    };
-
-    // Wait one frame so accordion panel has laid out width
-    const widthWaitTimer = setTimeout(start, 0);
+    // Prefer direct iframe (same as createWebForm output) — avoids script-load failures on mobile.
+    // Still warm the Salesys script in background for pages that call createWebForm elsewhere.
+    void loadSalesysWebFormScript().catch(() => {});
+    const startTimer = window.setTimeout(mountIframe, 0);
 
     return () => {
       cancelled = true;
-      if (pollTimer) clearInterval(pollTimer);
-      clearTimeout(widthWaitTimer);
-      iframeWatch?.disconnect();
+      window.clearTimeout(startTimer);
+      window.removeEventListener("message", onMessage);
+      if (iframeEl) {
+        iframeEl.remove();
+        iframeEl = null;
+      }
+      container.innerHTML = "";
     };
   }, [formId, minHeightPx]);
 
   return (
-    <div
-      className={wrapperClassName}
-      style={{ width: "100%", minHeight: minHeightPx }}
-    >
+    <div className={wrapperClassName} style={{ width: "100%", minHeight: minHeightPx }}>
       <div
         id={containerId}
         ref={mountRef}
-        style={{
-          width: "100%",
-          minHeight: minHeightPx,
-          minWidth: "100%",
-        }}
+        style={{ width: "100%", minHeight: minHeightPx, minWidth: "100%" }}
       />
     </div>
   );
