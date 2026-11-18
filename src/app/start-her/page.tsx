@@ -21,11 +21,11 @@ import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
 import { resolvePlanAffiliateLink } from '@/lib/planAffiliateLink';
 
 /**
- * TEMP: inline Salesys on /start-her is OFF until the Salesys domain for
- * stromsjef.no is approved (embed spun forever → lost customers).
- * Flip to `true` to restore the accordion SalesysForm under each plan; keep SalesysForm.tsx.
+ * Inline Salesys accordion under each plan on /start-her.
+ * Re-enabled so Salesys tech support can debug domain whitelisting on stromsjef.no.
+ * If the embed fails again, set to `false` to fall back to resolvePlanAffiliateLink().
  */
-const ENABLE_INLINE_SALESYS_FORM = false;
+const ENABLE_INLINE_SALESYS_FORM = true;
 
 const Section = styled.section`
   padding: var(--section-spacing) 0;
