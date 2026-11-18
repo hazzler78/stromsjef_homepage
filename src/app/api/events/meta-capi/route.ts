@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getMetaPixelId } from '@/lib/metaPixelId';
 
-const META_PIXEL_ID = '25319650941056197';
+const META_PIXEL_ID = getMetaPixelId();
 
 export async function POST(request: NextRequest) {
   const token = process.env.META_CAPI_TOKEN;

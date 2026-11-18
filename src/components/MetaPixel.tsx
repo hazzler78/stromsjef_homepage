@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from 'react';
+import { getMetaPixelId } from '@/lib/metaPixelId';
 
-const META_PIXEL_ID = '25319650941056197';
+const META_PIXEL_ID = getMetaPixelId();
 
 declare global {
   interface Window {
