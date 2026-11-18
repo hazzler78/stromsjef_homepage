@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import GlassButton from '@/components/GlassButton';
-import SalesysForm from '@/components/SalesysForm';
+import SalesysForm, { type SalesysLoadState } from '@/components/SalesysForm';
 import { ElectricityPlan, PriceZone, inferZoneFromPostalCode, getSupplierLogoUrl } from '@/lib/electricity';
 import { createClient } from '@supabase/supabase-js';
 import {
@@ -202,6 +202,7 @@ export default function StartHer() {
   const [hasTrackedSearch, setHasTrackedSearch] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<ElectricityPlanWithBadge | null>(null);
   const [formMountKey, setFormMountKey] = useState(0);
+  const [salesysLoadState, setSalesysLoadState] = useState<SalesysLoadState>('loading');
   const purchaseTrackedRef = useRef(false);
   const viewContentTrackedRef = useRef(false);
 
@@ -467,6 +468,7 @@ export default function StartHer() {
     });
 
     purchaseTrackedRef.current = false;
+    setSalesysLoadState('loading');
     setSelectedPlan(plan);
     setFormMountKey((k) => k + 1);
     setTimeout(() => {
@@ -498,10 +500,11 @@ export default function StartHer() {
     []
   );
 
-  const salesysDefaultFields = useMemo(
-    () => [{ fieldId: '66e9457420ef2d3b8c66f500', value: postalCode.trim() || '0000' }],
-    [postalCode]
-  );
+  const salesysDefaultFields = useMemo(() => {
+    const pc = postalCode.trim();
+    if (pc.length < 4) return [];
+    return [{ fieldId: '66e9457420ef2d3b8c66f500', value: pc }];
+  }, [postalCode]);
 
   useEffect(() => {
     if (!selectedPlan) return undefined;
@@ -631,8 +634,13 @@ export default function StartHer() {
                 Bytt til {selectedPlan.supplierName} – {selectedPlan.planName}
               </h2>
               <p style={{ color: 'var(--gray-600)', fontSize: '0.95rem' }}>
-                Fyll ut skjemaet for å fullføre byttet. Postnummer: {postalCode || '—'} · Sone: {effectiveZone}
+                Fyll ut skjemaet for å fullføre byttet. Postnummer: {postalCode.trim() || '—'} · Sone: {effectiveZone}
               </p>
+              {!postalCode.trim() && (
+                <p style={{ color: '#92400e', fontSize: '0.9rem', marginTop: 0 }}>
+                  Tips: Skriv inn postnummer over for forhåndsutfylling. Du kan fortsatt bytte uten, eller bruke leverandørens lenke nedenfor.
+                </p>
+              )}
               <SalesysForm
                 key={formMountKey}
                 containerId={SALESYS_CONTAINER_ID}
@@ -642,7 +650,28 @@ export default function StartHer() {
                 options={salesysOptions}
                 defaultFields={salesysDefaultFields}
                 onReady={onSalesysReady}
+                onLoadStateChange={setSalesysLoadState}
               />
+              {salesysLoadState === 'loading' && (
+                <p style={{ color: 'var(--gray-600)', fontSize: '0.9rem', marginTop: '0.75rem' }}>
+                  Laster bytteskjema…
+                </p>
+              )}
+              {selectedPlan.affiliateLink && salesysLoadState === 'failed' && (
+                <div style={{ marginTop: '1rem' }}>
+                  <GlassButton
+                    variant="primary"
+                    size="md"
+                    background="linear-gradient(135deg, var(--primary), var(--secondary))"
+                    disableScrollEffect={true}
+                    disableHoverEffect={true}
+                    onClick={() => window.open(selectedPlan.affiliateLink!, '_blank', 'noopener,noreferrer')}
+                    aria-label={`Fortsett hos ${selectedPlan.supplierName}`}
+                  >
+                    Fortsett bestilling hos {selectedPlan.supplierName}
+                  </GlassButton>
+                </div>
+              )}
             </FormPanel>
           )}
         </Container>
