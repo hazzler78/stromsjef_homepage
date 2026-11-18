@@ -40,6 +40,14 @@ declare global {
 
 /**
  * Loads the Salesys web form script and initializes the form in a provided container.
+ *
+ * TEMPORARILY UNUSED ON /start-her (Nov 2026):
+ * Inline Salesys is disabled on the homepage because skaffa.salesys.se / domain
+ * approval for stromsjef.no is pending — the embed spun forever and lost customers.
+ * /start-her currently opens resolvePlanAffiliateLink() instead.
+ *
+ * RE-ENABLE: set ENABLE_INLINE_SALESYS_FORM = true in src/app/start-her/page.tsx
+ * once Salesys has approved the stromsjef.no domain. Do not delete this component.
  */
 export default function SalesysForm({
   containerId = "form-container",
