@@ -50,7 +50,14 @@ export default function SalesysForm({
   onReady,
 }: SalesysFormProps) {
   const initializedRef = useRef(false);
+  const onReadyRef = useRef(onReady);
+  const defaultFieldsRef = useRef(defaultFields);
+  const optionsRef = useRef(options);
   const [initFailed, setInitFailed] = useState(false);
+
+  onReadyRef.current = onReady;
+  defaultFieldsRef.current = defaultFields;
+  optionsRef.current = options;
 
   useEffect(() => {
     if (initializedRef.current) return;
@@ -64,15 +71,16 @@ export default function SalesysForm({
       if (typeof window.createWebForm !== "function") return false;
       try {
         container.innerHTML = "";
-        const formInstance = window.createWebForm(container, formId, options);
+        const formInstance = window.createWebForm(container, formId, optionsRef.current);
         window.myForm = formInstance;
 
-        if (defaultFields && typeof formInstance?.setFields === "function") {
-          formInstance.setFields(defaultFields);
+        const fields = defaultFieldsRef.current;
+        if (fields && typeof formInstance?.setFields === "function") {
+          formInstance.setFields(fields);
         }
 
-        if (typeof onReady === "function") {
-          onReady(formInstance);
+        if (typeof onReadyRef.current === "function") {
+          onReadyRef.current(formInstance);
         }
 
         initializedRef.current = true;
@@ -120,7 +128,7 @@ export default function SalesysForm({
     return () => {
       webFormScript.removeEventListener("load", onLoad);
     };
-  }, [containerId, formId, options, defaultFields, onReady]);
+  }, [containerId, formId]);
 
   return (
     <div id={containerId} className={wrapperClassName}>

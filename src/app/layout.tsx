@@ -11,6 +11,7 @@ import CookieConsent from '@/components/CookieConsent';
 import MetaPixel from '@/components/MetaPixel';
 import TikTokPixel from '@/components/TikTokPixel';
 import Ga4 from '@/components/Ga4';
+import { getMetaPixelId } from '@/lib/metaPixelId';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -116,7 +117,7 @@ export default function RootLayout({
             height="1" 
             width="1" 
             style={{ display: 'none' }}
-            src="https://www.facebook.com/tr?id=25319650941056197&ev=PageView&noscript=1"
+            src={`https://www.facebook.com/tr?id=${getMetaPixelId()}&ev=PageView&noscript=1`}
             alt=""
           />
         </noscript>
