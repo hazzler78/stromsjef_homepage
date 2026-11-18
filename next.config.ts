@@ -26,25 +26,20 @@ const nextConfig: NextConfig = {
         destination: "https://stromsjef.no/:path*",
         permanent: true,
       },
-      // Norwegian marketing URL aliases (avoid 404s in GSC/campaigns)
+      // Swedish → Norwegian slugs (301)
+      {
+        source: "/jamfor-elpriser",
+        destination: "/sammenlign-strompriser",
+        permanent: true,
+      },
       {
         source: "/sammenlign-strømpriser",
-        destination: "/jamfor-elpriser",
+        destination: "/sammenlign-strompriser",
         permanent: true,
       },
       {
-        source: "/sammenlign-strompriser",
-        destination: "/jamfor-elpriser",
-        permanent: true,
-      },
-      {
-        source: "/bytt-strømavtale",
-        destination: "/byt-elavtal",
-        permanent: true,
-      },
-      {
-        source: "/bytt-stromavtale",
-        destination: "/byt-elavtal",
+        source: "/byt-elavtal",
+        destination: "/bytt-stromavtale",
         permanent: true,
       },
       {

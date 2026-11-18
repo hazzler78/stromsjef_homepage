@@ -4,10 +4,11 @@ import {
   readSupabaseServiceRoleKey,
   readSupabaseUrl,
 } from '@/lib/runtimeEnv';
+import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
 
 /** Server admin client — legacy `service_role` JWT or new `sb_secret_` key. */
 export function getSupabaseServerClient(): SupabaseClient {
-  const url = readSupabaseUrl();
+  const url = normalizeSupabaseProjectUrl(readSupabaseUrl());
   const key = readSupabaseServiceRoleKey();
   if (!url || !key) {
     throw new Error('Supabase credentials are not configured');

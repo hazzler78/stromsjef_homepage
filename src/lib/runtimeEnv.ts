@@ -25,6 +25,7 @@ function sanitizeEnv(value: string | undefined): string | undefined {
   return trimmed.replace(/^"|"$/g, '');
 }
 
+
 /** Decode role claim from a legacy Supabase JWT (no verification — diagnostics only). */
 export function supabaseJwtRole(key: string | undefined): EnvProbe['jwtRole'] {
   if (!key) return 'unknown';

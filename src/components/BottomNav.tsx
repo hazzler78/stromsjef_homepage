@@ -243,9 +243,9 @@ function BottomNavContent() {
         Hjem
         {pathname === '/' && <ActiveIndicator />}
       </NavItem>
-      <NavItem href={withDefaultCtaUtm('/jamfor-elpriser', 'bottomnav', 'compare')} className={pathname === '/jamfor-elpriser' ? 'active' : ''}>
+      <NavItem href={withDefaultCtaUtm('/analyser-faktura', 'bottomnav', 'compare')} className={pathname === '/analyser-faktura' ? 'active' : ''}>
         Fakturaanalyse
-        {pathname === '/jamfor-elpriser' && <ActiveIndicator />}
+        {pathname === '/analyser-faktura' && <ActiveIndicator />}
       </NavItem>
       <NavItem href={withDefaultCtaUtm('/media', 'bottomnav', 'media')} className={pathname === '/media' ? 'active' : ''}>
         Media

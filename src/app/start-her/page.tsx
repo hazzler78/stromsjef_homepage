@@ -1,10 +1,23 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import GlassButton from '@/components/GlassButton';
+import SalesysForm from '@/components/SalesysForm';
 import { ElectricityPlan, PriceZone, inferZoneFromPostalCode, getSupplierLogoUrl } from '@/lib/electricity';
 import { createClient } from '@supabase/supabase-js';
+import {
+  SALESYS_FORM_IDS,
+  canTrackAnalytics,
+  canTrackMarketing,
+  captureUtmFromUrl,
+  contractTypeFromPlan,
+  generateEventId,
+  getStoredUtm,
+  observeSalesysSuccess,
+  trackFunnelEvent,
+} from '@/lib/funnelTracking';
+import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
 
 const Section = styled.section`
   padding: var(--section-spacing) 0;
@@ -120,6 +133,16 @@ const Logo = styled.img`
   object-fit: contain;
 `;
 
+const FormPanel = styled.div`
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #dbeafe;
+  background: #f8fafc;
+`;
+
+const SALESYS_CONTAINER_ID = 'start-her-salesys-form';
+
 function formatPrice(value: number) {
   // Norwegian format, allow negatives for campaigns like -1.7 øre
   return `${value.toLocaleString('no-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} øre/kWh`;
@@ -158,14 +181,13 @@ function generateSessionId(): string {
   return newId;
 }
 
-// Hämta UTM-parametrar från URL
-function getUtmParams() {
-  if (typeof window === 'undefined') return { utmSource: null, utmMedium: null, utmCampaign: null };
-  const params = new URLSearchParams(window.location.search);
+function utmForApi() {
+  const utm = getStoredUtm();
   return {
-    utmSource: params.get('utm_source'),
-    utmMedium: params.get('utm_medium'),
-    utmCampaign: params.get('utm_campaign'),
+    utmSource: utm.utm_source ?? null,
+    utmMedium: utm.utm_medium ?? null,
+    utmCampaign: utm.utm_campaign ?? null,
+    utmContent: utm.utm_content ?? null,
   };
 }
 
@@ -178,6 +200,33 @@ export default function StartHer() {
   const [touched, setTouched] = useState(false);
   const [sessionId] = useState(() => generateSessionId());
   const [hasTrackedSearch, setHasTrackedSearch] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<ElectricityPlanWithBadge | null>(null);
+  const [formMountKey, setFormMountKey] = useState(0);
+  const purchaseTrackedRef = useRef(false);
+  const viewContentTrackedRef = useRef(false);
+
+  const trackFunnelEntry = useCallback(() => {
+    if (viewContentTrackedRef.current) return;
+    if (!canTrackMarketing() && !canTrackAnalytics()) return;
+    viewContentTrackedRef.current = true;
+    const eventId = generateEventId();
+    const utm = getStoredUtm();
+    trackFunnelEvent({
+      eventId,
+      utm,
+      metaEvent: 'ViewContent',
+      metaParams: { content_name: 'start-her', content_category: 'funnel' },
+      ga4Event: 'view_start',
+      ga4Params: { page_path: '/start-her' },
+    });
+  }, []);
+
+  useEffect(() => {
+    captureUtmFromUrl();
+    trackFunnelEntry();
+    window.addEventListener('cookieConsentChanged', trackFunnelEntry);
+    return () => window.removeEventListener('cookieConsentChanged', trackFunnelEntry);
+  }, [trackFunnelEntry]);
 
   const inferred = useMemo(() => {
     if (postalCode.length >= 4) {
@@ -191,7 +240,9 @@ export default function StartHer() {
   useEffect(() => {
     const z = effectiveZone;
     if (!z) return; 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
+    const supabaseUrl = normalizeSupabaseProjectUrl(
+      process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined
+    );
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string | undefined;
     if (!supabaseUrl || !supabaseKey) return;
     setLoading(true);
@@ -268,22 +319,19 @@ export default function StartHer() {
         
         // Spåra sökningen för marknadsföring
         if (!hasTrackedSearch && mapped.length > 0) {
-          const utm = getUtmParams();
+          const utm = utmForApi();
           const payload = {
             postalCode: postalCode.trim() || null,
             priceZone: z,
             zoneSource: inferred && !zone ? 'postal_code' : zone ? 'manual' : 'inferred',
             pagePath: '/start-her',
             sessionId,
-            utmSource: utm.utmSource,
-            utmMedium: utm.utmMedium,
-            utmCampaign: utm.utmCampaign,
+            ...utm,
             plansShown: mapped.length,
             clickedPlan: false,
             clickedSupplier: null,
           };
-          
-          // Använd sendBeacon för bättre tillförlitlighet
+
           if (navigator.sendBeacon) {
             const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
             navigator.sendBeacon('/api/events/postal-code-search', blob);
@@ -291,7 +339,7 @@ export default function StartHer() {
             fetch('/api/events/postal-code-search', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
+              body: JSON.stringify(payload),
             }).catch(() => {});
           }
           setHasTrackedSearch(true);
@@ -308,10 +356,144 @@ export default function StartHer() {
   // Allow Swedish 5-digit postcodes as well
   const canSearch = postalCode.trim().length >= 4 || zone !== '';
 
+  const fireSearchTracking = useCallback(
+    (zoneLabel: string) => {
+      const eventId = generateEventId();
+      const utm = getStoredUtm();
+      trackFunnelEvent({
+        eventId,
+        utm,
+        metaEvent: 'Search',
+        metaParams: {
+          search_string: postalCode.trim() || zoneLabel,
+          content_category: zoneLabel,
+        },
+        ga4Event: 'search_postnummer',
+        ga4Params: {
+          postnummer: postalCode.trim() || null,
+          prisomrade: zoneLabel,
+        },
+      });
+    },
+    [postalCode]
+  );
+
   const handleFind = () => {
     setTouched(true);
     if (!effectiveZone) return;
+    fireSearchTracking(effectiveZone);
   };
+
+  const trackPurchase = useCallback(
+    (plan: ElectricityPlanWithBadge) => {
+      if (purchaseTrackedRef.current) return;
+      purchaseTrackedRef.current = true;
+      const eventId = generateEventId();
+      const utm = getStoredUtm();
+      const value = Number.isFinite(plan.monthlyFee) ? Math.max(plan.monthlyFee * 12, 0) : 0;
+      trackFunnelEvent({
+        eventId,
+        utm,
+        metaEvent: 'Purchase',
+        metaParams: {
+          value,
+          currency: 'NOK',
+          content_name: `${plan.supplierName} · ${plan.planName}`,
+        },
+        ga4Event: 'purchase',
+        ga4Params: {
+          value,
+          currency: 'NOK',
+          item_name: `${plan.supplierName} · ${plan.planName}`,
+        },
+      });
+    },
+    []
+  );
+
+  const handleSelectPlan = (plan: ElectricityPlanWithBadge) => {
+    const utm = utmForApi();
+    const contractType = contractTypeFromPlan(plan.bindingTime);
+    const contentName = `${plan.supplierName} · ${plan.planName}`;
+
+    const postalPayload = {
+      postalCode: postalCode.trim() || null,
+      priceZone: effectiveZone,
+      zoneSource: inferred && !zone ? 'postal_code' : zone ? 'manual' : 'inferred',
+      pagePath: '/start-her',
+      sessionId,
+      ...utm,
+      plansShown: plans.length,
+      clickedPlan: true,
+      clickedSupplier: plan.supplierName,
+    };
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(
+        '/api/events/postal-code-search',
+        new Blob([JSON.stringify(postalPayload)], { type: 'application/json' })
+      );
+    }
+
+    const contractPayload = JSON.stringify({
+      contractType,
+      sessionId,
+      source: 'start-her',
+      supplierName: plan.supplierName,
+      planId: plan.id,
+      savingsAmount: null,
+      ...utm,
+    });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/events/contract-click', new Blob([contractPayload], { type: 'application/json' }));
+    } else {
+      fetch('/api/events/contract-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: contractPayload,
+      }).catch(() => {});
+    }
+
+    const leadEventId = generateEventId();
+    trackFunnelEvent({
+      eventId: leadEventId,
+      metaEvent: 'Lead',
+      metaParams: { content_name: contentName, content_category: contractType },
+      ga4Event: 'select_contract',
+      ga4Params: {
+        supplier: plan.supplierName,
+        plan_name: plan.planName,
+        contract_type: contractType,
+      },
+    });
+
+    purchaseTrackedRef.current = false;
+    setSelectedPlan(plan);
+    setFormMountKey((k) => k + 1);
+    setTimeout(() => {
+      document.getElementById(SALESYS_CONTAINER_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const onSalesysReady = useCallback(() => {
+    if (!selectedPlan) return;
+    const eventId = generateEventId();
+    const contentName = `${selectedPlan.supplierName} · ${selectedPlan.planName}`;
+    trackFunnelEvent({
+      eventId,
+      metaEvent: 'InitiateCheckout',
+      metaParams: { content_name: contentName, content_category: contractTypeFromPlan(selectedPlan.bindingTime) },
+      ga4Event: 'begin_checkout',
+      ga4Params: {
+        supplier: selectedPlan.supplierName,
+        plan_name: selectedPlan.planName,
+      },
+    });
+  }, [selectedPlan]);
+
+  useEffect(() => {
+    if (!selectedPlan) return undefined;
+    return observeSalesysSuccess(SALESYS_CONTAINER_ID, () => trackPurchase(selectedPlan));
+  }, [selectedPlan, formMountKey, trackPurchase]);
 
   return (
     <Section>
@@ -417,38 +599,7 @@ export default function StartHer() {
                     background="linear-gradient(135deg, var(--secondary), var(--primary))"
                     disableScrollEffect={true}
                     disableHoverEffect={true}
-                    onClick={() => {
-                      // Spåra klick på avtal
-                      const utm = getUtmParams();
-                      const payload = {
-                        postalCode: postalCode.trim() || null,
-                        priceZone: effectiveZone,
-                        zoneSource: inferred && !zone ? 'postal_code' : zone ? 'manual' : 'inferred',
-                        pagePath: '/start-her',
-                        sessionId,
-                        utmSource: utm.utmSource,
-                        utmMedium: utm.utmMedium,
-                        utmCampaign: utm.utmCampaign,
-                        plansShown: plans.length,
-                        clickedPlan: true,
-                        clickedSupplier: plan.supplierName,
-                      };
-                      
-                      if (navigator.sendBeacon) {
-                        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-                        navigator.sendBeacon('/api/events/postal-code-search', blob);
-                      } else {
-                        fetch('/api/events/postal-code-search', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(payload)
-                        }).catch(() => {});
-                      }
-                      
-                      if (plan.affiliateLink) {
-                        window.open(plan.affiliateLink, '_blank');
-                      }
-                    }}
+                    onClick={() => handleSelectPlan(plan)}
                     aria-label={`Velg ${plan.supplierName} ${plan.planName}`}
                   >
                     Velg avtalen
@@ -460,6 +611,29 @@ export default function StartHer() {
               <div style={{ color: 'var(--gray-700)', marginTop: 8 }}>Ingen avtale for valgt område akkurat nå.</div>
             )}
           </Plans>
+
+          {selectedPlan && (
+            <FormPanel id="bytteskjema">
+              <h2 style={{ marginTop: 0, fontSize: '1.25rem' }}>
+                Bytt til {selectedPlan.supplierName} – {selectedPlan.planName}
+              </h2>
+              <p style={{ color: 'var(--gray-600)', fontSize: '0.95rem' }}>
+                Fyll ut skjemaet for å fullføre byttet. Postnummer: {postalCode || '—'} · Sone: {effectiveZone}
+              </p>
+              <SalesysForm
+                key={formMountKey}
+                containerId={SALESYS_CONTAINER_ID}
+                formId={
+                  SALESYS_FORM_IDS[contractTypeFromPlan(selectedPlan.bindingTime)]
+                }
+                options={{ width: '100%', test: process.env.NODE_ENV === 'development' }}
+                defaultFields={[
+                  { fieldId: '66e9457420ef2d3b8c66f500', value: postalCode.trim() || '0000' },
+                ]}
+                onReady={onSalesysReady}
+              />
+            </FormPanel>
+          )}
         </Container>
       </div>
     </Section>
