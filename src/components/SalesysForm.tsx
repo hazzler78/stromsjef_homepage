@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { loadSalesysWebFormScript } from "@/lib/loadSalesysWebFormScript";
 
 export type SalesysFormField = {
@@ -17,7 +17,6 @@ export type SalesysFormInstance = {
 type SalesysFormOptions = {
   width?: string;
   test?: boolean;
-  onMessage?: (event: MessageEvent) => void;
 };
 
 export type SalesysLoadState = "loading" | "ready" | "failed";
@@ -30,7 +29,8 @@ type SalesysFormProps = {
   wrapperClassName?: string;
   onReady?: (formInstance: SalesysFormInstance) => void;
   onLoadStateChange?: (state: SalesysLoadState) => void;
-  loadTimeoutMs?: number;
+  /** Fired when Salesys posts a resize with real form height (cross-origin usable signal). */
+  onFormUsable?: () => void;
 };
 
 declare global {
@@ -38,16 +38,18 @@ declare global {
     createWebForm?: (
       containerEl: HTMLElement,
       formId: string,
-      opts?: SalesysFormOptions
+      opts?: SalesysFormOptions & { onMessage?: (event: MessageEvent) => void }
     ) => SalesysFormInstance;
     myForm?: SalesysFormInstance;
   }
 }
 
-const DEFAULT_LOAD_TIMEOUT_MS = 5000;
+const MIN_USABLE_FORM_HEIGHT = 120;
 
 /**
- * Loads the Salesys web form script and initializes the form in a provided container.
+ * Embeds Salesys via web_form1.js (iframe inside mount div). Matches fastpris-avtal / elchef pattern:
+ * script from https://salesys.se/scripts/web_form1.js, createWebForm(container, formId, { width: '100%' }).
+ * Mount node is React-empty so Salesys can own its DOM (no reconcile wipes).
  */
 export default function SalesysForm({
   containerId = "form-container",
@@ -57,69 +59,46 @@ export default function SalesysForm({
   wrapperClassName,
   onReady,
   onLoadStateChange,
-  loadTimeoutMs = DEFAULT_LOAD_TIMEOUT_MS,
+  onFormUsable,
 }: SalesysFormProps) {
+  const mountRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
   const onReadyRef = useRef(onReady);
   const onLoadStateRef = useRef(onLoadStateChange);
+  const onFormUsableRef = useRef(onFormUsable);
   const defaultFieldsRef = useRef(defaultFields);
   const optionsRef = useRef(options);
-  const [loadState, setLoadState] = useState<SalesysLoadState>("loading");
+  const usableSignaledRef = useRef(false);
 
   onReadyRef.current = onReady;
   onLoadStateRef.current = onLoadStateChange;
+  onFormUsableRef.current = onFormUsable;
   defaultFieldsRef.current = defaultFields;
   optionsRef.current = options;
 
-  const setState = (next: SalesysLoadState) => {
-    setLoadState(next);
+  const notifyState = (next: SalesysLoadState) => {
     onLoadStateRef.current?.(next);
   };
 
   useEffect(() => {
     initializedRef.current = false;
-    setState("loading");
+    usableSignaledRef.current = false;
+    notifyState("loading");
 
-    const container = document.getElementById(containerId);
+    const container = mountRef.current;
     if (!container) {
-      setState("failed");
+      notifyState("failed");
       return;
     }
 
     let cancelled = false;
     let pollTimer: ReturnType<typeof setInterval> | undefined;
-    let loadTimeout: ReturnType<typeof setTimeout> | undefined;
 
-    const clearWatchdog = () => {
-      if (loadTimeout) {
-        clearTimeout(loadTimeout);
-        loadTimeout = undefined;
-      }
-    };
-
-    const fail = (reason: string) => {
-      if (cancelled || initializedRef.current) return;
-      console.warn("Salesys form load failed:", reason);
-      setState("failed");
-      clearWatchdog();
-    };
-
-    const armWatchdog = () => {
-      clearWatchdog();
-      loadTimeout = setTimeout(() => {
-        if (cancelled || initializedRef.current) return;
-        if (!initializedRef.current) {
-          fail("timeout waiting for Salesys form content");
-        }
-      }, loadTimeoutMs);
-    };
-
-    const markReady = (formInstance: SalesysFormInstance) => {
-      if (cancelled || initializedRef.current) return;
-      initializedRef.current = true;
-      setState("ready");
-      clearWatchdog();
-      onReadyRef.current?.(formInstance);
+    const signalUsable = () => {
+      if (cancelled || usableSignaledRef.current) return;
+      usableSignaledRef.current = true;
+      notifyState("ready");
+      onFormUsableRef.current?.();
     };
 
     const tryInit = (): boolean => {
@@ -127,25 +106,17 @@ export default function SalesysForm({
       if (typeof window.createWebForm !== "function") return false;
       try {
         container.innerHTML = "";
-        const formInstanceRef: { current: SalesysFormInstance | null } = { current: null };
-
-        const mergedOptions: SalesysFormOptions = {
+        const mergedOptions = {
           ...optionsRef.current,
+          width: optionsRef.current?.width ?? "100%",
           onMessage: (event: MessageEvent) => {
-            optionsRef.current?.onMessage?.(event);
             const data = event.data as { type?: string; height?: number } | null;
-            if (
-              data?.type === "resize" &&
-              typeof data.height === "number" &&
-              data.height > 60 &&
-              formInstanceRef.current
-            ) {
-              markReady(formInstanceRef.current);
+            if (data?.type === "resize" && typeof data.height === "number" && data.height >= MIN_USABLE_FORM_HEIGHT) {
+              signalUsable();
             }
           },
         };
         const formInstance = window.createWebForm(container, formId, mergedOptions);
-        formInstanceRef.current = formInstance;
         window.myForm = formInstance;
 
         const fields = defaultFieldsRef.current;
@@ -153,13 +124,11 @@ export default function SalesysForm({
           formInstance.setFields(fields);
         }
 
-        const iframe = container.querySelector("iframe");
-        if (iframe) {
-          armWatchdog();
-        } else {
-          markReady(formInstance);
+        if (typeof onReadyRef.current === "function") {
+          onReadyRef.current(formInstance);
         }
 
+        initializedRef.current = true;
         return true;
       } catch (err) {
         console.warn("Salesys form init failed", err);
@@ -173,45 +142,30 @@ export default function SalesysForm({
         if (tryInit()) return;
 
         let attempts = 0;
-        const maxAttempts = Math.ceil(loadTimeoutMs / 250);
         pollTimer = setInterval(() => {
           attempts += 1;
-          if (tryInit() || attempts >= maxAttempts) {
+          if (tryInit() || attempts >= 40) {
             if (pollTimer) clearInterval(pollTimer);
-            pollTimer = undefined;
             if (!initializedRef.current && !cancelled) {
-              fail("createWebForm never became available");
+              notifyState("failed");
             }
           }
         }, 250);
       })
       .catch(() => {
-        fail("script load error");
+        if (!cancelled) notifyState("failed");
       });
 
     return () => {
       cancelled = true;
       if (pollTimer) clearInterval(pollTimer);
-      clearWatchdog();
     };
-  }, [containerId, formId, loadTimeoutMs]);
+  }, [formId]);
 
   return (
-    <div id={containerId} className={wrapperClassName} data-salesys-state={loadState}>
-      {loadState === "failed" && (
-        <div
-          style={{
-            padding: "12px",
-            background: "#fff4f4",
-            border: "1px solid #fecaca",
-            color: "#b91c1c",
-            borderRadius: 8,
-            fontSize: 14,
-          }}
-        >
-          Kunne ikke laste bytteskjemaet nå. Prøv igjen, eller fortsett via leverandørens bestillingsside nedenfor.
-        </div>
-      )}
+    <div className={wrapperClassName}>
+      {/* Salesys owns this node — no React children inside */}
+      <div id={containerId} ref={mountRef} />
     </div>
   );
 }
