@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { initializeMetaPixel } from './MetaPixel';
 import { initializeTikTokPixel } from './TikTokPixel';
+import { initializeTrustedForm } from './TrustedForm';
 import { initializeGa4 } from './Ga4';
 
 const CookieBanner = styled.div<{ $isVisible: boolean }>`
@@ -349,6 +350,7 @@ export default function CookieConsent() {
       // Enable marketing tracking (Meta Pixel and TikTok Pixel)
       initializeMetaPixel();
       initializeTikTokPixel();
+      initializeTrustedForm();
     } else {
       // Disable marketing
       // Meta Pixel and TikTok Pixel don't have built-in disable methods

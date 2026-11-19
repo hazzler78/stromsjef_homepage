@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { getTrustedFormCertUrl } from '@/lib/trustedFormClient';
 import styled from 'styled-components';
 
 const ContactSection = styled.section`
@@ -246,7 +247,8 @@ export default function ContactForm() {
           subscribeNewsletter: formData.newsletter,
           ref,
           campaignCode,
-          formType: 'contact'
+          formType: 'contact',
+          xxTrustedFormCertUrl: getTrustedFormCertUrl(),
         }),
       });
 

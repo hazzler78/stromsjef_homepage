@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 // removed unused createClient
 import { getSupabaseServerClient } from '@/lib/supabaseServer';
+import { appendTrustedFormToMessage } from '@/lib/trustedFormClient';
 
 // Sanitize Telegram envs (strip quotes/trim)
 function sanitizeEnv(value: string | undefined): string | undefined {
@@ -32,6 +33,7 @@ export async function POST(request: NextRequest) {
       notes,
       ref,
       campaignCode,
+      xxTrustedFormCertUrl,
     } = body;
 
     if (!companyName || !contactName || !email || !email.includes('@')) {
@@ -60,7 +62,10 @@ export async function POST(request: NextRequest) {
         name: contactName,
         email,
         phone: phone || null,
-        message: `Företag: ${companyName}\nOrg.nr: ${orgNumber || '-'}\nWebb: ${website || '-'}\nTyp: ${partnershipType || '-'}\nVolym: ${estVolume || '-'}\nAnteckningar: ${notes || '-'}`,
+        message: appendTrustedFormToMessage(
+          `Företag: ${companyName}\nOrg.nr: ${orgNumber || '-'}\nWebb: ${website || '-'}\nTyp: ${partnershipType || '-'}\nVolym: ${estVolume || '-'}\nAnteckningar: ${notes || '-'}`,
+          xxTrustedFormCertUrl
+        ),
         ref: ref || 'partner',
         campaign_code: campaignCode || null,
         subscribe_newsletter: false,
