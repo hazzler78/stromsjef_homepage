@@ -3,7 +3,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import GlassButton from '@/components/GlassButton';
-import { ElectricityPlan, PriceZone, inferZoneFromPostalCode, getSupplierLogoUrl } from '@/lib/electricity';
+import {
+  ElectricityPlan,
+  PriceZone,
+  inferZoneFromPostalCode,
+  getSupplierLogoUrl,
+  preferZoneSpecificPlans,
+} from '@/lib/electricity';
 import { createClient } from '@supabase/supabase-js';
 
 const Section = styled.section`
@@ -158,9 +164,17 @@ export default function StartaHar() {
   const [sessionId] = useState(() => generateSessionId());
   const [hasTrackedSearch, setHasTrackedSearch] = useState(false);
 
-  const inferred = useMemo(() => (postalCode.trim().length >= 4 ? inferZoneFromPostalCode(postalCode) : undefined), [postalCode]);
+  const inferred = useMemo(() => {
+    const trimmed = postalCode.trim();
+    if (trimmed.length >= 4) {
+      return inferZoneFromPostalCode(trimmed) ?? null;
+    }
+    return null;
+  }, [postalCode]);
 
-  const effectiveZone = (zone || inferred) as PriceZone | undefined;
+  const effectiveZone = (
+    postalCode.trim().length >= 4 && inferred ? inferred : zone || inferred
+  ) as PriceZone | undefined;
 
   useEffect(() => {
     const z = effectiveZone;
@@ -193,7 +207,7 @@ export default function StartaHar() {
           return fallback;
         };
 
-        const mapped: ElectricityPlanWithBadge[] = (data || []).map((r: DbPlanRow) => ({
+        const mappedRaw: ElectricityPlanWithBadge[] = (data || []).map((r: DbPlanRow) => ({
           id: r.id,
           supplierName: r.supplier_name,
           planName: r.plan_name,
@@ -213,6 +227,7 @@ export default function StartaHar() {
           sortOrder: r.sort_order != null ? Number(r.sort_order) : undefined,
           priceBadge: r.price_badge || undefined,
         }));
+        const mapped = preferZoneSpecificPlans(mappedRaw, z);
         // Debug: Log the data before sorting
         console.log('Plans before sorting:', mapped.map(p => ({
           supplier: p.supplierName,
