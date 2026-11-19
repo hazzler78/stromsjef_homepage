@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from 'react';
+import { getTikTokPixelId } from '@/lib/tiktokPixelId';
 
-const TIKTOK_PIXEL_ID = 'D4K2J7BC77U4IAHDMR40';
+const TIKTOK_PIXEL_ID = getTikTokPixelId();
 
 declare global {
   interface Window {

@@ -237,6 +237,8 @@ export default function StartHer() {
       utm,
       metaEvent: 'ViewContent',
       metaParams: { content_name: 'start-her', content_category: 'funnel' },
+      tiktokEvent: 'ViewContent',
+      tiktokParams: { content_name: 'start-her', content_type: 'product' },
       ga4Event: 'view_start',
       ga4Params: { page_path: '/start-her' },
     });
@@ -398,6 +400,11 @@ export default function StartHer() {
           search_string: postalCode.trim() || zoneLabel,
           content_category: zoneLabel,
         },
+        tiktokEvent: 'Search',
+        tiktokParams: {
+          content_category: zoneLabel,
+          query: zoneLabel,
+        },
         ga4Event: 'search_postnummer',
         ga4Params: {
           postnummer: postalCode.trim() || null,
@@ -431,6 +438,12 @@ export default function StartHer() {
           value,
           currency: 'NOK',
           content_name: `${plan.supplierName} · ${plan.planName}`,
+        },
+        tiktokEvent: 'SubmitForm',
+        tiktokParams: {
+          content_id: plan.id,
+          content_name: `${plan.supplierName} · ${plan.planName}`,
+          content_category: contractTypeFromPlan(plan.bindingTime),
         },
         ga4Event: 'purchase',
         ga4Params: {
@@ -490,6 +503,14 @@ export default function StartHer() {
       eventId: leadEventId,
       metaEvent: 'Lead',
       metaParams: { content_name: contentName, content_category: contractType },
+      tiktokEvent: 'ClickButton',
+      tiktokParams: {
+        content_id: plan.id,
+        content_name: contentName,
+        content_category: contractType,
+        value: 0,
+        currency: 'NOK',
+      },
       ga4Event: 'select_contract',
       ga4Params: {
         supplier: plan.supplierName,

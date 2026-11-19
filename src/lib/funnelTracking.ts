@@ -87,8 +87,25 @@ type TrackFunnelOptions = {
   metaParams?: Record<string, unknown>;
   ga4Event?: string;
   ga4Params?: Record<string, unknown>;
+  tiktokEvent?: string;
+  tiktokParams?: Record<string, unknown>;
   capi?: boolean;
 };
+
+function trackTikTokPixel(event: string, params: Record<string, unknown>): void {
+  type TtqStub = {
+    track?: (name: string, payload?: Record<string, unknown>) => void;
+    push?: (cmd: unknown[]) => void;
+  };
+  const ttq = (window as Window & { ttq?: TtqStub }).ttq;
+  if (!ttq) return;
+  const payload = { ...params };
+  if (typeof ttq.track === 'function') {
+    ttq.track(event, payload);
+  } else if (typeof ttq.push === 'function') {
+    ttq.push(['track', event, payload]);
+  }
+}
 
 export function trackFunnelEvent(options: TrackFunnelOptions): void {
   if (typeof window === 'undefined') return;
@@ -115,6 +132,14 @@ export function trackFunnelEvent(options: TrackFunnelOptions): void {
         event_id: options.eventId,
       });
     }
+  }
+
+  if (options.tiktokEvent && canTrackMarketing()) {
+    trackTikTokPixel(options.tiktokEvent, {
+      ...options.tiktokParams,
+      ...utmPayload,
+      event_id: options.eventId,
+    });
   }
 
   if (options.capi !== false && options.metaEvent && canTrackMarketing()) {
