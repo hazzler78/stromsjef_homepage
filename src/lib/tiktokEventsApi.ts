@@ -3,7 +3,9 @@
  * Documentation: https://ads.tiktok.com/marketing_api/docs?id=1701890979375106
  */
 
-const TIKTOK_PIXEL_ID = 'D4K2J7BC77U4IAHDMR40';
+import { getTikTokPixelId } from '@/lib/tiktokPixelId';
+
+const TIKTOK_PIXEL_ID = getTikTokPixelId();
 const TIKTOK_ACCESS_TOKEN = process.env.TIKTOK_ACCESS_TOKEN || '';
 // Use test event code from env, or default to TEST87379 for testing
 const TIKTOK_TEST_EVENT_CODE = process.env.TIKTOK_TEST_EVENT_CODE || (process.env.NODE_ENV === 'development' ? 'TEST87379' : '');
