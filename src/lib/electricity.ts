@@ -32,8 +32,8 @@ const postnrToZone = postnrToZoneData as Record<string, PriceZone>;
 /** Coarse fallback when a valid 4-digit code is missing from the Bring-based table (rare). */
 function inferZoneFromPostalCodeRanges(n: number): PriceZone | undefined {
   if (n >= 0 && n <= 1999) return PriceZone.NO1;
-  if (n >= 2000 && n <= 2999) return PriceZone.NO2;
-  if (n >= 3000 && n <= 3999) return PriceZone.NO1;
+  if (n >= 2000 && n <= 2999) return PriceZone.NO1;
+  if (n >= 3000 && n <= 3999) return PriceZone.NO2;
   if (n >= 4000 && n <= 4999) return PriceZone.NO2;
   if (n >= 5000 && n <= 5999) return PriceZone.NO5;
   if (n >= 6000 && n <= 6999) return PriceZone.NO3;
