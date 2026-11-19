@@ -21,6 +21,14 @@ const QA_CASES: [string, PriceZone, string][] = [
   ['5003', PriceZone.NO5, 'Bergen'],
 ];
 
+/** Codes missing from postnrToZone.json — must match inferZoneFromPostalCodeRanges majority zones. */
+const FALLBACK_CASES: [string, PriceZone, string][] = [
+  ['2002', PriceZone.NO1, 'Akershus (ikke i Bring-tabell)'],
+  ['2999', PriceZone.NO1, 'øvre 2xxx fallback'],
+  ['3000', PriceZone.NO2, 'Vestfold-område fallback (ikke i tabell)'],
+  ['3020', PriceZone.NO2, '3xxx fallback'],
+];
+
 function main() {
   let fails = 0;
 
@@ -41,6 +49,20 @@ function main() {
     console.log(
       `${ok ? '✓' : '✗'} ${code} ${label} → ${got ?? 'undefined'} (forventet ${expected}, tabell: ${table ?? '—'})`
     );
+  }
+
+  console.log('\n=== Fallback ranges (koder uten tabelltreff) ===\n');
+  for (const [code, expected, label] of FALLBACK_CASES) {
+    const inTable = (postnrToZone as Record<string, string>)[code];
+    if (inTable) {
+      console.error(`✗ ${code} finnes i tabellen (${inTable}) — velg annen testkode`);
+      fails++;
+      continue;
+    }
+    const got = inferZoneFromPostalCode(code);
+    const ok = got === expected;
+    if (!ok) fails++;
+    console.log(`${ok ? '✓' : '✗'} ${code} ${label} → ${got ?? 'undefined'} (forventet ${expected})`);
   }
 
   console.log('\n=== Leading-zero / input ===\n');
