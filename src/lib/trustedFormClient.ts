@@ -26,11 +26,19 @@ export function initTrustedFormScript(): void {
 /** Read certificate URL injected by TrustedForm (may be empty until script has run). */
 export function getTrustedFormCertUrl(): string | undefined {
   if (typeof document === 'undefined') return undefined;
-  const input = document.querySelector<HTMLInputElement>(
+  const exact = document.querySelector<HTMLInputElement>(
     `input[name="${TRUSTED_FORM_FIELD_NAME}"]`
   );
-  const value = input?.value?.trim();
-  if (value?.startsWith('https://cert.trustedform.com/')) return value;
+  const exactValue = exact?.value?.trim();
+  if (exactValue?.startsWith('https://cert.trustedform.com/')) return exactValue;
+
+  // TrustedForm may suffix the field per form (e.g. xxTrustedFormCertUrl_0).
+  const prefixed = document.querySelector<HTMLInputElement>(
+    'input[type="hidden"][name^="xxTrustedFormCertUrl"]'
+  );
+  const prefixedValue = prefixed?.value?.trim();
+  if (prefixedValue?.startsWith('https://cert.trustedform.com/')) return prefixedValue;
+
   return undefined;
 }
 
