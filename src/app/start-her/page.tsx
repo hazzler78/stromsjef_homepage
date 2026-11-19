@@ -141,7 +141,9 @@ const Plans = styled.div`
   gap: 0.75rem;
 
   @media (max-width: 639px) {
-    padding: 0 1rem;
+    /* Full-bleed list: no side inset, so expand does not change card width. */
+    padding: 0;
+    gap: 0.5rem;
   }
 `;
 
@@ -151,20 +153,11 @@ const PlanRow = styled.div<{ $expanded?: boolean }>`
   overflow: hidden;
   background: #fff;
 
-  /* Expanded Kilden card: full viewport width on mobile so Salesys is not clipped. */
+  /* All cards same full-bleed width on mobile (collapsed + expanded). */
   @media (max-width: 639px) {
-    ${(p) =>
-      p.$expanded
-        ? `
-      width: 100vw;
-      max-width: 100vw;
-      margin-left: calc(50% - 50vw);
-      margin-right: calc(50% - 50vw);
-      border-radius: 0;
-      border-left: none;
-      border-right: none;
-    `
-        : ''}
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
 `;
 
