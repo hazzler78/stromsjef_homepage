@@ -154,6 +154,20 @@ const InlineFormPanel = styled.div`
   background: #f8fafc;
 `;
 
+/** Edge-to-edge inside the plan card; heading/copy above keep InlineFormPanel padding. */
+const SalesysFormBleed = styled.div`
+  margin: 0 -1rem;
+  width: calc(100% + 2rem);
+  max-width: none;
+
+  #start-her-salesys-form,
+  #start-her-salesys-form iframe {
+    display: block;
+    width: 100% !important;
+    max-width: 100%;
+  }
+`;
+
 const SALESYS_CONTAINER_ID = 'start-her-salesys-form';
 
 function formatPrice(value: number) {
@@ -715,17 +729,19 @@ export default function StartHer() {
                           Tips: Skriv inn postnummer over for forhåndsutfylling, eller bruk leverandørens lenke under.
                         </p>
                       )}
-                      <SalesysForm
-                        key={formMountKey}
-                        containerId={SALESYS_CONTAINER_ID}
-                        formId={SALESYS_FORM_IDS.kilden}
-                        productId={SALESYS_PRODUCT_IDS.kilden}
-                        options={salesysOptions}
-                        defaultFields={salesysDefaultFields}
-                        onReady={onSalesysReady}
-                        onLoadStateChange={setSalesysLoadState}
-                        onFormUsable={handleSalesysUsable}
-                      />
+                      <SalesysFormBleed>
+                        <SalesysForm
+                          key={formMountKey}
+                          containerId={SALESYS_CONTAINER_ID}
+                          formId={SALESYS_FORM_IDS.kilden}
+                          productId={SALESYS_PRODUCT_IDS.kilden}
+                          options={salesysOptions}
+                          defaultFields={salesysDefaultFields}
+                          onReady={onSalesysReady}
+                          onLoadStateChange={setSalesysLoadState}
+                          onFormUsable={handleSalesysUsable}
+                        />
+                      </SalesysFormBleed>
                       {salesysLoadState === 'loading' && !affiliateFallbackDue && (
                         <p style={{ color: 'var(--gray-600)', fontSize: '0.9rem', marginTop: '0.75rem' }}>
                           Laster bytteskjema…
