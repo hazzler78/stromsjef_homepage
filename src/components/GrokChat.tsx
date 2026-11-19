@@ -187,6 +187,21 @@ export default function GrokChat() {
   const [chatWindowBottom, setChatWindowBottom] = useState(90);
   const [chatWindowHeight, setChatWindowHeight] = useState(480);
   const [isMobile, setIsMobile] = useState(false);
+  /** Hide FAB while /start-her inline Salesys accordion is open (set via body dataset). */
+  const [hideFabForSalesys, setHideFabForSalesys] = useState(false);
+
+  useEffect(() => {
+    const sync = () => {
+      setHideFabForSalesys(document.body.dataset.inlineSalesysOpen === '1');
+    };
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['data-inline-salesys-open'],
+    });
+    return () => observer.disconnect();
+  }, []);
   
   useEffect(() => {
     function selectCookieBannerElement(): HTMLElement | null {
@@ -253,7 +268,8 @@ export default function GrokChat() {
 
       // Account for bottom navigation height plus cookie banner
       const totalOffset = cookieOffset + bottomNavOffset;
-      setChatBottom(mobile ? 24 + totalOffset : 24 + totalOffset);
+      // Keep bubble just above bottom nav; safe-area applied in the button style.
+      setChatBottom(mobile ? Math.max(16, totalOffset) : 24 + totalOffset);
       setChatWindowBottom(mobile ? 90 + totalOffset : 90 + totalOffset);
       setChatWindowHeight(mobile ? 400 : 480);
     }
@@ -453,6 +469,9 @@ export default function GrokChat() {
     setMessages(newMessages);
   };
 
+  const fabSize = isMobile ? 48 : 56;
+  const fabBottom = `calc(${chatBottom}px + env(safe-area-inset-bottom, 0px))`;
+
   return (
     <>
       {/* Floating button */}
@@ -460,15 +479,15 @@ export default function GrokChat() {
         onClick={() => setOpen((o) => !o)}
         style={{
           position: 'fixed',
-          bottom: chatBottom,
+          bottom: fabBottom,
           right: 16,
           zIndex: 1004,
           background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
           color: 'white',
           border: '1px solid rgba(255, 255, 255, 0.2)',
           borderRadius: '50%',
-          width: 56,
-          height: 56,
+          width: fabSize,
+          height: fabSize,
           boxShadow: 'var(--glass-shadow-light)',
           fontSize: 28,
           cursor: 'pointer',
@@ -476,9 +495,12 @@ export default function GrokChat() {
           WebkitBackdropFilter: 'var(--glass-blur)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           overflow: 'hidden',
-          padding: 0
+          padding: 0,
+          // Hide while Salesys form accordion is open on /start-her (positioning/visibility only).
+          display: hideFabForSalesys ? 'none' : undefined,
         }}
         aria-label={open ? 'Lukk chat' : 'Åpne chat'}
+        aria-hidden={hideFabForSalesys}
       >
         <img src="/elge_stromsjef.jpg" alt="Elge" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%' }} />
       </button>

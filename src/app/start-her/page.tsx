@@ -141,8 +141,8 @@ const Plans = styled.div`
   gap: 0.75rem;
 
   @media (max-width: 639px) {
-    /* Full-bleed list: no side inset, so expand does not change card width. */
-    padding: 0;
+    /* 8px inset so the 1px card border is visible on both sides; same width collapsed/expanded. */
+    padding: 0 8px;
     gap: 0.5rem;
   }
 `;
@@ -152,13 +152,6 @@ const PlanRow = styled.div<{ $expanded?: boolean }>`
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
-
-  /* All cards same full-bleed width on mobile (collapsed + expanded). */
-  @media (max-width: 639px) {
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
 `;
 
 const PlanCard = styled.div`
@@ -509,6 +502,16 @@ export default function StartHer() {
   );
 
   const handleSelectPlan = (plan: ElectricityPlanWithBadge) => {
+    const useInlineSalesys =
+      ENABLE_INLINE_SALESYS_FORM && isKildenSupplier(plan.supplierName);
+
+    // Toggle collapse when tapping the already-expanded Kilden card (restores chat FAB).
+    if (useInlineSalesys && selectedPlan?.id === plan.id) {
+      setSelectedPlan(null);
+      setAffiliateFallbackDue(false);
+      return;
+    }
+
     const utm = utmForApi();
     const contractType = contractTypeFromPlan(plan.bindingTime);
     const contentName = `${plan.supplierName} · ${plan.planName}`;
@@ -562,9 +565,6 @@ export default function StartHer() {
         contract_type: contractType,
       },
     });
-
-    const useInlineSalesys =
-      ENABLE_INLINE_SALESYS_FORM && isKildenSupplier(plan.supplierName);
 
     if (!useInlineSalesys) {
       // Affiliate path (all non-Kilden, or when inline Salesys is disabled).
@@ -659,6 +659,49 @@ export default function StartHer() {
     if (!ENABLE_INLINE_SALESYS_FORM || !selectedPlan) return undefined;
     return observeSalesysSuccess(SALESYS_CONTAINER_ID, () => trackPurchase(selectedPlan));
   }, [selectedPlan, formMountKey, trackPurchase]);
+
+  // Signal GrokChat FAB to hide while the inline Salesys panel is open (mobile polish).
+  useEffect(() => {
+    const open =
+      !!selectedPlan &&
+      ENABLE_INLINE_SALESYS_FORM &&
+      isKildenSupplier(selectedPlan.supplierName);
+    document.body.dataset.inlineSalesysOpen = open ? '1' : '0';
+    return () => {
+      delete document.body.dataset.inlineSalesysOpen;
+    };
+  }, [selectedPlan]);
+
+  // After expand: scroll "Bytt til …" just below the sticky campaign banner.
+  useEffect(() => {
+    if (!selectedPlan || !ENABLE_INLINE_SALESYS_FORM) return;
+    if (!isKildenSupplier(selectedPlan.supplierName)) return;
+
+    const scrollFormBelowBanner = () => {
+      const target = document.getElementById('bytteskjema');
+      if (!target) return;
+
+      const banner = document.querySelector('[data-campaign-banner="true"]') as HTMLElement | null;
+      const bannerH = banner?.getBoundingClientRect().height ?? 0;
+      const gap = 8;
+      const rect = target.getBoundingClientRect();
+      const isDesktop = window.innerWidth >= 640;
+
+      if (isDesktop) {
+        // Skip if the form top is already comfortably in view under the banner.
+        if (rect.top >= bannerH + gap && rect.top < window.innerHeight * 0.55) return;
+      }
+
+      const absoluteTop = rect.top + window.scrollY;
+      const targetY = Math.max(0, absoluteTop - bannerH - gap);
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: targetY, behavior: reduceMotion ? 'auto' : 'smooth' });
+    };
+
+    // Wait for accordion DOM to paint.
+    const t = window.setTimeout(scrollFormBelowBanner, 80);
+    return () => window.clearTimeout(t);
+  }, [selectedPlan?.id, formMountKey]);
 
   return (
     <Section>
