@@ -660,18 +660,6 @@ export default function StartHer() {
     return observeSalesysSuccess(SALESYS_CONTAINER_ID, () => trackPurchase(selectedPlan));
   }, [selectedPlan, formMountKey, trackPurchase]);
 
-  // Signal GrokChat FAB to hide while the inline Salesys panel is open (mobile polish).
-  useEffect(() => {
-    const open =
-      !!selectedPlan &&
-      ENABLE_INLINE_SALESYS_FORM &&
-      isKildenSupplier(selectedPlan.supplierName);
-    document.body.dataset.inlineSalesysOpen = open ? '1' : '0';
-    return () => {
-      delete document.body.dataset.inlineSalesysOpen;
-    };
-  }, [selectedPlan]);
-
   // After expand: scroll "Bytt til …" just below the sticky campaign banner.
   useEffect(() => {
     if (!selectedPlan || !ENABLE_INLINE_SALESYS_FORM) return;

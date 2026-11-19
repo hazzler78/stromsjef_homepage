@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import ChatContactForm from './ChatContactForm';
 
 function renderMarkdown(text: string) {
@@ -103,6 +104,7 @@ function generateSessionId(): string {
 }
 
 export default function GrokChat() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>(initialMessages);
   const [input, setInput] = useState('');
@@ -187,20 +189,16 @@ export default function GrokChat() {
   const [chatWindowBottom, setChatWindowBottom] = useState(90);
   const [chatWindowHeight, setChatWindowHeight] = useState(480);
   const [isMobile, setIsMobile] = useState(false);
-  /** Hide FAB while /start-her inline Salesys accordion is open (set via body dataset). */
-  const [hideFabForSalesys, setHideFabForSalesys] = useState(false);
+  /** Match /start-her mobile breakpoint (<640) so the FAB never covers plan prices. */
+  const [isStartHerNarrow, setIsStartHerNarrow] = useState(false);
+  const hideFabOnStartHerMobile =
+    isStartHerNarrow && (pathname === '/start-her' || pathname === '/starta-har');
 
   useEffect(() => {
-    const sync = () => {
-      setHideFabForSalesys(document.body.dataset.inlineSalesysOpen === '1');
-    };
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ['data-inline-salesys-open'],
-    });
-    return () => observer.disconnect();
+    const syncNarrow = () => setIsStartHerNarrow(window.innerWidth < 640);
+    syncNarrow();
+    window.addEventListener('resize', syncNarrow);
+    return () => window.removeEventListener('resize', syncNarrow);
   }, []);
   
   useEffect(() => {
@@ -496,11 +494,10 @@ export default function GrokChat() {
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           overflow: 'hidden',
           padding: 0,
-          // Hide while Salesys form accordion is open on /start-her (positioning/visibility only).
-          display: hideFabForSalesys ? 'none' : undefined,
+          display: hideFabOnStartHerMobile ? 'none' : undefined,
         }}
         aria-label={open ? 'Lukk chat' : 'Åpne chat'}
-        aria-hidden={hideFabForSalesys}
+        aria-hidden={hideFabOnStartHerMobile}
       >
         <img src="/elge_stromsjef.jpg" alt="Elge" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%' }} />
       </button>
