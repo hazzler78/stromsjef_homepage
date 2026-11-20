@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { trustedFormStorageSuffix } from '@/lib/trustedFormClient';
 
 // Raw values first; sanitize below to avoid common dashboard quoting issues
 const RAW_MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
@@ -25,7 +26,17 @@ const TELEGRAM_CHAT_IDS: string[] = (sanitizeEnv(RAW_TELEGRAM_CHAT_IDS) || '')
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, ref, campaignCode }: { email: string; ref?: string; campaignCode?: string } = await request.json();
+    const {
+      email,
+      ref,
+      campaignCode,
+      xxTrustedFormCertUrl,
+    }: {
+      email: string;
+      ref?: string;
+      campaignCode?: string;
+      xxTrustedFormCertUrl?: string;
+    } = await request.json();
 
     // Store newsletter subscription in contacts table for analytics
     const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -40,6 +51,7 @@ export async function POST(request: NextRequest) {
           campaign_code: campaignCode || null,
           subscribe_newsletter: true,
           form_type: 'newsletter',
+          message: trustedFormStorageSuffix(xxTrustedFormCertUrl),
           created_at: new Date().toISOString(),
         }]);
       } catch (e) {

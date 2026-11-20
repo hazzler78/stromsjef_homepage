@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import CookieConsent from '@/components/CookieConsent';
 import MetaPixel from '@/components/MetaPixel';
 import TikTokPixel from '@/components/TikTokPixel';
+import TrustedForm from '@/components/TrustedForm';
 import Ga4 from '@/components/Ga4';
 import { getMetaPixelId } from '@/lib/metaPixelId';
 
@@ -157,6 +158,7 @@ export default function RootLayout({
         <CookieConsent />
         <MetaPixel />
         <TikTokPixel />
+        <TrustedForm />
         <Ga4 />
       </body>
     </html>
