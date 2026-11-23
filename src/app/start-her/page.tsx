@@ -27,17 +27,18 @@ import {
 } from '@/lib/funnelTracking';
 import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
 import { resolvePlanAffiliateLink } from '@/lib/planAffiliateLink';
+import { ENABLE_INLINE_SALESYS_FORM } from '@/lib/inlineSalesysFlag';
 
-/**
- * Inline Salesys accordion under Kilden Kraft plans on /start-her.
- * Non-Kilden suppliers keep resolvePlanAffiliateLink() CTAs.
- * If the embed fails again, set to `false` to fall back to affiliate for everyone.
- */
-const ENABLE_INLINE_SALESYS_FORM = true;
-
-const Section = styled.section`
+const Section = styled.section<{ $mobileNavClearance?: boolean }>`
   padding: var(--section-spacing) 0;
   overflow-x: clip;
+
+  @media (max-width: 767px) {
+    padding-bottom: ${(p) =>
+      p.$mobileNavClearance
+        ? 'calc(var(--section-spacing) + 5rem + env(safe-area-inset-bottom, 0px))'
+        : 'var(--section-spacing)'};
+  }
 `;
 
 /** Same as global .container, but zero horizontal pad on mobile so the form can go edge-to-edge. */
@@ -702,6 +703,9 @@ export default function StartHer() {
         themeHostname: 'webform.kildenkraft.no',
         theme: {},
         loadBackground: '#FFFFFF00',
+        /** Keep Salesys postMessage redirects in the same tab (BankID popups still come from inside the iframe). */
+        navigateNewPage: false,
+        autoScrollOffset: 72,
       }) as const,
     []
   );
@@ -748,8 +752,11 @@ export default function StartHer() {
     return () => window.clearTimeout(t);
   }, [selectedPlan?.id, formMountKey]);
 
+  const needsMobileNavClearance =
+    Boolean(selectedPlan) && ENABLE_INLINE_SALESYS_FORM;
+
   return (
-    <Section>
+    <Section $mobileNavClearance={needsMobileNavClearance}>
       <PageShell>
         <Container>
           <Title>Start her – finn riktig avtale</Title>

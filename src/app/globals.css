@@ -77,6 +77,13 @@ body {
   padding-top: 5.5rem; /* Account for fixed banner height with extra space for mobile */
 }
 
+/* Fixed bottom nav — keep scrollable content clear on narrow viewports */
+@media (max-width: 767px) {
+  #app {
+    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
