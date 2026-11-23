@@ -399,9 +399,8 @@ p {
   animation: shimmer 2s infinite;
 }
 
-/* Cookie consent banner styling */
-/* Our cookie consent component handles its own styling via styled-components */
-/* This ensures navigation stays above cookie banner */
+/* Fixed bottom nav; cookie banner z-index/offset lives in CookieConsent.tsx */
+nav[data-bottom-nav="true"],
 nav[style*="z-index"],
 .nav,
 .bottom-nav {

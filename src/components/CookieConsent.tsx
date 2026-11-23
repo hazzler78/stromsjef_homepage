@@ -18,18 +18,14 @@ const CookieBanner = styled.div<{ $isVisible: boolean }>`
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
-  z-index: 1002;
+  /* Above fixed bottom nav (1003) when consent is showing */
+  z-index: 1010;
   transform: ${props => props.$isVisible ? 'translateY(0)' : 'translateY(100%)'};
   transition: transform 0.3s ease-in-out;
   
-  /* Identifier for navigation components */
-  &[data-cookie-banner="true"] {
-    /* This attribute helps other components detect the banner */
-  }
-  
-  @media (max-width: 600px) {
+  @media (max-width: 767px) {
+    bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
     padding: 1rem;
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   }
 `;
 
