@@ -78,9 +78,10 @@ body {
 }
 
 /* Fixed bottom nav — keep scrollable content clear on narrow viewports */
+/* BottomNav is fixed; keep scrollable content above it (matches ~100px cookie offset budget). */
 @media (max-width: 767px) {
   #app {
-    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
