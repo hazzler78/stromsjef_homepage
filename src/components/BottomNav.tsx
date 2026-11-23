@@ -60,6 +60,9 @@ function BottomNavContent() {
   useEffect(() => {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
+    const isOurBottomNav = (el: HTMLElement) =>
+      el.matches('[data-bottom-nav="true"]') || el.closest('[data-bottom-nav="true"]');
+
     const selectCookieBannerElement = (): HTMLElement | null => {
       // Comprehensive list of cookie banner selectors for different browsers and implementations
       const candidates = [
@@ -123,7 +126,7 @@ function BottomNavContent() {
           const elements = document.querySelectorAll(selector);
           for (const el of elements) {
             const htmlEl = el as HTMLElement;
-            if (htmlEl && isElementVisible(htmlEl)) {
+            if (htmlEl && isElementVisible(htmlEl) && !isOurBottomNav(htmlEl)) {
               return htmlEl;
             }
           }
@@ -138,6 +141,7 @@ function BottomNavContent() {
       for (const el of allElements) {
         const htmlEl = el as HTMLElement;
         if (htmlEl && htmlEl.style) {
+          if (isOurBottomNav(htmlEl)) continue;
           const style = window.getComputedStyle(htmlEl);
           const rect = htmlEl.getBoundingClientRect();
           
@@ -164,7 +168,7 @@ function BottomNavContent() {
     const updateOffset = () => {
       try {
         const banner = selectCookieBannerElement();
-        if (banner && isElementVisible(banner)) {
+        if (banner && isElementVisible(banner) && !isOurBottomNav(banner)) {
           const rect = banner.getBoundingClientRect();
           
           // Check if banner is overlapping with bottom navigation area
