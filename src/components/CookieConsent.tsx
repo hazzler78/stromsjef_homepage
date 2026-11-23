@@ -414,7 +414,7 @@ export default function CookieConsent() {
 
   return (
     <>
-      <CookieBanner $isVisible={isVisible} data-cookie-banner="true">
+      <CookieBanner $isVisible={isVisible && !showSettings} data-cookie-banner="true">
         <CookieContent>
           <CookieText>
             <p>
