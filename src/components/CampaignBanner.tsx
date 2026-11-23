@@ -247,7 +247,7 @@ export default function CampaignBanner() {
   );
 
   return (
-    <Banner $isCollapsed={isCollapsed}>
+    <Banner $isCollapsed={isCollapsed} data-campaign-banner="true">
       {isCollapsed ? (
         variant === 'A' ? collapsedTextA : collapsedTextB
       ) : (

@@ -11,12 +11,17 @@ export type SalesysFormField = {
 
 export type SalesysFormInstance = {
   setFields?: (fields: Array<{ fieldId: string; value: string }>) => void;
+  setProduct?: (productId: string) => void;
   getFields?: () => SalesysFormField[];
 };
 
 type SalesysFormOptions = {
   width?: string;
   test?: boolean;
+  query?: { isAlertHandled?: boolean };
+  themeHostname?: string;
+  theme?: Record<string, unknown>;
+  loadBackground?: string;
 };
 
 export type SalesysLoadState = "loading" | "ready" | "failed";
@@ -24,6 +29,8 @@ export type SalesysLoadState = "loading" | "ready" | "failed";
 type SalesysFormProps = {
   containerId?: string;
   formId: string;
+  /** Salesys product id — passed to webForm.setProduct after createWebForm. */
+  productId?: string;
   options?: SalesysFormOptions;
   defaultFields?: Array<{ fieldId: string; value: string }>;
   wrapperClassName?: string;
@@ -31,6 +38,12 @@ type SalesysFormProps = {
   onLoadStateChange?: (state: SalesysLoadState) => void;
   /** Fired when Salesys posts a resize with real form height (cross-origin usable signal). */
   onFormUsable?: () => void;
+  /**
+   * Raw Salesys iframe postMessage payload (after alert/resize handling).
+   * Observed types so far: `{ type: "resize", height }` and `{ alert: string }`.
+   * Success/thank-you is not reliably posted — prefer DOM observeSalesysSuccess.
+   */
+  onMessage?: (data: unknown) => void;
 };
 
 declare global {
@@ -47,42 +60,40 @@ declare global {
 const MIN_USABLE_FORM_HEIGHT = 120;
 
 /**
- * Embeds Salesys via web_form1.js (iframe inside mount div). Matches fastpris-avtal / elchef pattern:
- * script from https://salesys.se/scripts/web_form1.js, createWebForm(container, formId, { width: '100%' }).
- * Mount node is React-empty so Salesys can own its DOM (no reconcile wipes).
- *
- * TEMPORARILY UNUSED ON /start-her (Nov 2026):
- * Inline Salesys is disabled on the homepage because skaffa.salesys.se / domain
- * approval for stromsjef.no is pending — the embed spun forever and lost customers.
- * /start-her currently opens resolvePlanAffiliateLink() instead.
- *
- * RE-ENABLE: set ENABLE_INLINE_SALESYS_FORM = true in src/app/start-her/page.tsx
- * once Salesys has approved the stromsjef.no domain. Do not delete this component.
+ * Embeds Salesys via web_form1.js (iframe inside mount div).
+ * Script: https://salesys.se/scripts/web_form1.js — loaded once; createWebForm on load.
+ * Mount node is React-empty so Salesys can own its DOM (no reconcile wipes / duplicate iframes).
  */
 export default function SalesysForm({
   containerId = "form-container",
   formId,
+  productId,
   options,
   defaultFields,
   wrapperClassName,
   onReady,
   onLoadStateChange,
   onFormUsable,
+  onMessage,
 }: SalesysFormProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
   const onReadyRef = useRef(onReady);
   const onLoadStateRef = useRef(onLoadStateChange);
   const onFormUsableRef = useRef(onFormUsable);
+  const onMessageRef = useRef(onMessage);
   const defaultFieldsRef = useRef(defaultFields);
   const optionsRef = useRef(options);
+  const productIdRef = useRef(productId);
   const usableSignaledRef = useRef(false);
 
   onReadyRef.current = onReady;
   onLoadStateRef.current = onLoadStateChange;
   onFormUsableRef.current = onFormUsable;
+  onMessageRef.current = onMessage;
   defaultFieldsRef.current = defaultFields;
   optionsRef.current = options;
+  productIdRef.current = productId;
 
   const notifyState = (next: SalesysLoadState) => {
     onLoadStateRef.current?.(next);
@@ -118,14 +129,23 @@ export default function SalesysForm({
           ...optionsRef.current,
           width: optionsRef.current?.width ?? "100%",
           onMessage: (event: MessageEvent) => {
-            const data = event.data as { type?: string; height?: number } | null;
+            const data = event.data as { type?: string; height?: number; alert?: unknown } | null;
+            if (data && typeof data.alert === "string") {
+              window.alert(data.alert);
+            }
             if (data?.type === "resize" && typeof data.height === "number" && data.height >= MIN_USABLE_FORM_HEIGHT) {
               signalUsable();
             }
+            onMessageRef.current?.(data);
           },
         };
         const formInstance = window.createWebForm(container, formId, mergedOptions);
         window.myForm = formInstance;
+
+        const pid = productIdRef.current;
+        if (pid && typeof formInstance?.setProduct === "function") {
+          formInstance.setProduct(pid);
+        }
 
         const fields = defaultFieldsRef.current;
         if (fields?.length && typeof formInstance?.setFields === "function") {
@@ -168,7 +188,7 @@ export default function SalesysForm({
       cancelled = true;
       if (pollTimer) clearInterval(pollTimer);
     };
-  }, [formId]);
+  }, [formId, productId]);
 
   return (
     <div className={wrapperClassName}>

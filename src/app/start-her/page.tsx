@@ -20,21 +20,36 @@ import {
   contractTypeFromPlan,
   generateEventId,
   getStoredUtm,
+  isKildenSupplier,
   observeSalesysSuccess,
+  salesysProductIdForKildenPlan,
   trackFunnelEvent,
 } from '@/lib/funnelTracking';
 import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
 import { resolvePlanAffiliateLink } from '@/lib/planAffiliateLink';
 
 /**
- * TEMP: inline Salesys on /start-her is OFF until the Salesys domain for
- * stromsjef.no is approved (embed spun forever → lost customers).
- * Flip to `true` to restore the accordion SalesysForm under each plan; keep SalesysForm.tsx.
+ * Inline Salesys accordion under Kilden Kraft plans on /start-her.
+ * Non-Kilden suppliers keep resolvePlanAffiliateLink() CTAs.
+ * If the embed fails again, set to `false` to fall back to affiliate for everyone.
  */
-const ENABLE_INLINE_SALESYS_FORM = false;
+const ENABLE_INLINE_SALESYS_FORM = true;
 
 const Section = styled.section`
   padding: var(--section-spacing) 0;
+  overflow-x: clip;
+`;
+
+/** Same as global .container, but zero horizontal pad on mobile so the form can go edge-to-edge. */
+const PageShell = styled.div`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+
+  @media (max-width: 639px) {
+    padding: 0;
+  }
 `;
 
 const Container = styled.div`
@@ -47,17 +62,32 @@ const Container = styled.div`
   border-radius: var(--radius-lg);
   box-shadow: var(--glass-shadow-light);
   padding: 2rem;
+
+  @media (max-width: 639px) {
+    padding: 1rem 0 1.25rem;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
 `;
 
 const Title = styled.h1`
   font-size: 2rem;
   margin-bottom: 0.5rem;
   color: var(--primary);
+
+  @media (max-width: 639px) {
+    padding: 0 1rem;
+  }
 `;
 
 const Lead = styled.p`
   color: var(--gray-700);
   margin-bottom: 1.5rem;
+
+  @media (max-width: 639px) {
+    padding: 0 1rem;
+  }
 `;
 
 const Row = styled.div`
@@ -65,6 +95,10 @@ const Row = styled.div`
   grid-template-columns: 1fr;
   gap: 1rem;
   align-items: end;
+
+  @media (max-width: 639px) {
+    padding: 0 1rem;
+  }
 
   @media (min-width: 640px) {
     grid-template-columns: 1fr auto auto;
@@ -111,6 +145,12 @@ const Plans = styled.div`
   margin-top: 1.5rem;
   display: grid;
   gap: 0.75rem;
+
+  @media (max-width: 639px) {
+    /* 8px inset so the 1px card border is visible on both sides; same width collapsed/expanded. */
+    padding: 0 8px;
+    gap: 0.5rem;
+  }
 `;
 
 const PlanRow = styled.div<{ $expanded?: boolean }>`
@@ -156,6 +196,42 @@ const InlineFormPanel = styled.div`
   padding: 0.9rem 1rem 1.1rem;
   border-top: 1px solid #e5e7eb;
   background: #f8fafc;
+
+  @media (max-width: 639px) {
+    /* Heading/copy keep 16px; form bleeds via SalesysFormBleed below. */
+    padding: 0.9rem 0 0;
+  }
+`;
+
+const FormIntro = styled.div`
+  @media (max-width: 639px) {
+    padding: 0 1rem;
+  }
+`;
+
+/** Desktop: edge-to-edge inside plan card. Mobile: full viewport width. */
+const SalesysFormBleed = styled.div`
+  margin: 0 -1rem;
+  width: calc(100% + 2rem);
+  max-width: none;
+
+  @media (max-width: 639px) {
+    margin: 0;
+    width: 100%;
+  }
+
+  #start-her-salesys-form,
+  #start-her-salesys-form iframe {
+    display: block;
+    width: 100% !important;
+    max-width: 100%;
+  }
+`;
+
+const StatusNote = styled.div`
+  @media (max-width: 639px) {
+    padding: 0 1rem;
+  }
 `;
 
 const SALESYS_CONTAINER_ID = 'start-her-salesys-form';
@@ -457,6 +533,17 @@ export default function StartHer() {
   );
 
   const handleSelectPlan = (plan: ElectricityPlanWithBadge) => {
+    const salesysProductId =
+      isKildenSupplier(plan.supplierName) ? salesysProductIdForKildenPlan(plan) : null;
+    const useInlineSalesys = ENABLE_INLINE_SALESYS_FORM && Boolean(salesysProductId);
+
+    // Toggle collapse when tapping the already-expanded Kilden card (restores chat FAB).
+    if (useInlineSalesys && selectedPlan?.id === plan.id) {
+      setSelectedPlan(null);
+      setAffiliateFallbackDue(false);
+      return;
+    }
+
     const utm = utmForApi();
     const contractType = contractTypeFromPlan(plan.bindingTime);
     const contentName = `${plan.supplierName} · ${plan.planName}`;
@@ -519,8 +606,8 @@ export default function StartHer() {
       },
     });
 
-    if (!ENABLE_INLINE_SALESYS_FORM) {
-      // Affiliate path: fire InitiateCheckout on the button (was Salesys onReady before).
+    if (!useInlineSalesys) {
+      // Affiliate: non-Kilden, unmatched Kilden product_id_sale, or inline Salesys disabled.
       trackFunnelEvent({
         eventId: generateEventId(),
         metaEvent: 'InitiateCheckout',
@@ -538,7 +625,7 @@ export default function StartHer() {
       return;
     }
 
-    // --- Re-enable path: inline Salesys under #bytteskjema (after domain approval) ---
+    // Kilden Kraft with known product_id_sale: inline Salesys under #bytteskjema
     purchaseTrackedRef.current = false;
     setSalesysLoadState('loading');
     salesysUsableRef.current = false;
@@ -546,6 +633,23 @@ export default function StartHer() {
     setSelectedPlan(plan);
     setFormMountKey((k) => k + 1);
   };
+
+  const handleSalesysMessage = useCallback(
+    (data: unknown) => {
+      // Salesys iframe posts resize/alert reliably; purchase/thank-you is usually
+      // only visible in the DOM (see observeSalesysSuccess). If a clear success
+      // signal appears on the wire, fire purchase once as a belt-and-suspenders.
+      if (!selectedPlan || purchaseTrackedRef.current) return;
+      const d = data as { type?: string; event?: string; status?: string; action?: string } | null;
+      if (!d || typeof d !== 'object') return;
+      const token = [d.type, d.event, d.status, d.action].filter(Boolean).join(' ').toLowerCase();
+      if (!token) return;
+      if (/(success|submit|complete|thank|done|purchase|order|confirmation)/.test(token)) {
+        trackPurchase(selectedPlan);
+      }
+    },
+    [selectedPlan, trackPurchase]
+  );
 
   const handleSalesysUsable = useCallback(() => {
     salesysUsableRef.current = true;
@@ -589,8 +693,16 @@ export default function StartHer() {
     }, 0);
   }, [selectedPlan]);
 
+  // Matches Kilden Kraft working embed from Salesys (Bjørnar).
   const salesysOptions = useMemo(
-    () => ({ width: '100%', test: process.env.NODE_ENV === 'development' } as const),
+    () =>
+      ({
+        query: { isAlertHandled: true },
+        width: '100%',
+        themeHostname: 'webform.kildenkraft.no',
+        theme: {},
+        loadBackground: '#FFFFFF00',
+      }) as const,
     []
   );
 
@@ -605,9 +717,40 @@ export default function StartHer() {
     return observeSalesysSuccess(SALESYS_CONTAINER_ID, () => trackPurchase(selectedPlan));
   }, [selectedPlan, formMountKey, trackPurchase]);
 
+  // After expand: scroll "Bytt til …" just below the sticky campaign banner.
+  useEffect(() => {
+    if (!selectedPlan || !ENABLE_INLINE_SALESYS_FORM) return;
+    if (!isKildenSupplier(selectedPlan.supplierName)) return;
+
+    const scrollFormBelowBanner = () => {
+      const target = document.getElementById('bytteskjema');
+      if (!target) return;
+
+      const banner = document.querySelector('[data-campaign-banner="true"]') as HTMLElement | null;
+      const bannerH = banner?.getBoundingClientRect().height ?? 0;
+      const gap = 8;
+      const rect = target.getBoundingClientRect();
+      const isDesktop = window.innerWidth >= 640;
+
+      if (isDesktop) {
+        // Skip if the form top is already comfortably in view under the banner.
+        if (rect.top >= bannerH + gap && rect.top < window.innerHeight * 0.55) return;
+      }
+
+      const absoluteTop = rect.top + window.scrollY;
+      const targetY = Math.max(0, absoluteTop - bannerH - gap);
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: targetY, behavior: reduceMotion ? 'auto' : 'smooth' });
+    };
+
+    // Wait for accordion DOM to paint.
+    const t = window.setTimeout(scrollFormBelowBanner, 80);
+    return () => window.clearTimeout(t);
+  }, [selectedPlan?.id, formMountKey]);
+
   return (
     <Section>
-      <div className="container">
+      <PageShell>
         <Container>
           <Title>Start her – finn riktig avtale</Title>
           <Lead>Skriv inn ditt norske postnummer, så viser vi bare avtaler i ditt strømområde.</Lead>
@@ -656,15 +799,19 @@ export default function StartHer() {
           </Row>
 
           {touched && !effectiveZone && (
-            <p style={{ color: '#b91c1c', marginTop: '0.75rem' }}>
-              Klarte ikke å fastslå strømområde. Velg område i listen for å fortsette.
-            </p>
+            <StatusNote>
+              <p style={{ color: '#b91c1c', marginTop: '0.75rem' }}>
+                Klarte ikke å fastslå strømområde. Velg område i listen for å fortsette.
+              </p>
+            </StatusNote>
           )}
 
           {hasSearched && effectiveZone && (
-            <div style={{ marginTop: '1rem', color: 'var(--gray-700)' }}>
-              Viser avtaler for <strong>{effectiveZone}</strong>{inferred && !zone ? ' (fra postnummer)' : ''} (inkl. Alle soner).
-            </div>
+            <StatusNote>
+              <div style={{ marginTop: '1rem', color: 'var(--gray-700)' }}>
+                Viser avtaler for <strong>{effectiveZone}</strong>{inferred && !zone ? ' (fra postnummer)' : ''} (inkl. Alle soner).
+              </div>
+            </StatusNote>
           )}
 
           <Plans>
@@ -732,48 +879,61 @@ export default function StartHer() {
                       </GlassButton>
                     </div>
                   </PlanCard>
-                  {ENABLE_INLINE_SALESYS_FORM && isExpanded && (
+                  {ENABLE_INLINE_SALESYS_FORM &&
+                    isKildenSupplier(plan.supplierName) &&
+                    Boolean(salesysProductIdForKildenPlan(plan)) &&
+                    isExpanded && (
                     <InlineFormPanel id="bytteskjema">
-                      <h2 style={{ marginTop: 0, fontSize: '1.15rem' }}>
-                        Bytt til {plan.supplierName} – {plan.planName}
-                      </h2>
-                      <p style={{ color: 'var(--gray-600)', fontSize: '0.95rem' }}>
-                        Fyll ut skjemaet for å fullføre byttet. Postnummer: {postalCode.trim() || '—'} · Sone: {effectiveZone}
-                      </p>
-                      {!postalCode.trim() && (
-                        <p style={{ color: '#92400e', fontSize: '0.9rem', marginTop: 0 }}>
-                          Tips: Skriv inn postnummer over for forhåndsutfylling, eller bruk leverandørens lenke under.
+                      <FormIntro>
+                        <h2 style={{ marginTop: 0, fontSize: '1.15rem' }}>
+                          Bytt til {plan.supplierName} – {plan.planName}
+                        </h2>
+                        <p style={{ color: 'var(--gray-600)', fontSize: '0.95rem' }}>
+                          Fyll ut skjemaet for å fullføre byttet. Postnummer: {postalCode.trim() || '—'} · Sone: {effectiveZone}
                         </p>
-                      )}
-                      <SalesysForm
-                        key={formMountKey}
-                        containerId={SALESYS_CONTAINER_ID}
-                        formId={SALESYS_FORM_IDS[contractTypeFromPlan(plan.bindingTime)]}
-                        options={salesysOptions}
-                        defaultFields={salesysDefaultFields}
-                        onReady={onSalesysReady}
-                        onLoadStateChange={setSalesysLoadState}
-                        onFormUsable={handleSalesysUsable}
-                      />
+                        {!postalCode.trim() && (
+                          <p style={{ color: '#92400e', fontSize: '0.9rem', marginTop: 0 }}>
+                            Tips: Skriv inn postnummer over for forhåndsutfylling, eller bruk leverandørens lenke under.
+                          </p>
+                        )}
+                      </FormIntro>
+                      <SalesysFormBleed>
+                        <SalesysForm
+                          key={formMountKey}
+                          containerId={SALESYS_CONTAINER_ID}
+                          formId={SALESYS_FORM_IDS.kilden}
+                          productId={salesysProductIdForKildenPlan(plan) ?? undefined}
+                          options={salesysOptions}
+                          defaultFields={salesysDefaultFields}
+                          onReady={onSalesysReady}
+                          onLoadStateChange={setSalesysLoadState}
+                          onFormUsable={handleSalesysUsable}
+                          onMessage={handleSalesysMessage}
+                        />
+                      </SalesysFormBleed>
                       {salesysLoadState === 'loading' && !affiliateFallbackDue && (
-                        <p style={{ color: 'var(--gray-600)', fontSize: '0.9rem', marginTop: '0.75rem' }}>
-                          Laster bytteskjema…
-                        </p>
+                        <FormIntro>
+                          <p style={{ color: 'var(--gray-600)', fontSize: '0.9rem', marginTop: '0.75rem' }}>
+                            Laster bytteskjema…
+                          </p>
+                        </FormIntro>
                       )}
                       {showAffiliate && (
-                        <div style={{ marginTop: '1rem' }}>
-                          <GlassButton
-                            variant="primary"
-                            size="md"
-                            background="linear-gradient(135deg, var(--primary), var(--secondary))"
-                            disableScrollEffect={true}
-                            disableHoverEffect={true}
-                            onClick={() => window.open(affiliateUrl!, '_blank', 'noopener,noreferrer')}
-                            aria-label={`Fortsett hos ${plan.supplierName}`}
-                          >
-                            Fortsett bestilling hos {plan.supplierName}
-                          </GlassButton>
-                        </div>
+                        <FormIntro>
+                          <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+                            <GlassButton
+                              variant="primary"
+                              size="md"
+                              background="linear-gradient(135deg, var(--primary), var(--secondary))"
+                              disableScrollEffect={true}
+                              disableHoverEffect={true}
+                              onClick={() => window.open(affiliateUrl!, '_blank', 'noopener,noreferrer')}
+                              aria-label={`Fortsett hos ${plan.supplierName}`}
+                            >
+                              Fortsett bestilling hos {plan.supplierName}
+                            </GlassButton>
+                          </div>
+                        </FormIntro>
                       )}
                     </InlineFormPanel>
                   )}
@@ -785,7 +945,7 @@ export default function StartHer() {
             )}
           </Plans>
         </Container>
-      </div>
+      </PageShell>
     </Section>
   );
 }
