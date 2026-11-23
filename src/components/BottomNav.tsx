@@ -178,38 +178,10 @@ function BottomNavContent() {
         resetNavSpacing();
         const banner = selectCookieBannerElement();
         if (banner && isElementVisible(banner) && !isOurBottomNav(banner)) {
-          const rect = banner.getBoundingClientRect();
-          
-          // Check if banner is overlapping with bottom navigation area
-          const navHeight = 80; // Approximate height of bottom nav
-          const isOverlappingNav = rect.bottom > window.innerHeight - navHeight;
-          
-          // Debug logging (only in development) - reduced frequency
-          if (process.env.NODE_ENV === 'development' && Math.random() < 0.1) {
-            console.log('Cookie banner detected:', {
-              height: rect.height,
-              bottom: rect.bottom,
-              windowHeight: window.innerHeight,
-              isOverlappingNav,
-              element: banner
-            });
-          }
-          
-          if (isOverlappingNav) {
-            // Let CSS handle the positioning with margin-bottom instead of forcing position
-            // Only ensure proper z-index layering
-            const el = banner as HTMLElement;
-            el.style.zIndex = '1002'; // Below our nav (1003)
-            
-            // Add margin-bottom to push content up from navigation
-            const safeAreaBottom = window.CSS?.supports?.('padding: env(safe-area-inset-bottom)') ? 'env(safe-area-inset-bottom, 0px)' : '0px';
-            el.style.marginBottom = `calc(${safeAreaBottom} + 100px)`;
-            
-            // No offset needed for nav since CSS handles spacing
-            setBottomOffset(0);
-          } else {
-            setBottomOffset(0);
-          }
+          const el = banner as HTMLElement;
+          el.style.zIndex = '1002'; // Below our nav (1003)
+          el.style.marginBottom = '';
+          setBottomOffset(0);
         } else {
           setBottomOffset(0);
           resetNavSpacing();
