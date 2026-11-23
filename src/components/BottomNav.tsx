@@ -9,6 +9,7 @@ import { withDefaultCtaUtm } from '@/lib/utm';
 const Nav = styled.nav<{ offset?: number }>`
   position: fixed;
   bottom: ${(props) => (props.offset ? `${props.offset}px` : '0')};
+  margin-bottom: 0;
   left: 0;
   right: 0;
   background: rgba(255, 255, 255, 0.95);
@@ -165,8 +166,16 @@ function BottomNavContent() {
       return rect.height > 0 && rect.width > 0;
     };
 
+    const resetNavSpacing = () => {
+      const navEl = document.querySelector('[data-bottom-nav="true"]') as HTMLElement | null;
+      if (navEl) {
+        navEl.style.marginBottom = '';
+      }
+    };
+
     const updateOffset = () => {
       try {
+        resetNavSpacing();
         const banner = selectCookieBannerElement();
         if (banner && isElementVisible(banner) && !isOurBottomNav(banner)) {
           const rect = banner.getBoundingClientRect();
@@ -203,6 +212,7 @@ function BottomNavContent() {
           }
         } else {
           setBottomOffset(0);
+          resetNavSpacing();
         }
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
