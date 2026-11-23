@@ -169,7 +169,9 @@ function BottomNavContent() {
     const resetNavSpacing = () => {
       const navEl = document.querySelector('[data-bottom-nav="true"]') as HTMLElement | null;
       if (navEl) {
-        navEl.style.marginBottom = '';
+        navEl.style.removeProperty('margin-bottom');
+        navEl.style.setProperty('bottom', '0', 'important');
+        navEl.style.setProperty('margin-bottom', '0', 'important');
       }
     };
 
