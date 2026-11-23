@@ -10,6 +10,7 @@ import {
 } from '@/lib/norwegian-lead-validation';
 import { OTOVO_UTM_DEFAULT_NO, sendOtovoInterest } from '@/lib/otovo-interest';
 import { isSolarLeadsEnabled } from '@/lib/solar-leads-enabled';
+import { appendTrustedFormToMessage } from '@/lib/trustedFormClient';
 
 // Raw values first; sanitize below to avoid common dashboard quoting issues
 const RAW_MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY;
@@ -277,7 +278,7 @@ export async function POST(request: NextRequest) {
             name: data.name || null,
             email: data.email,
             phone: data.phone || null,
-            message: data.message || null,
+            message: appendTrustedFormToMessage(data.message, data.xxTrustedFormCertUrl),
             ref: data.ref || null,
             campaign_code: data.campaignCode || null,
             subscribe_newsletter: !!data.subscribeNewsletter,

@@ -4,7 +4,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components';
 import GlassButton from '@/components/GlassButton';
 import SalesysForm, { type SalesysLoadState } from '@/components/SalesysForm';
-import { ElectricityPlan, PriceZone, inferZoneFromPostalCode, getSupplierLogoUrl } from '@/lib/electricity';
+import {
+  ElectricityPlan,
+  PriceZone,
+  inferZoneFromPostalCode,
+  getSupplierLogoUrl,
+  preferZoneSpecificPlans,
+} from '@/lib/electricity';
 import { createClient } from '@supabase/supabase-js';
 import {
   SALESYS_FORM_IDS,
@@ -285,6 +291,7 @@ export default function StartHer() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const [sessionId] = useState(() => generateSessionId());
   const [hasTrackedSearch, setHasTrackedSearch] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<ElectricityPlanWithBadge | null>(null);
@@ -306,6 +313,8 @@ export default function StartHer() {
       utm,
       metaEvent: 'ViewContent',
       metaParams: { content_name: 'start-her', content_category: 'funnel' },
+      tiktokEvent: 'ViewContent',
+      tiktokParams: { content_name: 'start-her', content_type: 'product' },
       ga4Event: 'view_start',
       ga4Params: { page_path: '/start-her' },
     });
@@ -319,17 +328,25 @@ export default function StartHer() {
   }, [trackFunnelEntry]);
 
   const inferred = useMemo(() => {
-    if (postalCode.length >= 4) {
-      return inferZoneFromPostalCode(postalCode);
+    const trimmed = postalCode.trim();
+    if (trimmed.length >= 4) {
+      return inferZoneFromPostalCode(trimmed) ?? null;
     }
     return null;
   }, [postalCode]);
 
-  const effectiveZone = (zone || inferred) as PriceZone | undefined;
+  const effectiveZone = (
+    postalCode.trim().length >= 4 && inferred ? inferred : zone || inferred
+  ) as PriceZone | undefined;
+
+  useEffect(() => {
+    setHasSearched(false);
+    setPlans([]);
+  }, [postalCode, zone]);
 
   useEffect(() => {
     const z = effectiveZone;
-    if (!z) return; 
+    if (!z || !hasSearched) return; 
     const supabaseUrl = normalizeSupabaseProjectUrl(
       process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined
     );
@@ -358,7 +375,7 @@ export default function StartHer() {
           return fallback;
         };
 
-        const mapped: ElectricityPlanWithBadge[] = (data || []).map((r: DbPlanRow) => ({
+        const mappedRaw: ElectricityPlanWithBadge[] = (data || []).map((r: DbPlanRow) => ({
           id: r.id,
           supplierName: r.supplier_name,
           planName: r.plan_name,
@@ -377,6 +394,7 @@ export default function StartHer() {
           sortOrder: r.sort_order != null ? Number(r.sort_order) : undefined,
           priceBadge: r.price_badge || undefined,
         }));
+        const mapped = preferZoneSpecificPlans(mappedRaw, z);
         // Sort by recommended/featured first, then sort_order, then binding time, price, and supplier name
         setPlans(mapped.sort((a, b) => {
           // 1) Recommended first (true before false)
@@ -439,7 +457,7 @@ export default function StartHer() {
         setError(String(e));
         setLoading(false);
       });
-  }, [effectiveZone, postalCode, zone, inferred, hasTrackedSearch, sessionId]);
+  }, [effectiveZone, hasSearched, postalCode, zone, inferred, hasTrackedSearch, sessionId]);
 
   const filteredPlans = plans;
 
@@ -458,6 +476,11 @@ export default function StartHer() {
           search_string: postalCode.trim() || zoneLabel,
           content_category: zoneLabel,
         },
+        tiktokEvent: 'Search',
+        tiktokParams: {
+          content_category: zoneLabel,
+          query: zoneLabel,
+        },
         ga4Event: 'search_postnummer',
         ga4Params: {
           postnummer: postalCode.trim() || null,
@@ -471,6 +494,8 @@ export default function StartHer() {
   const handleFind = () => {
     setTouched(true);
     if (!effectiveZone) return;
+    setHasSearched(true);
+    setHasTrackedSearch(false);
     fireSearchTracking(effectiveZone);
   };
 
@@ -489,6 +514,12 @@ export default function StartHer() {
           value,
           currency: 'NOK',
           content_name: `${plan.supplierName} · ${plan.planName}`,
+        },
+        tiktokEvent: 'SubmitForm',
+        tiktokParams: {
+          content_id: plan.id,
+          content_name: `${plan.supplierName} · ${plan.planName}`,
+          content_category: contractTypeFromPlan(plan.bindingTime),
         },
         ga4Event: 'purchase',
         ga4Params: {
@@ -558,6 +589,14 @@ export default function StartHer() {
       eventId: leadEventId,
       metaEvent: 'Lead',
       metaParams: { content_name: contentName, content_category: contractType },
+      tiktokEvent: 'ClickButton',
+      tiktokParams: {
+        content_id: plan.id,
+        content_name: contentName,
+        content_category: contractType,
+        value: 0,
+        currency: 'NOK',
+      },
       ga4Event: 'select_contract',
       ga4Params: {
         supplier: plan.supplierName,
@@ -703,13 +742,19 @@ export default function StartHer() {
               pattern="\\d{4}"
               placeholder="Postnummer (f.eks. 0150)"
               value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
+              onChange={(e) => {
+                setPostalCode(e.target.value);
+                setTouched(false);
+              }}
               aria-label="Postnummer"
             />
             <Select
               aria-label="Strømområde"
               value={zone}
-              onChange={(e) => setZone(e.target.value as PriceZone | '')}
+              onChange={(e) => {
+                setZone(e.target.value as PriceZone | '');
+                setTouched(false);
+              }}
             >
               <option value="">Velg strømområde (valgfritt)</option>
               <option value={PriceZone.ALL}>Alle soner</option>
@@ -743,7 +788,7 @@ export default function StartHer() {
             </StatusNote>
           )}
 
-          {effectiveZone && (
+          {hasSearched && effectiveZone && (
             <StatusNote>
               <div style={{ marginTop: '1rem', color: 'var(--gray-700)' }}>
                 Viser avtaler for <strong>{effectiveZone}</strong>{inferred && !zone ? ' (fra postnummer)' : ''} (inkl. Alle soner).
@@ -752,9 +797,9 @@ export default function StartHer() {
           )}
 
           <Plans>
-            {loading && <div>Laster…</div>}
+            {hasSearched && loading && <div>Laster…</div>}
             {error && <div style={{ color: '#b91c1c' }}>Feil: {error}</div>}
-            {effectiveZone && filteredPlans.map((plan) => {
+            {hasSearched && effectiveZone && filteredPlans.map((plan) => {
               const isExpanded = selectedPlan?.id === plan.id;
               const affiliateUrl = resolvePlanAffiliateLink(plan);
               const showAffiliate =
@@ -875,7 +920,7 @@ export default function StartHer() {
                 </PlanRow>
               );
             })}
-            {effectiveZone && !loading && filteredPlans.length === 0 && (
+            {hasSearched && effectiveZone && !loading && filteredPlans.length === 0 && (
               <div style={{ color: 'var(--gray-700)', marginTop: 8 }}>Ingen avtale for valgt område akkurat nå.</div>
             )}
           </Plans>

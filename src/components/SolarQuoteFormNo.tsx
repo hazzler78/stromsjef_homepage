@@ -10,6 +10,7 @@ import {
   normalizeNorwegianPhone,
 } from '@/lib/norwegian-lead-validation';
 import { isSolarLeadsEnabledClient } from '@/lib/solar-leads-enabled';
+import { getTrustedFormCertUrl } from '@/lib/trustedFormClient';
 
 const Section = styled.section`
   background: linear-gradient(160deg, rgba(0, 106, 167, 0.15) 0%, rgba(254, 204, 0, 0.08) 100%);
@@ -286,6 +287,7 @@ export default function SolarQuoteFormNo() {
           ref: ref || 'sol_laddbox',
           campaignCode: campaignCode || undefined,
           formType: 'sol_laddbox',
+          xxTrustedFormCertUrl: getTrustedFormCertUrl(),
         }),
       });
 

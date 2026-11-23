@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 // removed unused createClient
 import { getSupabaseServerClient } from '@/lib/supabaseServer';
+import { appendTrustedFormToMessage } from '@/lib/trustedFormClient';
 
 // Sanitize Telegram envs (strip quotes/trim)
 function sanitizeEnv(value: string | undefined): string | undefined {
@@ -19,7 +20,8 @@ const TELEGRAM_CHAT_IDS: string[] = (sanitizeEnv(RAW_TELEGRAM_CHAT_IDS) || '')
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, channel, followers, notes, ref, campaignCode } = await request.json();
+    const { name, email, channel, followers, notes, ref, campaignCode, xxTrustedFormCertUrl } =
+      await request.json();
 
     if (!email || !email.includes('@') || !name) {
       return NextResponse.json({ error: 'Ogiltiga fält' }, { status: 400 });
@@ -42,7 +44,10 @@ export async function POST(request: NextRequest) {
       await supabase.from('contacts').insert([{
         name,
         email,
-        message: `Kanal: ${channel || '-'}\nFöljare: ${followers || '-'}\nAnteckningar: ${notes || '-'}`,
+        message: appendTrustedFormToMessage(
+          `Kanal: ${channel || '-'}\nFöljare: ${followers || '-'}\nAnteckningar: ${notes || '-'}`,
+          xxTrustedFormCertUrl
+        ),
         ref: ref || 'affiliate',
         campaign_code: campaignCode || null,
         subscribe_newsletter: false,

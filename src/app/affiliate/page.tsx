@@ -2,6 +2,7 @@
 
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
+import { getTrustedFormCertUrl } from '@/lib/trustedFormClient';
 
 const Section = styled.section`
   padding: 4rem 0;
@@ -170,7 +171,12 @@ export default function AffiliatePage() {
       const res = await fetch('/api/affiliate/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, ref, campaignCode: campaign }),
+        body: JSON.stringify({
+          ...form,
+          ref,
+          campaignCode: campaign,
+          xxTrustedFormCertUrl: getTrustedFormCertUrl(),
+        }),
       });
       if (!res.ok) throw new Error('Request failed');
       setStatus('success');
@@ -187,7 +193,12 @@ export default function AffiliatePage() {
       const res = await fetch('/api/partner/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...companyForm, ref, campaignCode: campaign }),
+        body: JSON.stringify({
+          ...companyForm,
+          ref,
+          campaignCode: campaign,
+          xxTrustedFormCertUrl: getTrustedFormCertUrl(),
+        }),
       });
       if (!res.ok) throw new Error('Request failed');
       setCompanyStatus('success');

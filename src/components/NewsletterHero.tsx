@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { getTrustedFormCertUrl } from '@/lib/trustedFormClient';
 import styled from 'styled-components';
 
 const NewsletterHeroSection = styled.section`
@@ -325,7 +326,12 @@ export default function NewsletterHero() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, ref, campaignCode }),
+        body: JSON.stringify({
+          email,
+          ref,
+          campaignCode,
+          xxTrustedFormCertUrl: getTrustedFormCertUrl(),
+        }),
       });
       
       if (response.ok) {

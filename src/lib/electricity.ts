@@ -25,29 +25,65 @@ export interface ElectricityPlan {
   sortOrder?: number;
 }
 
-// Norwegian postal code to bidding zone.
-// Ranges follow fylke, not a complete Bring register:
-// NO1 Østlandet (Oslo, Akershus, Østfold, Buskerud, Innlandet, Vestfold)
-// NO2 Sørlandet (Telemark, Agder, Rogaland)
-// NO3 Midt-Norge (Møre og Romsdal, Trøndelag)
-// NO4 Nord-Norge (Nordland, Troms, Finnmark)
-// NO5 Vestlandet (Vestland)
-// Reported misses: Tønsberg/Holmestrand (31xx, 3089) are NO1. Skien (37xx) is NO2.
-export function inferZoneFromPostalCode(postalCode: string): PriceZone | undefined {
-  const code = postalCode.replace(/\s+/g, '');
-  if (!/^\d{4}$/.test(code)) return undefined;
+import postnrToZoneData from './postnrToZone.json';
 
-  const n = parseInt(code, 10);
+const postnrToZone = postnrToZoneData as Record<string, PriceZone>;
 
-  if (n >= 0 && n <= 3649) return PriceZone.NO1;
-  if (n >= 3650 && n <= 4999) return PriceZone.NO2;
+/** Coarse fallback when a valid 4-digit code is missing from the Bring-based table (rare). */
+function inferZoneFromPostalCodeRanges(n: number): PriceZone | undefined {
+  if (n >= 0 && n <= 1999) return PriceZone.NO1;
+  if (n >= 2000 && n <= 2999) return PriceZone.NO1;
+  if (n >= 3000 && n <= 3999) return PriceZone.NO2;
+  if (n >= 4000 && n <= 4999) return PriceZone.NO2;
   if (n >= 5000 && n <= 5999) return PriceZone.NO5;
-  if (n >= 6000 && n <= 6699) return PriceZone.NO3;
-  if (n >= 6700 && n <= 6999) return PriceZone.NO5;
+  if (n >= 6000 && n <= 6999) return PriceZone.NO3;
   if (n >= 7000 && n <= 7999) return PriceZone.NO3;
   if (n >= 8000 && n <= 9999) return PriceZone.NO4;
-
   return undefined;
+}
+
+/** Map Norwegian postnummer (4 digits, leading zeros allowed) to bidding zone NO1–NO5. */
+export function inferZoneFromPostalCode(postalCode: string): PriceZone | undefined {
+  if (postalCode == null) return undefined;
+  const code = String(postalCode).replace(/\s+/g, '');
+  if (!/^\d{4}$/.test(code)) return undefined;
+
+  const fromTable = postnrToZone[code];
+  if (fromTable) return fromTable;
+
+  return inferZoneFromPostalCodeRanges(parseInt(code, 10));
+}
+
+/** When catalog rows exist for both a zone and ALL, keep the zone-specific price row. */
+export function preferZoneSpecificPlans<T extends { supplierName: string; planName: string; priceZone: PriceZone }>(
+  plans: T[],
+  zone: PriceZone
+): T[] {
+  if (zone === PriceZone.ALL) return plans;
+
+  const byKey = new Map<string, T[]>();
+  for (const plan of plans) {
+    const key = `${plan.supplierName}\u0000${plan.planName}`;
+    const list = byKey.get(key) ?? [];
+    list.push(plan);
+    byKey.set(key, list);
+  }
+
+  const result: T[] = [];
+  for (const group of byKey.values()) {
+    const zoneSpecific = group.find((p) => p.priceZone === zone);
+    if (zoneSpecific) {
+      result.push(zoneSpecific);
+      continue;
+    }
+    const national = group.find((p) => p.priceZone === PriceZone.ALL);
+    if (national) {
+      result.push(national);
+      continue;
+    }
+    result.push(...group);
+  }
+  return result;
 }
 
 export const mockElectricityPlans: ElectricityPlan[] = [

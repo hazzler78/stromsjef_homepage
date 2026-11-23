@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import styled from 'styled-components';
+import { getTrustedFormCertUrl } from '@/lib/trustedFormClient';
 
 const ContactFormContainer = styled.div`
   background: rgba(255, 255, 255, 0.95);
@@ -155,11 +156,12 @@ export default function ChatContactForm({ onClose, onSubmitted }: ChatContactFor
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          ...formData, 
-          ref: ref || 'chat', 
+        body: JSON.stringify({
+          ...formData,
+          ref: ref || 'chat',
           campaignCode,
-          formType: 'chat'
+          formType: 'chat',
+          xxTrustedFormCertUrl: getTrustedFormCertUrl(),
         }),
       });
 

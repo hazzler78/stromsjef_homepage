@@ -53,6 +53,8 @@ export interface ContactFormData {
   phone?: string;
   subscribeNewsletter: boolean;
   message?: string;
+  /** ActiveProspect TrustedForm certificate URL (browser-only). */
+  xxTrustedFormCertUrl?: string;
   /** Poststed (Otovo/sol-skjema) */
   city?: string;
   /** Gateadresse */
