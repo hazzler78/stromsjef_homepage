@@ -175,12 +175,90 @@ export const SALESYS_FORM_IDS = {
 } as const;
 
 /**
- * Salesys product ids for setProduct().
- * TODO: per-plan product ids are pending from Salesys — use the shared Kilden id for all Kilden plans until then.
+ * Active private `product_id_sale` values from
+ * https://elifyassets.blob.core.windows.net/offers/kilden-kraft/offers.json
+ * (segment=private, status=active). Keyed by offer id slug.
  */
 export const SALESYS_PRODUCT_IDS = {
+  /** @deprecated Prefer salesysProductIdForKildenPlan — Fastpris 1 år fallback. */
   kilden: '66c4dcdf6953b53b564c3c1c',
+  'fastpris-1-ar': '66c4dcdf6953b53b564c3c1c',
+  'fastpris-2-ar': '66c4dd496953b53b564c3c1d',
+  'fastpris-3-ar': '66c4dd936953b53b564c3c1e',
+  'fastpris-avtale': '6a799167bbc759727f2fa3ac',
+  'spot-garanti': '661be4e26af5bc6924c4bb4f',
+  /** Spotpris 5.9 øre / 59 kr (offers id spotpris-2fa3aa). */
+  spotpris: '6a797ff7bbc759727f2fa3aa',
+  /** Spotpris 14.9 øre / 35 kr (offers id spot-standard-0c99c5). */
+  'spot-standard': '665cdf42e6c3cf2ccf0c99c5',
+  'kilden-sesong': '69f87db6baf066358ee7c2e2',
+  'kilden-rabatt-6': '698b2df961b509ef4d91d198',
+  'kilden-flyttefordel': '6a01aab3baf066358ee7c52a',
 } as const;
+
+function normalizePlanLabel(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/æ/g, 'ae')
+    .replace(/ø/g, 'o')
+    .replace(/å/g, 'a')
+    .replace(/\s+/g, ' ');
+}
+
+/**
+ * Map a Kilden card to Salesys setProduct id.
+ * Returns null when the plan has no matching active private offer — callers
+ * should fall back to the affiliate link instead of opening the inline form.
+ */
+export function salesysProductIdForKildenPlan(plan: {
+  planName: string;
+  bindingTime: number;
+}): string | null {
+  const name = normalizePlanLabel(plan.planName);
+  const months = plan.bindingTime;
+
+  if (/spot\s*garanti/.test(name)) return SALESYS_PRODUCT_IDS['spot-garanti'];
+  if (/flyttefordel/.test(name)) return SALESYS_PRODUCT_IDS['kilden-flyttefordel'];
+  if (/sesong/.test(name)) return SALESYS_PRODUCT_IDS['kilden-sesong'];
+  if (/rabatt/.test(name) && (months === 6 || /\b6\b/.test(name))) {
+    return SALESYS_PRODUCT_IDS['kilden-rabatt-6'];
+  }
+
+  if (/fastpris/.test(name)) {
+    if (/5\s*(ar|aar|år)/.test(plan.planName.toLowerCase()) || months === 60) {
+      // Private feed has no Fastpris 5 år — business-only in offers.json.
+      return null;
+    }
+    if (
+      /6\s*(mnd|maned|måned)/.test(plan.planName.toLowerCase()) ||
+      months === 6
+    ) {
+      // No private fixed 6-month product_id_sale in the active feed.
+      return null;
+    }
+    if (/3\s*(ar|aar|år)/.test(plan.planName.toLowerCase()) || months === 36) {
+      return SALESYS_PRODUCT_IDS['fastpris-3-ar'];
+    }
+    if (/2\s*(ar|aar|år)/.test(plan.planName.toLowerCase()) || months === 24) {
+      return SALESYS_PRODUCT_IDS['fastpris-2-ar'];
+    }
+    if (/1\s*(ar|aar|år)/.test(plan.planName.toLowerCase()) || months === 12) {
+      return SALESYS_PRODUCT_IDS['fastpris-1-ar'];
+    }
+    if (/avtale/.test(name) || months === 0) {
+      return SALESYS_PRODUCT_IDS['fastpris-avtale'];
+    }
+    return null;
+  }
+
+  if (/spot(\s*pris)?/.test(name) || name === 'spot') {
+    if (/standard|14[.,]?9/.test(name)) return SALESYS_PRODUCT_IDS['spot-standard'];
+    return SALESYS_PRODUCT_IDS.spotpris;
+  }
+
+  return null;
+}
 
 export function contractTypeFromPlan(bindingTime: number): 'rorligt' | 'fastpris' {
   return bindingTime > 0 ? 'fastpris' : 'rorligt';

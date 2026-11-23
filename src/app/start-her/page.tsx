@@ -14,7 +14,6 @@ import {
 import { createClient } from '@supabase/supabase-js';
 import {
   SALESYS_FORM_IDS,
-  SALESYS_PRODUCT_IDS,
   canTrackAnalytics,
   canTrackMarketing,
   captureUtmFromUrl,
@@ -23,6 +22,7 @@ import {
   getStoredUtm,
   isKildenSupplier,
   observeSalesysSuccess,
+  salesysProductIdForKildenPlan,
   trackFunnelEvent,
 } from '@/lib/funnelTracking';
 import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
@@ -533,8 +533,9 @@ export default function StartHer() {
   );
 
   const handleSelectPlan = (plan: ElectricityPlanWithBadge) => {
-    const useInlineSalesys =
-      ENABLE_INLINE_SALESYS_FORM && isKildenSupplier(plan.supplierName);
+    const salesysProductId =
+      isKildenSupplier(plan.supplierName) ? salesysProductIdForKildenPlan(plan) : null;
+    const useInlineSalesys = ENABLE_INLINE_SALESYS_FORM && Boolean(salesysProductId);
 
     // Toggle collapse when tapping the already-expanded Kilden card (restores chat FAB).
     if (useInlineSalesys && selectedPlan?.id === plan.id) {
@@ -606,7 +607,7 @@ export default function StartHer() {
     });
 
     if (!useInlineSalesys) {
-      // Affiliate path (all non-Kilden, or when inline Salesys is disabled).
+      // Affiliate: non-Kilden, unmatched Kilden product_id_sale, or inline Salesys disabled.
       trackFunnelEvent({
         eventId: generateEventId(),
         metaEvent: 'InitiateCheckout',
@@ -624,7 +625,7 @@ export default function StartHer() {
       return;
     }
 
-    // Kilden Kraft: inline Salesys under #bytteskjema
+    // Kilden Kraft with known product_id_sale: inline Salesys under #bytteskjema
     purchaseTrackedRef.current = false;
     setSalesysLoadState('loading');
     salesysUsableRef.current = false;
@@ -632,6 +633,23 @@ export default function StartHer() {
     setSelectedPlan(plan);
     setFormMountKey((k) => k + 1);
   };
+
+  const handleSalesysMessage = useCallback(
+    (data: unknown) => {
+      // Salesys iframe posts resize/alert reliably; purchase/thank-you is usually
+      // only visible in the DOM (see observeSalesysSuccess). If a clear success
+      // signal appears on the wire, fire purchase once as a belt-and-suspenders.
+      if (!selectedPlan || purchaseTrackedRef.current) return;
+      const d = data as { type?: string; event?: string; status?: string; action?: string } | null;
+      if (!d || typeof d !== 'object') return;
+      const token = [d.type, d.event, d.status, d.action].filter(Boolean).join(' ').toLowerCase();
+      if (!token) return;
+      if (/(success|submit|complete|thank|done|purchase|order|confirmation)/.test(token)) {
+        trackPurchase(selectedPlan);
+      }
+    },
+    [selectedPlan, trackPurchase]
+  );
 
   const handleSalesysUsable = useCallback(() => {
     salesysUsableRef.current = true;
@@ -863,6 +881,7 @@ export default function StartHer() {
                   </PlanCard>
                   {ENABLE_INLINE_SALESYS_FORM &&
                     isKildenSupplier(plan.supplierName) &&
+                    Boolean(salesysProductIdForKildenPlan(plan)) &&
                     isExpanded && (
                     <InlineFormPanel id="bytteskjema">
                       <FormIntro>
@@ -883,12 +902,13 @@ export default function StartHer() {
                           key={formMountKey}
                           containerId={SALESYS_CONTAINER_ID}
                           formId={SALESYS_FORM_IDS.kilden}
-                          productId={SALESYS_PRODUCT_IDS.kilden}
+                          productId={salesysProductIdForKildenPlan(plan) ?? undefined}
                           options={salesysOptions}
                           defaultFields={salesysDefaultFields}
                           onReady={onSalesysReady}
                           onLoadStateChange={setSalesysLoadState}
                           onFormUsable={handleSalesysUsable}
+                          onMessage={handleSalesysMessage}
                         />
                       </SalesysFormBleed>
                       {salesysLoadState === 'loading' && !affiliateFallbackDue && (

@@ -38,6 +38,12 @@ type SalesysFormProps = {
   onLoadStateChange?: (state: SalesysLoadState) => void;
   /** Fired when Salesys posts a resize with real form height (cross-origin usable signal). */
   onFormUsable?: () => void;
+  /**
+   * Raw Salesys iframe postMessage payload (after alert/resize handling).
+   * Observed types so far: `{ type: "resize", height }` and `{ alert: string }`.
+   * Success/thank-you is not reliably posted — prefer DOM observeSalesysSuccess.
+   */
+  onMessage?: (data: unknown) => void;
 };
 
 declare global {
@@ -68,12 +74,14 @@ export default function SalesysForm({
   onReady,
   onLoadStateChange,
   onFormUsable,
+  onMessage,
 }: SalesysFormProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
   const onReadyRef = useRef(onReady);
   const onLoadStateRef = useRef(onLoadStateChange);
   const onFormUsableRef = useRef(onFormUsable);
+  const onMessageRef = useRef(onMessage);
   const defaultFieldsRef = useRef(defaultFields);
   const optionsRef = useRef(options);
   const productIdRef = useRef(productId);
@@ -82,6 +90,7 @@ export default function SalesysForm({
   onReadyRef.current = onReady;
   onLoadStateRef.current = onLoadStateChange;
   onFormUsableRef.current = onFormUsable;
+  onMessageRef.current = onMessage;
   defaultFieldsRef.current = defaultFields;
   optionsRef.current = options;
   productIdRef.current = productId;
@@ -127,6 +136,7 @@ export default function SalesysForm({
             if (data?.type === "resize" && typeof data.height === "number" && data.height >= MIN_USABLE_FORM_HEIGHT) {
               signalUsable();
             }
+            onMessageRef.current?.(data);
           },
         };
         const formInstance = window.createWebForm(container, formId, mergedOptions);
