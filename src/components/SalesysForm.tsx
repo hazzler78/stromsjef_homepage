@@ -22,6 +22,9 @@ type SalesysFormOptions = {
   themeHostname?: string;
   theme?: Record<string, unknown>;
   loadBackground?: string;
+  navigateNewPage?: boolean;
+  autoScrollOffset?: number;
+  autoScrollPast?: string;
 };
 
 export type SalesysLoadState = "loading" | "ready" | "failed";

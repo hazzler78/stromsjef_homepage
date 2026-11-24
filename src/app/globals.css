@@ -77,6 +77,14 @@ body {
   padding-top: 5.5rem; /* Account for fixed banner height with extra space for mobile */
 }
 
+/* Fixed bottom nav — keep scrollable content clear on narrow viewports */
+/* BottomNav is fixed; keep scrollable content above it (matches ~100px cookie offset budget). */
+@media (max-width: 767px) {
+  #app {
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -391,9 +399,8 @@ p {
   animation: shimmer 2s infinite;
 }
 
-/* Cookie consent banner styling */
-/* Our cookie consent component handles its own styling via styled-components */
-/* This ensures navigation stays above cookie banner */
+/* Fixed bottom nav; cookie banner z-index/offset lives in CookieConsent.tsx */
+nav[data-bottom-nav="true"],
 nav[style*="z-index"],
 .nav,
 .bottom-nav {

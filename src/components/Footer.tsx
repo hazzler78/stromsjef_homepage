@@ -3,6 +3,7 @@
 import styled from 'styled-components';
 import Link from 'next/link';
 import { withDefaultCtaUtm } from '@/lib/utm';
+import { openCookieSettings } from '@/lib/cookieSettings';
 import { FaEnvelope, FaFacebook, FaInstagram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { SiTiktok } from 'react-icons/si';
@@ -147,6 +148,25 @@ export default function Footer() {
               <li><Link href={withDefaultCtaUtm('/vilkar', 'footer', 'legal-villkor')}>Bruksvilkår</Link></li>
               <li><Link href={withDefaultCtaUtm('/personvernpolicy', 'footer', 'legal-integritet')}>Personvernpolicy</Link></li>
               <li><Link href={withDefaultCtaUtm('/cookies', 'footer', 'legal-cookies')}>Cookies</Link></li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => openCookieSettings()}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    color: 'inherit',
+                    font: 'inherit',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '2px',
+                  }}
+                >
+                  Cookie-innstillinger
+                </button>
+              </li>
               <li><Link href={withDefaultCtaUtm('/gdpr', 'footer', 'legal-gdpr')}>GDPR</Link></li>
             </ul>
           </FooterColumn>

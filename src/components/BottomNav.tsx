@@ -9,6 +9,7 @@ import { withDefaultCtaUtm } from '@/lib/utm';
 const Nav = styled.nav<{ offset?: number }>`
   position: fixed;
   bottom: ${(props) => (props.offset ? `${props.offset}px` : '0')};
+  margin-bottom: 0;
   left: 0;
   right: 0;
   background: rgba(255, 255, 255, 0.95);
@@ -19,6 +20,7 @@ const Nav = styled.nav<{ offset?: number }>`
   justify-content: space-around;
   align-items: center;
   padding: 0.5rem 0;
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
   box-shadow: var(--glass-shadow-light);
   z-index: 1003 !important;
 `;
@@ -55,190 +57,9 @@ const ActiveIndicator = styled.div`
 
 function BottomNavContent() {
   const pathname = usePathname();
-  const [bottomOffset, setBottomOffset] = useState(0);
 
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof document === 'undefined') return;
-
-    const selectCookieBannerElement = (): HTMLElement | null => {
-      // Comprehensive list of cookie banner selectors for different browsers and implementations
-      const candidates = [
-        // Our custom cookie consent banner
-        '[data-cookie-banner="true"]',
-        
-        // Cookiebot specific (legacy support)
-        '#CybotCookiebotDialog',
-        '[id^="CybotCookiebot"]',
-        '#CookiebotDialog',
-        '.CookieConsent',
-        '.CookiebotWidget',
-        '#CookieConsent',
-        '#CookieDeclaration',
-        '.cookieconsent',
-        '.cookie-declaration',
-        
-        // Generic cookie-related selectors
-        '[id*="cookie"]',
-        '[class*="cookie"]',
-        '[id*="Cookie"]',
-        '[class*="Cookie"]',
-        
-        // Safari-specific and other common patterns
-        '[id*="consent"]',
-        '[class*="consent"]',
-        '[id*="Consent"]',
-        '[class*="Consent"]',
-        '[id*="gdpr"]',
-        '[class*="gdpr"]',
-        '[id*="GDPR"]',
-        '[class*="GDPR"]',
-        
-        // Fixed positioned elements at bottom that might be cookie banners
-        '[style*="position: fixed"][style*="bottom"]',
-        '[style*="position:fixed"][style*="bottom"]',
-        
-        // Common cookie banner classes
-        '.cookie-banner',
-        '.cookie-notice',
-        '.privacy-banner',
-        '.consent-banner',
-        '.gdpr-banner',
-        '.cookie-policy',
-        '.cookie-widget',
-        '.cookie-popup',
-        '.cookie-modal',
-        '.cookie-overlay',
-        
-        // More specific patterns
-        '[data-testid*="cookie"]',
-        '[data-testid*="consent"]',
-        '[aria-label*="cookie"]',
-        '[aria-label*="consent"]',
-        '[title*="cookie"]',
-        '[title*="consent"]',
-      ];
-      
-      for (const selector of candidates) {
-        try {
-          const elements = document.querySelectorAll(selector);
-          for (const el of elements) {
-            const htmlEl = el as HTMLElement;
-            if (htmlEl && isElementVisible(htmlEl)) {
-              return htmlEl;
-            }
-          }
-        } catch {
-          // Skip invalid selectors
-          continue;
-        }
-      }
-      
-      // Fallback: look for any fixed positioned element at the bottom
-      const allElements = document.querySelectorAll('*');
-      for (const el of allElements) {
-        const htmlEl = el as HTMLElement;
-        if (htmlEl && htmlEl.style) {
-          const style = window.getComputedStyle(htmlEl);
-          const rect = htmlEl.getBoundingClientRect();
-          
-          // Check if element is fixed positioned and at bottom
-          if (style.position === 'fixed' && 
-              rect.bottom > window.innerHeight - 50 && 
-              rect.height > 20 && 
-              isElementVisible(htmlEl)) {
-            return htmlEl;
-          }
-        }
-      }
-      
-      return null;
-    };
-
-    const isElementVisible = (el: HTMLElement): boolean => {
-      const style = window.getComputedStyle(el);
-      if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
-      const rect = el.getBoundingClientRect();
-      return rect.height > 0 && rect.width > 0;
-    };
-
-    const updateOffset = () => {
-      try {
-        const banner = selectCookieBannerElement();
-        if (banner && isElementVisible(banner)) {
-          const rect = banner.getBoundingClientRect();
-          
-          // Check if banner is overlapping with bottom navigation area
-          const navHeight = 80; // Approximate height of bottom nav
-          const isOverlappingNav = rect.bottom > window.innerHeight - navHeight;
-          
-          // Debug logging (only in development) - reduced frequency
-          if (process.env.NODE_ENV === 'development' && Math.random() < 0.1) {
-            console.log('Cookie banner detected:', {
-              height: rect.height,
-              bottom: rect.bottom,
-              windowHeight: window.innerHeight,
-              isOverlappingNav,
-              element: banner
-            });
-          }
-          
-          if (isOverlappingNav) {
-            // Let CSS handle the positioning with margin-bottom instead of forcing position
-            // Only ensure proper z-index layering
-            const el = banner as HTMLElement;
-            el.style.zIndex = '1002'; // Below our nav (1003)
-            
-            // Add margin-bottom to push content up from navigation
-            const safeAreaBottom = window.CSS?.supports?.('padding: env(safe-area-inset-bottom)') ? 'env(safe-area-inset-bottom, 0px)' : '0px';
-            el.style.marginBottom = `calc(${safeAreaBottom} + 100px)`;
-            
-            // No offset needed for nav since CSS handles spacing
-            setBottomOffset(0);
-          } else {
-            setBottomOffset(0);
-          }
-        } else {
-          setBottomOffset(0);
-        }
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error updating bottom nav offset:', error);
-        }
-        setBottomOffset(0);
-      }
-    };
-
-    // Initial check
-    updateOffset();
-
-    // Recalculate on resize and orientation changes
-    const handleResize: EventListener = () => updateOffset();
-    const handleOrientationChange: EventListener = () => updateOffset();
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleOrientationChange);
-
-    // Observe DOM mutations to detect when Cookiebot injects/hides the banner
-    const observer = new MutationObserver(() => updateOffset());
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
-
-    // Reduced polling frequency to avoid console spam
-    const pollInterval = window.innerWidth <= 768 ? 2000 : 3000;
-    const interval = window.setInterval(updateOffset, pollInterval);
-    
-    // Immediate check after a short delay for Safari
-    const immediateCheck = window.setTimeout(updateOffset, 100);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleOrientationChange);
-      observer.disconnect();
-      window.clearInterval(interval);
-      window.clearTimeout(immediateCheck);
-    };
-  }, []);
-  
   return (
-    <Nav offset={bottomOffset} data-bottom-nav="true">
+    <Nav data-bottom-nav="true">
       <NavItem href={withDefaultCtaUtm('/', 'bottomnav', 'home')} className={pathname === '/' ? 'active' : ''}>
         Hjem
         {pathname === '/' && <ActiveIndicator />}
@@ -275,4 +96,4 @@ export default function BottomNav() {
   }
 
   return <BottomNavContent />;
-} 
+}

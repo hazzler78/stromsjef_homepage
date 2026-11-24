@@ -6,6 +6,7 @@ import { initializeMetaPixel } from './MetaPixel';
 import { initializeTikTokPixel } from './TikTokPixel';
 import { initializeTrustedForm } from './TrustedForm';
 import { initializeGa4 } from './Ga4';
+import { OPEN_COOKIE_SETTINGS_EVENT } from '@/lib/cookieSettings';
 
 const CookieBanner = styled.div<{ $isVisible: boolean }>`
   position: fixed;
@@ -18,18 +19,14 @@ const CookieBanner = styled.div<{ $isVisible: boolean }>`
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
-  z-index: 1002;
+  /* Above fixed bottom nav (1003) when consent is showing */
+  z-index: 1010;
   transform: ${props => props.$isVisible ? 'translateY(0)' : 'translateY(100%)'};
   transition: transform 0.3s ease-in-out;
   
-  /* Identifier for navigation components */
-  &[data-cookie-banner="true"] {
-    /* This attribute helps other components detect the banner */
-  }
-  
-  @media (max-width: 600px) {
+  @media (max-width: 767px) {
+    bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
     padding: 1rem;
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   }
 `;
 
@@ -150,15 +147,9 @@ const SettingsButton = styled.button`
     fill: var(--primary);
   }
   
-  @media (max-width: 600px) {
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 100px);
-    width: 44px;
-    height: 44px;
-    
-    svg {
-      width: 20px;
-      height: 20px;
-    }
+  /* Mobile: use footer "Cookie-innstillinger" link instead of this FAB */
+  @media (max-width: 767px) {
+    display: none;
   }
 `;
 
@@ -170,14 +161,16 @@ const SettingsModal = styled.div<{ $isOpen: boolean }>`
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
-  z-index: 1003;
+  z-index: 1020;
   display: ${props => props.$isOpen ? 'flex' : 'none'};
   align-items: center;
   justify-content: center;
   padding: 1rem;
   
-  @media (max-width: 600px) {
+  @media (max-width: 767px) {
     align-items: flex-end;
+    padding: 0;
+    padding-bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
   }
 `;
 
@@ -191,10 +184,14 @@ const SettingsContent = styled.div`
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   
-  @media (max-width: 600px) {
+  @media (max-width: 767px) {
     border-radius: 1rem 1rem 0 0;
-    max-height: 90vh;
+    max-height: min(
+      90vh,
+      calc(100dvh - 3.75rem - env(safe-area-inset-bottom, 0px) - 1rem)
+    );
     padding: 1.5rem;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
 `;
 
@@ -317,6 +314,12 @@ export default function CookieConsent() {
   });
 
   useEffect(() => {
+    const onOpenSettings = () => setShowSettings(true);
+    window.addEventListener(OPEN_COOKIE_SETTINGS_EVENT, onOpenSettings);
+    return () => window.removeEventListener(OPEN_COOKIE_SETTINGS_EVENT, onOpenSettings);
+  }, []);
+
+  useEffect(() => {
     // Check if user has already given consent
     const consent = localStorage.getItem(COOKIE_KEY);
     const savedPreferences = localStorage.getItem(COOKIE_PREFERENCES_KEY);
@@ -411,7 +414,7 @@ export default function CookieConsent() {
 
   return (
     <>
-      <CookieBanner $isVisible={isVisible} data-cookie-banner="true">
+      <CookieBanner $isVisible={isVisible && !showSettings} data-cookie-banner="true">
         <CookieContent>
           <CookieText>
             <p>

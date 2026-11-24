@@ -16,6 +16,12 @@ import { getMetaPixelId } from '@/lib/metaPixelId';
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover' as const,
+};
+
 export const metadata: Metadata = {
   title: "Strømsjef – Sammenlign og bytt strømavtale enkelt | Gratis strømpris-sammenligning",
   description: "Finn og bytt til det beste strømavtalet for deg. Sammenlign strømpriser fra alle leverandører gratis. Vi håndterer hele byttet for deg - raskt og enkelt.",
