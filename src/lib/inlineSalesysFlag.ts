@@ -1,7 +1,6 @@
 /**
- * Inline Salesys embed on /start-her for Kilden Kraft plans.
- * Off by default — deploys from master keep affiliate CTAs unless explicitly enabled.
- * Set NEXT_PUBLIC_ENABLE_INLINE_SALESYS_FORM=true at build time to re-enable.
+ * PREVIEW BRANCH ONLY (`cursor/salesys-inline-on-preview`):
+ * Inline Salesys always on so Cloudflare Pages preview can be tested
+ * without build env. Do not merge — revert to env-gated flag on master.
  */
-export const ENABLE_INLINE_SALESYS_FORM =
-  process.env.NEXT_PUBLIC_ENABLE_INLINE_SALESYS_FORM === 'true';
+export const ENABLE_INLINE_SALESYS_FORM = true;
