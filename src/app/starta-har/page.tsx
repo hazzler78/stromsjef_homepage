@@ -10,6 +10,7 @@ import {
   getSupplierLogoUrl,
   preferZoneSpecificPlans,
 } from '@/lib/electricity';
+import { normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
 import { createClient } from '@supabase/supabase-js';
 
 const Section = styled.section`
@@ -467,8 +468,9 @@ export default function StartaHar() {
                         }).catch(() => {});
                       }
                       
-                      if (plan.affiliateLink) {
-                        window.open(plan.affiliateLink, '_blank');
+                      const affiliateUrl = normalizeExternalUrl(plan.affiliateLink);
+                      if (affiliateUrl) {
+                        window.open(affiliateUrl, '_blank', 'noopener,noreferrer');
                       }
                     }}
                     aria-label={`Velg ${plan.supplierName} ${plan.planName}`}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminRequest } from '@/lib/adminAuth';
+import { normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
 import { getSupabaseServerClient } from '@/lib/supabaseServer';
 
 export const runtime = 'edge';
@@ -32,6 +33,9 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabaseServerClient();
     const id = String(row.id).trim();
+    if (typeof row.affiliate_link === 'string') {
+      row.affiliate_link = normalizeExternalUrl(row.affiliate_link) || null;
+    }
     const { data: existing } = await supabase.from('electricity_plans').select('id').eq('id', id).maybeSingle();
 
     if (existing) {

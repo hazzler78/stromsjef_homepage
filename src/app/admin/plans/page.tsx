@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { getSupplierLogoUrl } from '@/lib/electricity';
 import { adminFetch, storeAdminPassword } from '@/lib/adminClient';
+import { normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
 
 type PriceZone = 'ALL' | 'NO1' | 'NO2' | 'NO3' | 'NO4' | 'NO5';
 
@@ -140,9 +141,11 @@ export default function AdminPlans() {
     setSaving(true);
     setError(null);
     try {
+      const affiliateLink = normalizeExternalUrl(plan.affiliate_link);
       const row = {
         ...plan,
         id: plan.id.trim(),
+        affiliate_link: affiliateLink || null,
       } as Plan;
       if (!row.id) throw new Error('ID krävs');
       const res = await adminFetch('/api/admin/electricity-plans', {

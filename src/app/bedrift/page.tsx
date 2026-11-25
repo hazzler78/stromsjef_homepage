@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import GlassButton from '@/components/GlassButton';
 import { PriceZone, getSupplierLogoUrl } from '@/lib/electricity';
+import { normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
 import { createClient } from '@supabase/supabase-js';
 
 const Section = styled.section`
@@ -173,7 +174,9 @@ export default function Bedrift() {
           <Plans>
             {loading && <div>Laster…</div>}
             {error && <div style={{ color: '#b91c1c' }}>Feil: {error}</div>}
-            {!loading && plans.map(plan => (
+            {!loading && plans.map(plan => {
+              const affiliateHref = normalizeExternalUrl(plan.affiliate_link);
+              return (
               <PlanCard key={plan.id}>
                 <Logo className="logo" src={plan.logo_url || getSupplierLogoUrl(plan.supplier_name)} alt={`${plan.supplier_name} logo`} />
                 <div className="details">
@@ -206,16 +209,15 @@ export default function Bedrift() {
                       </span>
                     )}
                     <GlassButton
+                    as={affiliateHref ? 'a' : 'button'}
+                    href={affiliateHref || undefined}
+                    target={affiliateHref ? '_blank' : undefined}
+                    rel={affiliateHref ? 'noopener noreferrer' : undefined}
                     variant="secondary"
                     size="sm"
                     background="linear-gradient(135deg, var(--secondary), var(--primary))"
                     disableScrollEffect={true}
                     disableHoverEffect={true}
-                    onClick={() => {
-                      if (plan.affiliate_link) {
-                        window.open(plan.affiliate_link, '_blank');
-                      }
-                    }}
                     aria-label={`Les mer om ${plan.supplier_name} ${plan.plan_name}`}
                   >
                     Les mer
@@ -223,7 +225,8 @@ export default function Bedrift() {
                   </div>
                 </div>
               </PlanCard>
-            ))}
+              );
+            })}
             {!loading && plans.length === 0 && !error && (
               <div style={{ color: 'var(--gray-700)', marginTop: 8 }}>Ingen bedriftsavtaler tilgjengelig akkurat nå.</div>
             )}
