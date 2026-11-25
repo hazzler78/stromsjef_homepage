@@ -17,7 +17,8 @@
     "test:visitors-per-sale-subrequests": "node scripts/test-visitors-per-sale-subrequests.js",
     "test:runtime-env-jwt": "node scripts/test-runtime-env-jwt.js",
     "test:salesys-cache-pick": "node scripts/test-salesys-cache-pick.js",
-    "test:postal-zones": "npx tsx scripts/test-postal-zone-mapping-tsx.ts"
+    "test:postal-zones": "npx tsx scripts/test-postal-zone-mapping-tsx.ts",
+    "test:normalize-external-url": "npx tsx scripts/test-normalize-external-url.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

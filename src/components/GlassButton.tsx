@@ -173,6 +173,7 @@ export default function GlassButton({
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
+        textDecoration: 'none',
         lineHeight: 1.2,
         maxWidth: '100%',
         ...(background ? { background } : {}),
