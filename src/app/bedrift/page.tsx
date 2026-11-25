@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import GlassButton from '@/components/GlassButton';
 import { PriceZone, getSupplierLogoUrl } from '@/lib/electricity';
 import { normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
+import { normalizeSupabaseProjectUrl } from '@/lib/supabaseUrl';
 import { createClient } from '@supabase/supabase-js';
 
 const Section = styled.section`
@@ -111,7 +112,9 @@ export default function Bedrift() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined;
+    const supabaseUrl = normalizeSupabaseProjectUrl(
+      process.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined
+    );
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string | undefined;
     if (!supabaseUrl || !supabaseKey) return;
     setLoading(true);
